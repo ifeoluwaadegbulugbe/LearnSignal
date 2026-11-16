@@ -4,7 +4,7 @@ import { GenerateRequest, modelResponseJsonSchema } from '@/lib/ai/exerciseSchem
 import { exercisePrompt } from '@/lib/ai/prompts';
 import { runGeneration, parseModelJson, type ModelCaller } from '@/lib/ai/generate';
 import { AIUnavailableError, aiConfig, getClient, withRetry } from '@/lib/ai/gemini';
-import { aiRateLimited, logAI } from '@/lib/server/engine';
+import { aiRateLimited, logAI, userAiEnabled } from '@/lib/server/engine';
 import { logServerError } from '@/lib/result';
 
 export const runtime = 'nodejs';
@@ -25,7 +25,9 @@ export async function POST(req: Request) {
 
   let caller: ModelCaller | null = null;
   let notice: string | undefined;
-  if (aiConfig().ready) {
+  const userOn = await userAiEnabled(supabase, user.id);
+  if (!userOn) notice = 'AI is turned off in your Settings — showing built-in practice.';
+  else if (aiConfig().ready) {
     caller = async (prompt) => withRetry(async () => {
       const { ai, model } = getClient();
       const res = await ai.models.generateContent({

@@ -1,26 +1,61 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+/* LearnSignal design tokens (master prompt §4). Light theme only: classroom devices, printed reports. */
+@theme {
+  --color-bg: #FAF8F4;
+  --color-surface: #FFFFFF;
+  --color-ink: #1B2A2F;
+  --color-muted: #55646A;
+  --color-line: #E4DFD6;
+  --color-primary: #0F6B5C;
+  --color-primary-dark: #0B5247;
+  --color-primary-soft: #E3F1EE;
+  --color-accent: #F2A93B;
+  --color-accent-soft: #FDF1DD;
+  --color-sky: #3A86C8;
+  --color-sky-soft: #E6F0F9;
+  --color-danger: #A3402E; /* teacher UI destructive actions only — never in child mode */
+
+  --color-st-notyet: #C77D1A;
+  --color-st-notyet-soft: #FBEFDC;
+  --color-st-developing: #3A86C8;
+  --color-st-developing-soft: #E6F0F9;
+  --color-st-consistent: #2E9E6B;
+  --color-st-consistent-soft: #E1F3EA;
+  --color-st-insufficient: #8A9499;
+  --color-st-insufficient-soft: #EEF0F1;
+
+  --font-sans: var(--font-jakarta), ui-sans-serif, system-ui, sans-serif;
+  --font-child: var(--font-nunito), ui-rounded, system-ui, sans-serif;
+
+  --radius-card: 14px;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
-
+html { color-scheme: light; }
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--color-bg);
+  color: var(--color-ink);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+}
+
+:focus-visible {
+  outline: 3px solid var(--color-sky);
+  outline-offset: 2px;
+  border-radius: 6px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+}
+
+@keyframes ls-pulse { 0%, 100% { opacity: 1 } 50% { opacity: .45 } }
+.ls-skeleton { animation: ls-pulse 1.4s ease-in-out infinite; background: #ECE7DE; border-radius: 10px; }
+
+dialog::backdrop { background: rgb(27 42 47 / 0.45); }
+
+@media print {
+  .no-print { display: none !important; }
+  body { background: white; }
+  .print-break { break-inside: avoid; }
 }

@@ -6,7 +6,7 @@ import { runAssistant, type Content } from '@/lib/ai/assistant';
 import { TOOL_DECLARATIONS } from '@/lib/ai/tools';
 import { ASSISTANT_SYSTEM_PROMPT } from '@/lib/ai/prompts';
 import { loadClassSnapshot } from '@/lib/server/snapshot';
-import { aiRateLimited, logAI } from '@/lib/server/engine';
+import { aiRateLimited, logAI, userAiEnabled } from '@/lib/server/engine';
 import { logServerError } from '@/lib/result';
 
 export const runtime = 'nodejs';
@@ -22,6 +22,7 @@ export async function POST(req: Request) {
   const parsed = Body.safeParse(await req.json().catch(() => null));
   if (!parsed.success) return err('invalid', parsed.error.issues[0]?.message ?? 'Invalid question.', 400);
   if (!aiConfig().ready) return err('ai_unavailable', 'The assistant is unavailable (AI is off or not configured). Dashboards still work.', 503);
+  if (!(await userAiEnabled(supabase, user.id))) return err('ai_unavailable', 'AI is turned off in your Settings.', 503);
   if (await aiRateLimited(supabase, user.id)) return err('rate_limited', 'Please wait a minute before asking again.', 429);
 
   const snap = await loadClassSnapshot(supabase, parsed.data.classroomId).catch((e) => { logServerError('assistant.snapshot', e); return null; });

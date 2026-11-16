@@ -48,6 +48,16 @@ export async function deleteClassroom(classroomId: string, confirmName: string):
   return ok(null);
 }
 
+export async function setAiEnabled(enabled: boolean): Promise<Result<null>> {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return fail('unauthenticated', 'Please sign in.');
+  const { error } = await supabase.from('profiles').update({ ai_enabled: !!enabled }).eq('id', user.id);
+  if (error) return fail('db', 'Could not save.');
+  revalidatePath('/', 'layout');
+  return ok(null);
+}
+
 export async function updateProfile(input: unknown): Promise<Result<null>> {
   const parsed = z.object({ fullName: z.string().trim().min(1).max(80) }).safeParse(input);
   if (!parsed.success) return fail('invalid', 'Please enter your name.', zodFields(parsed.error.issues));

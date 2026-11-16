@@ -13,6 +13,7 @@ create extension if not exists pgcrypto;
 create table profiles (
   id uuid primary key references auth.users(id) on delete cascade,
   full_name text not null,
+  ai_enabled boolean not null default true, -- per-teacher AI switch (Settings); AI_ENABLED env is the global switch
   created_at timestamptz not null default now()
 );
 create table schools (

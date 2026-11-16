@@ -80,6 +80,12 @@ export async function createRuleRecommendation(supabase: SupabaseClient, learner
   return data?.id ?? null;
 }
 
+/** Per-teacher AI switch from Settings (defaults to on). */
+export async function userAiEnabled(supabase: SupabaseClient, userId: string) {
+  const { data } = await supabase.from('profiles').select('ai_enabled').eq('id', userId).single();
+  return data?.ai_enabled !== false;
+}
+
 /** Simple per-user rate limit backed by ai_logs (no extra service). */
 export async function aiRateLimited(supabase: SupabaseClient, userId: string, perMinute = 10) {
   const since = new Date(Date.now() - 60_000).toISOString();
