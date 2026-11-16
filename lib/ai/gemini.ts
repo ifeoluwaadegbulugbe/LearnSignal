@@ -56,6 +56,7 @@ export async function withRetry<T>(fn: (attempt: number) => Promise<T>, opts: { 
   }
   if (lastErr instanceof AIUnavailableError) throw lastErr;
   const status = statusOf(lastErr);
+  console.error(`[learnsignal] model call failed (status ${status ?? 'n/a'}): ${(lastErr as Error)?.message?.slice(0, 300)}`);
   throw new AIUnavailableError(
     status === 429 ? 'The AI service is rate-limited right now.' : 'The AI service did not respond.',
     status === 429 ? 'rate_limited' : 'upstream',

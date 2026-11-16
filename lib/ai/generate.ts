@@ -42,6 +42,8 @@ export async function runGeneration(
     tokensIn = res.tokensIn; tokensOut = res.tokensOut;
     raw = parseModelJson(res.text);
   } catch (err) {
+    // Prompts contain skill facts only (no learner data), so the error message is safe to log.
+    console.error(`[learnsignal] generate fallback: ${err instanceof Error ? err.message.slice(0, 300) : String(err)}`);
     const notice = err instanceof Error && /rate/i.test(err.message) ? 'AI is busy (rate limit) — showing built-in practice.' : unavailableNotice;
     return { items: seedFill(args.count, new Set()), report: null, aiItems: 0, seedItems: Math.min(args.count, seed.items.length), fallback: 'full', notice, tokensIn, tokensOut };
   }
