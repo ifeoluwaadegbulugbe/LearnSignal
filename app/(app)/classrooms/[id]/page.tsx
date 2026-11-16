@@ -1,99 +1,152 @@
-import Link from 'next/link';
-import { Users, ClipboardCheck, AlertCircle, Boxes, UserPlus, ChevronRight } from 'lucide-react';
-import { distribution, getClassroom, getGroups } from '@/lib/server/classroom';
+import { Plus, ArrowRight } from 'lucide-react';
+import { getClassroom, getGroups } from '@/lib/server/classroom';
 import { SKILL_BY_ID } from '@/lib/content/skills';
+import { STATUS } from '@/components/ui/status';
 import { ButtonLink } from '@/components/ui/button';
-import { Card, PageHeader, SampleDataBanner, Stat, NotADiagnosis } from '@/components/ui/primitives';
+import { IndexCard, NotADiagnosis, SampleDataBadge, SectionHeader, SummaryStrip } from '@/components/ui/primitives';
+import { NextStepCard, Timeline } from '@/components/ui/cards';
 import { EmptyState } from '@/components/ui/states';
-import { StateBadge } from '@/components/ui/state-badge';
-import { DistributionChart } from '@/components/charts/distribution-chart';
-import { pct } from '@/lib/utils';
+import { AvatarStack } from '@/components/ui/avatar';
+import { MeterRing, StateBar } from '@/components/ui/viz';
+import { ClassLadderBoard, type LadderLearner } from '@/components/learner/class-ladder';
+import { fmtDate, pct } from '@/lib/utils';
+import { Greeting } from './home-client';
+import type { SkillStateName } from '@/lib/scoring/skillState';
 
-export const metadata = { title: 'Class dashboard' };
+export const metadata = { title: 'Today' };
+const RANK: Record<SkillStateName, number> = { insufficient: 0, not_yet: 1, developing: 2, consistent: 3 };
 
-export default async function ClassroomDashboard({ params }: { params: Promise<{ id: string }> }) {
+export default async function Today({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const [{ classroom, learners }, groups] = await Promise.all([getClassroom(id), getGroups(id)]);
+  const [{ classroom, learners, ctx }, groups] = await Promise.all([getClassroom(id), getGroups(id)]);
+  const ids = learners.map((l) => l.id);
+  const [{ data: assignments }, { data: history }] = ids.length ? await Promise.all([
+    ctx.supabase.from('assignments').select('learner_id, status, exercises(skill_id)').in('learner_id', ids),
+    ctx.supabase.from('skill_state_history').select('learner_id, skill_id, state, created_at').in('learner_id', ids).order('created_at'),
+  ]) : [{ data: [] }, { data: [] }];
+
+  const firstName = ctx.fullName.split(' ')[0];
   const assessed = learners.filter((l) => l.states.length > 0);
-  const attention = assessed.filter((l) => l.states.some((s) => s.state === 'not_yet' && SKILL_BY_ID[s.skill_id].sequence <= 3) || l.states.some((s) => s.retest_suggested));
-  const dist = distribution(learners);
+  const notAssessed = learners.filter((l) => l.states.length === 0);
+  const closer = assessed.filter((l) => l.states.some((s) => s.retest_suggested) || l.states.some((s) => s.state === 'not_yet' && SKILL_BY_ID[s.skill_id].sequence <= 3));
+  const grouped = new Set(groups.flatMap((g) => g.members.map((m) => m.id)));
+  const ungrouped = assessed.filter((l) => (l.working.literacy || l.working.numeracy) && !grouped.has(l.id));
+  const recheck = assessed.filter((l) => l.states.some((s) => s.retest_suggested));
+
+  const ladder: LadderLearner[] = learners.map((l) => ({
+    id: l.id, name: l.display_name, code: l.code, working: l.working, assessed: l.states.length > 0,
+    states: l.states.map((s) => ({ skill_id: s.skill_id, state: s.state, confidence: s.confidence, provisional: s.provisional })),
+    recheck: {
+      literacy: l.states.some((s) => s.retest_suggested && SKILL_BY_ID[s.skill_id].strand === 'literacy'),
+      numeracy: l.states.some((s) => s.retest_suggested && SKILL_BY_ID[s.skill_id].strand === 'numeracy'),
+    },
+  }));
+
+  // One rules-based next step.
+  const next = notAssessed.length
+    ? { id: `assess-${id}`, sentence: `Check ${notAssessed.length} learner${notAssessed.length === 1 ? ' who hasn’t' : 's who haven’t'} been assessed yet`, detail: 'A baseline takes about 8–10 minutes per strand.', href: `/learners/${notAssessed[0].id}/assess`, cta: `Start with ${notAssessed[0].display_name}` }
+    : ungrouped.length
+      ? { id: `groups-${id}`, sentence: `Review suggested groups for ${ungrouped.length} learner${ungrouped.length === 1 ? '' : 's'}`, detail: 'Grouped by the skill each child is working on. You decide.', href: `/classrooms/${id}/groups`, cta: 'Open groups' }
+      : recheck.length
+        ? { id: `recheck-${id}`, sentence: `Re-check ${recheck.length} learner${recheck.length === 1 ? '' : 's'} whose latest session differs`, detail: 'A short re-check gives a clearer picture than one session.', href: `/learners/${recheck[0].id}/assess`, cta: `Re-check ${recheck[0].display_name}` }
+        : null;
+
+  // Recent changes: real state moves from history (newest first), plus re-checks due.
+  const prev = new Map<string, SkillStateName>();
+  const moves: { id: string; title: string; meta: string; href: string; tone: 'leaf' | 'sky' | 'sun' }[] = [];
+  for (const h of history ?? []) {
+    const k = `${h.learner_id}|${h.skill_id}`;
+    const before = prev.get(k);
+    const now = h.state as SkillStateName;
+    if (before && before !== now && now !== 'insufficient') {
+      const l = learners.find((x) => x.id === h.learner_id);
+      if (l) moves.push({
+        id: `${k}|${h.created_at}`, href: `/learners/${l.id}`,
+        title: `${l.display_name} ${RANK[now] > RANK[before] ? 'moved to' : 'is now'} ${STATUS[now].label.toLowerCase()} on ${h.skill_id}`,
+        meta: `${SKILL_BY_ID[h.skill_id].shortName} · ${fmtDate(h.created_at)}`, tone: RANK[now] > RANK[before] ? 'leaf' : 'sky',
+      });
+    }
+    prev.set(k, now);
+  }
+  const timeline = [
+    ...(recheck.length ? [{ id: 'recheck', title: `${recheck.length} re-check${recheck.length === 1 ? '' : 's'} suggested`, meta: recheck.map((l) => l.display_name).slice(0, 4).join(', '), href: `/learners/${recheck[0].id}`, tone: 'sun' as const }] : []),
+    ...moves.reverse().slice(0, 6),
+  ];
+
+  if (learners.length === 0) {
+    return (
+      <>
+        <div className="mb-7 space-y-2">{classroom.is_demo && <SampleDataBadge />}<Greeting firstName={firstName} className={classroom.name} learners={0} /></div>
+        <EmptyState illustration="empty-learners" title="Add your first learners" body="Add first names or nicknames, then run a short check for each child to see which skills they have demonstrated."
+          action={<ButtonLink href={`/classrooms/${id}/learners?add=1`}><Plus className="size-4" aria-hidden /> Add learners</ButtonLink>}
+          secondary={<ButtonLink href="/onboarding" variant="secondary">Load demo class</ButtonLink>} />
+      </>
+    );
+  }
 
   return (
-    <>
-      {classroom.is_demo && <SampleDataBanner className="mb-4" />}
-      <PageHeader title={classroom.name} subtitle={`${classroom.grade_label} · English`}
-        actions={<>
-          <ButtonLink href={`/classrooms/${id}/learners`} variant="secondary"><UserPlus className="size-4" aria-hidden /> Learners</ButtonLink>
-          <ButtonLink href={`/classrooms/${id}/groups`}><Boxes className="size-4" aria-hidden /> Plan groups</ButtonLink>
-        </>} />
+    <div className="space-y-8">
+      <div className="flex flex-col gap-5 xl:flex-row xl:items-end xl:justify-between fade-up">
+        <div className="space-y-2">{classroom.is_demo && <SampleDataBadge />}<Greeting firstName={firstName} className={classroom.name} learners={learners.length} /></div>
+        <SummaryStrip items={[
+          { label: 'Learners', value: learners.length },
+          { label: 'Checked', value: `${pct(assessed.length, learners.length)}%` },
+          { label: 'Need a closer look', value: closer.length },
+        ]} />
+      </div>
 
-      {learners.length === 0 ? (
-        <EmptyState icon={<Users className="size-6" />} title="Add your first learner" body="Add first names or nicknames, then run a 10-minute check for each child."
-          action={<ButtonLink href={`/classrooms/${id}/learners?add=1`}>Add learners</ButtonLink>} />
-      ) : (
-        <div className="space-y-6">
-          <div className="grid gap-4 sm:grid-cols-3">
-            <Stat label="Learners" value={learners.length} icon={<Users className="size-5" />} />
-            <Stat label="Assessed" value={`${pct(assessed.length, learners.length)}%`} sub={`${assessed.length} of ${learners.length}`} icon={<ClipboardCheck className="size-5" />} />
-            <Stat label="Needs attention" value={attention.length} sub="early-skill gaps or retest suggested" icon={<AlertCircle className="size-5" />} />
-          </div>
+      {next && <NextStepCard id={next.id} sentence={next.sentence} detail={next.detail} action={<ButtonLink href={next.href} variant="sun">{next.cta}<ArrowRight className="size-4" aria-hidden /></ButtonLink>} />}
 
-          {assessed.length === 0 ? (
-            <EmptyState icon={<ClipboardCheck className="size-6" />} title="No one assessed yet" body="Open a learner and start a literacy or numeracy check. It takes about 8–10 minutes per strand."
-              action={<ButtonLink href={`/learners/${learners[0].id}/assess`}>Assess {learners[0].display_name}</ButtonLink>} />
+      <section aria-labelledby="ladder">
+        <SectionHeader id="ladder" title="Class ladder" info="Each dot is a learner, placed on the rung they are working on now. Click a rung or a dot for details." />
+        <IndexCard className="fade-up"><ClassLadderBoard learners={ladder} /></IndexCard>
+      </section>
+
+      <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_340px]">
+        <section aria-labelledby="groups" id="groups">
+          <SectionHeader id="groups-h" title="Groups" href={`/classrooms/${id}/groups`} linkLabel="Plan groups" />
+          {groups.length === 0 ? (
+            <EmptyState illustration="empty-groups" title="No groups yet" body={assessed.length ? 'Suggested groups are ready in the planner.' : 'Check learners to form groups.'}
+              action={<ButtonLink href={`/classrooms/${id}/groups`} variant="secondary">Open groups</ButtonLink>} />
           ) : (
-            <div className="grid gap-4 lg:grid-cols-2">
-              <Card><DistributionChart title="Literacy: learners per state" data={dist.filter((d) => d.strand === 'literacy')} /></Card>
-              <Card><DistributionChart title="Numeracy: learners per state" data={dist.filter((d) => d.strand === 'numeracy')} /></Card>
+            <div className="grid gap-5 sm:grid-cols-2 stagger">
+              {groups.slice(0, 4).map((g) => {
+                const rows = (assignments ?? []).filter((a) => g.members.some((m) => m.id === a.learner_id) && (a.exercises as unknown as { skill_id: string })?.skill_id === g.target_skill_id);
+                const done = rows.filter((r) => r.status === 'completed').length;
+                const counts = { not_yet: 0, developing: 0, consistent: 0, insufficient: 0 };
+                for (const m of g.members) {
+                  const st = learners.find((l) => l.id === m.id)?.states.find((s) => s.skill_id === g.target_skill_id)?.state;
+                  if (st) counts[st]++;
+                }
+                return (
+                  <IndexCard key={g.id} tab="Group" interactive>
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="min-w-0">
+                        <h3 className="truncate font-heading text-[16px] font-semibold">{g.name}</h3>
+                        <p className="font-mono text-[12px] text-ink-2">{g.target_skill_id} · {g.members.length} learner{g.members.length === 1 ? '' : 's'}</p>
+                      </div>
+                      <MeterRing value={rows.length ? pct(done, rows.length) : 0} size={44} label={`${g.name} practice completed`}>
+                        <span className="text-[11px] font-bold tabular">{rows.length ? `${done}/${rows.length}` : '—'}</span>
+                      </MeterRing>
+                    </div>
+                    <div className="mt-3"><AvatarStack people={g.members.map((m) => ({ name: m.name, seed: m.code }))} max={6} /></div>
+                    <div className="mt-4"><StateBar counts={counts} label={`${g.name} states on ${g.target_skill_id}`} /></div>
+                    <div className="mt-4"><ButtonLink href={`/classrooms/${id}/groups`} variant="secondary" size="sm">Open</ButtonLink></div>
+                  </IndexCard>
+                );
+              })}
             </div>
           )}
+        </section>
 
-          <div className="grid gap-4 lg:grid-cols-2">
-            <Card>
-              <div className="mb-3 flex items-center justify-between">
-                <h2 className="text-lg font-bold">Groups</h2>
-                <Link href={`/classrooms/${id}/groups`} className="text-[14px] font-semibold text-primary underline">Open planner</Link>
-              </div>
-              {groups.length === 0 ? (
-                <p className="text-[15px] text-muted">No accepted groups yet. {assessed.length ? 'Open the planner to see suggested groups.' : 'Assess learners to form groups.'}</p>
-              ) : (
-                <ul className="divide-y divide-line">
-                  {groups.slice(0, 5).map((g) => (
-                    <li key={g.id} className="flex items-center justify-between py-2.5">
-                      <span><b>{g.name}</b> <span className="text-[13px] text-muted">· {g.target_skill_id}</span></span>
-                      <span className="text-[14px] text-muted">{g.members.length} learner{g.members.length === 1 ? '' : 's'}</span>
-                    </li>
-                  ))}
-                </ul>
-              )}
-            </Card>
-            <Card>
-              <h2 className="mb-3 text-lg font-bold">Attention list</h2>
-              {attention.length === 0 ? <p className="text-[15px] text-muted">No early-skill gaps flagged right now.</p> : (
-                <ul className="divide-y divide-line">
-                  {attention.slice(0, 8).map((l) => {
-                    const gap = l.states.filter((s) => s.state === 'not_yet').sort((a, b) => SKILL_BY_ID[a.skill_id].sequence - SKILL_BY_ID[b.skill_id].sequence)[0];
-                    const retest = l.states.find((s) => s.retest_suggested);
-                    return (
-                      <li key={l.id}>
-                        <Link href={`/learners/${l.id}`} className="flex min-h-12 items-center justify-between gap-2 py-2 hover:text-primary">
-                          <span><b>{l.display_name}</b> <span className="text-[13px] text-muted">{l.code}</span></span>
-                          <span className="flex items-center gap-2 text-[13px]">
-                            {retest ? <span>{SKILL_BY_ID[retest.skill_id].shortName}: retest suggested</span>
-                              : gap && <><span className="hidden sm:inline">{SKILL_BY_ID[gap.skill_id].shortName}</span><StateBadge state="not_yet" short /></>}
-                            <ChevronRight className="size-4" aria-hidden />
-                          </span>
-                        </Link>
-                      </li>
-                    );
-                  })}
-                </ul>
-              )}
-            </Card>
-          </div>
-          <NotADiagnosis />
-        </div>
-      )}
-    </>
+        <section aria-labelledby="changes">
+          <SectionHeader id="changes" title="Recent changes" href={`/classrooms/${id}/progress`} linkLabel="Insights" />
+          <IndexCard ruled>
+            <Timeline items={timeline} empty="Changes appear here after learners are re-checked or finish practice." />
+          </IndexCard>
+        </section>
+      </div>
+      <NotADiagnosis />
+    </div>
   );
 }

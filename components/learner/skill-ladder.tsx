@@ -30,11 +30,10 @@ export function SkillLadder({ strand, states, evidence = {}, oral = [], compact 
 
   return (
     <div>
-      <div className="mb-1 flex items-center justify-between gap-2">
-        <h3 className="text-[16px] font-semibold capitalize">{strand}</h3>
-      </div>
-      <p className="mb-4 text-[13px] text-ink-2">{summary}</p>
-      <ol className="no-scrollbar -mx-1 flex snap-x overflow-x-auto px-1 pb-2" aria-label={`${strand} skill ladder`}>
+      <h3 className="font-heading text-[18px] font-semibold capitalize">{strand}</h3>
+      <p className="mb-4 mt-0.5 text-[14px] text-ink-2">{summary}</p>
+      {/* Mobile: horizontal snap-scroll. md+: vertical ladder, top = highest skill. */}
+      <ol className={cn('no-scrollbar -mx-1 flex snap-x overflow-x-auto px-1 pb-2 md:mx-0 md:flex-col-reverse md:overflow-visible md:px-0 md:pb-0', compact && 'md:flex-row md:overflow-x-auto')} aria-label={`${strand} skill ladder`}>
         {skills.map((sk, i) => {
           const st = states.find((x) => x.skill_id === sk.id);
           const ui = st ? STATUS[st.state] : null;
@@ -42,20 +41,26 @@ export function SkillLadder({ strand, states, evidence = {}, oral = [], compact 
           const working = i === workingIdx;
           const reached = workingIdx === -1 ? !!st : i < workingIdx;
           return (
-            <li key={sk.id} className={cn('relative flex min-w-[92px] flex-1 snap-start flex-col items-center text-center', compact && 'min-w-[72px]')}>
-              {i > 0 && <span aria-hidden className={cn('absolute right-1/2 top-[22px] h-0.5 w-full -translate-y-1/2', reached || working ? 'bg-primary/60' : 'bg-line')} />}
+            <li key={sk.id} className="relative flex min-w-[96px] flex-1 snap-start flex-col items-center text-center md:min-w-0 md:flex-row md:items-center md:gap-3 md:py-1.5 md:text-left">
+              {/* connector: horizontal on mobile, vertical on md+ */}
+              {i > 0 && <span aria-hidden className={cn('absolute right-1/2 top-[22px] h-1 w-full -translate-y-1/2 rounded-full md:bottom-[-14px] md:left-[20px] md:right-auto md:top-auto md:h-[calc(100%-16px)] md:w-1 md:translate-y-0', reached || working ? 'bg-teal/50' : 'bg-line')} style={{}} />}
               <button
                 onClick={() => st && setOpen(sk.id)} disabled={!st}
                 aria-label={`${sk.id} ${sk.name}: ${st ? STATUS[st.state].label : 'not checked yet'}${working ? ', working skill' : ''}`}
-                className={cn('relative z-10 flex size-11 items-center justify-center rounded-full border-2 text-[12px] font-bold transition-transform enabled:hover:scale-105',
-                  st ? cn(ui!.cls, ui!.ring) : 'border-dashed border-line-strong bg-surface text-ink-3',
-                  working && 'pulse-ring border-primary')}>
+                className={cn('relative z-10 flex size-11 shrink-0 items-center justify-center rounded-full border-2 font-mono text-[12px] transition-transform enabled:hover:scale-105',
+                  st ? cn(ui!.cls, ui!.ring) : 'border-dashed border-line-strong bg-card text-ink-3',
+                  working && 'pulse-ring border-sun')}>
                 {Icon ? <Icon className="size-4" aria-hidden /> : sk.id}
               </button>
-              <span className="mt-2 text-[11px] font-bold text-ink-2">{sk.id}</span>
-              <span className="mt-0.5 line-clamp-2 px-1 text-[12px] leading-4">{sk.shortName}</span>
-              {working && <span className="mt-1.5 rounded-full bg-primary px-2 py-0.5 text-[10px] font-bold text-white">Working here</span>}
-              {st?.retest_suggested && <span className="mt-1 inline-flex items-center gap-0.5 text-[10px] font-semibold text-st-notyet"><RotateCcw className="size-3" aria-hidden />retest</span>}
+              <span className="mt-2 flex min-w-0 flex-col items-center md:mt-0 md:flex-1 md:items-start">
+                <span className="font-mono text-[11px] text-ink-2">{sk.id}</span>
+                <span className="line-clamp-2 px-1 text-[13px] font-medium leading-4 md:px-0">{sk.shortName}</span>
+              </span>
+              <span className="mt-1.5 flex flex-col items-center gap-1 md:mt-0 md:flex-row md:gap-2">
+                {working && <span className="rounded-t-[8px] rounded-br-[8px] bg-sun px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-[#2A1C00]">Working here</span>}
+                {st?.retest_suggested && <span className="inline-flex items-center gap-0.5 text-[11px] font-semibold text-st-notyet"><RotateCcw className="size-3" aria-hidden />retest</span>}
+                {st && <span className="hidden md:inline"><ConfidenceDots confidence={st.confidence} provisional={st.provisional} showLabel={false} /></span>}
+              </span>
             </li>
           );
         })}

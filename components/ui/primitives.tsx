@@ -1,34 +1,81 @@
 import { forwardRef } from 'react';
 import Link from 'next/link';
-import { AlertCircle, ArrowRight, FlaskConical, Info, type LucideIcon } from 'lucide-react';
+import { AlertCircle, ChevronRight, FlaskConical, Info, type LucideIcon } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { IconTile, type Hue } from './icon-tile';
 
+const TINT = { plain: 'bg-card', teal: 'bg-teal-soft', sun: 'bg-sun-soft', sky: 'bg-sky-soft', clay: 'bg-clay-soft', leaf: 'bg-leaf-soft' } as const;
+export type CardTint = keyof typeof TINT;
+
+/**
+ * IndexCard: the notebook card. Optional folded `tab` label top-left, optional margin line, ruled paper.
+ */
+export function IndexCard({ tab, tabTone = 'teal', tint = 'plain', ruled, margin, interactive, className, children, ...p }: React.HTMLAttributes<HTMLDivElement> & {
+  tab?: string; tabTone?: 'teal' | 'sun' | 'sky' | 'clay' | 'stone'; tint?: CardTint; ruled?: boolean; margin?: boolean; interactive?: boolean;
+}) {
+  const tones = { teal: 'bg-teal text-white dark:text-[#06222A]', sun: 'bg-sun text-[#2A1C00]', sky: 'bg-sky text-white', clay: 'bg-clay text-white', stone: 'bg-stone-soft text-ink-2' };
+  return (
+    <div className={cn('relative rounded-[18px] border border-line shadow-card', TINT[tint], tab && 'mt-3', interactive && 'lift', className)} {...p}>
+      {tab && (
+        <span className={cn('absolute -top-3 left-5 inline-flex h-6 items-center rounded-t-[10px] rounded-br-[10px] px-2.5 text-[11px] font-bold uppercase tracking-[.08em] shadow-[0_1px_0_rgba(0,0,0,.06)]', tones[tabTone])}>{tab}</span>
+      )}
+      <div className={cn('relative h-full rounded-[18px] p-5 sm:p-6', ruled && 'ruled', margin && 'margin-line pl-9 sm:pl-10')}>{children}</div>
+    </div>
+  );
+}
+/** Plain card (index card without a tab). */
 export function Card({ className, children, interactive, ...p }: React.HTMLAttributes<HTMLDivElement> & { interactive?: boolean }) {
-  return <div className={cn('rounded-[20px] border border-line bg-surface p-5 shadow-card sm:p-6', interactive && 'lift', className)} {...p}>{children}</div>;
+  return <div className={cn('rounded-[18px] border border-line bg-card p-5 shadow-card sm:p-6', interactive && 'lift', className)} {...p}>{children}</div>;
+}
+
+/** Hand-drawn sun underline for one heading per page. */
+export function ChalkUnderline({ children }: { children: React.ReactNode }) {
+  return (
+    <span className="relative inline-block whitespace-nowrap">
+      {children}
+      <svg viewBox="0 0 200 12" preserveAspectRatio="none" className="absolute -bottom-1.5 left-0 h-3 w-full" aria-hidden>
+        <path d="M2 8c30-5 62-6 96-4s70 3 100-2" stroke="var(--sun)" strokeWidth="4" fill="none" strokeLinecap="round" />
+      </svg>
+    </span>
+  );
 }
 
 export function PageHeader({ title, subtitle, actions, eyebrow, display }: { title: React.ReactNode; subtitle?: React.ReactNode; actions?: React.ReactNode; eyebrow?: React.ReactNode; display?: boolean }) {
   return (
-    <div className="mb-6 flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+    <div className="mb-7 flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
       <div className="min-w-0">
         {eyebrow && <div className="mb-1.5 text-[13px] font-medium text-ink-2">{eyebrow}</div>}
-        <h1 className={cn('font-bold text-ink', display ? 'text-[28px] leading-9 tracking-[-0.02em] sm:text-[40px] sm:leading-[48px]' : 'text-[24px] leading-8 tracking-[-0.01em] sm:text-[28px] sm:leading-9')}>{title}</h1>
-        {subtitle && <p className="mt-1.5 text-[14px] leading-[22px] text-ink-2">{subtitle}</p>}
+        <h1 className={cn('font-heading font-bold text-ink tracking-[-0.02em]', display ? 'text-[30px] leading-9 sm:text-[40px] sm:leading-[46px]' : 'text-[24px] leading-8 sm:text-[30px] sm:leading-[38px]')}>{title}</h1>
+        {subtitle && <p className="mt-1.5 text-[15px] text-ink-2">{subtitle}</p>}
       </div>
       {actions && <div className="flex shrink-0 flex-wrap gap-2 no-print">{actions}</div>}
     </div>
   );
 }
 
-export function SectionHeader({ title, info, href, linkLabel = 'View all', action, id }: { title: string; info?: string; href?: string; linkLabel?: string; action?: React.ReactNode; id?: string }) {
+export function Breadcrumb({ items }: { items: { label: string; href?: string }[] }) {
+  return (
+    <nav aria-label="Breadcrumb" className="mb-3">
+      <ol className="flex flex-wrap items-center gap-1 text-[13px] text-ink-2">
+        {items.map((it, i) => (
+          <li key={i} className="flex items-center gap-1">
+            {i > 0 && <ChevronRight className="size-3.5 text-ink-3" aria-hidden />}
+            {it.href ? <Link href={it.href} className="hover:text-ink hover:underline">{it.label}</Link> : <span aria-current="page" className="font-medium text-ink">{it.label}</span>}
+          </li>
+        ))}
+      </ol>
+    </nav>
+  );
+}
+
+export function SectionHeader({ title, info, href, linkLabel = 'See all', action, id }: { title: string; info?: string; href?: string; linkLabel?: string; action?: React.ReactNode; id?: string }) {
   return (
     <div className="mb-3 flex items-center justify-between gap-3">
-      <h2 id={id} className="flex items-center gap-1.5 text-[18px] font-semibold leading-[26px]">
+      <h2 id={id} className="flex items-center gap-1.5 font-heading text-[20px] font-semibold leading-7">
         {title}
         {info && <Tooltip text={info}><Info className="size-4 text-ink-3" aria-label={info} /></Tooltip>}
       </h2>
-      {href ? <Link href={href} className="text-[13px] font-semibold text-primary underline-offset-4 hover:underline">{linkLabel}</Link> : action}
+      {href ? <Link href={href} className="text-[13px] font-semibold text-teal underline-offset-4 hover:underline">{linkLabel}</Link> : action}
     </div>
   );
 }
@@ -37,7 +84,7 @@ export function Tooltip({ text, children, side = 'top' }: { text: string; childr
   return (
     <span className="group/tt relative inline-flex">
       {children}
-      <span role="tooltip" className={cn('pointer-events-none absolute left-1/2 z-50 w-max max-w-[240px] -translate-x-1/2 rounded-lg bg-ink px-2.5 py-1.5 text-[12px] font-medium leading-4 text-surface opacity-0 shadow-pop transition-opacity duration-150 group-hover/tt:opacity-100 group-focus-within/tt:opacity-100',
+      <span role="tooltip" className={cn('pointer-events-none absolute left-1/2 z-50 w-max max-w-[240px] -translate-x-1/2 rounded-[10px] bg-ink px-2.5 py-1.5 text-[12px] font-medium leading-4 text-paper opacity-0 shadow-pop transition-opacity duration-150 group-hover/tt:opacity-100 group-focus-within/tt:opacity-100',
         side === 'top' ? 'bottom-full mb-2' : 'top-full mt-2')}>{text}</span>
     </span>
   );
@@ -52,13 +99,12 @@ export function Field({ label, htmlFor, error, hint, children, counter }: { labe
       </div>
       {children}
       {hint && !error && <p id={`${htmlFor}-hint`} className="text-[12px] leading-4 text-ink-2">{hint}</p>}
-      {error && <p id={`${htmlFor}-error`} className="flex items-center gap-1 text-[12px] font-medium leading-4 text-amber-ink" role="alert"><AlertCircle className="size-3.5 shrink-0" aria-hidden />{error}</p>}
+      {error && <p id={`${htmlFor}-error`} className="flex items-center gap-1 text-[12px] font-medium leading-4 text-st-notyet" role="alert"><AlertCircle className="size-3.5 shrink-0" aria-hidden />{error}</p>}
     </div>
   );
 }
 
-const inputBase = 'w-full rounded-[12px] border border-line-strong bg-surface px-3.5 min-h-11 text-[14px] text-ink placeholder:text-ink-3 transition-shadow aria-[invalid=true]:border-st-notyet disabled:opacity-60';
-
+const inputBase = 'w-full rounded-[10px] border border-line-strong bg-card px-3.5 min-h-11 text-[15px] text-ink placeholder:text-ink-3 transition-shadow aria-[invalid=true]:border-st-notyet disabled:opacity-60';
 export const Input = forwardRef<HTMLInputElement, React.InputHTMLAttributes<HTMLInputElement> & { invalid?: boolean }>(function Input({ className, invalid, ...p }, ref) {
   return <input ref={ref} aria-invalid={invalid || undefined} aria-describedby={p.id ? (invalid ? `${p.id}-error` : `${p.id}-hint`) : undefined} className={cn(inputBase, className)} {...p} />;
 });
@@ -69,38 +115,43 @@ export const Select = forwardRef<HTMLSelectElement, React.SelectHTMLAttributes<H
   return <select ref={ref} aria-invalid={invalid || undefined} className={cn(inputBase, 'pr-8', className)} {...p}>{children}</select>;
 });
 
-export function Badge({ className, children, tone = 'neutral' }: { className?: string; children: React.ReactNode; tone?: 'neutral' | 'primary' | 'accent' | 'sky' | 'mint' | 'dark' }) {
+export function Badge({ className, children, tone = 'neutral' }: { className?: string; children: React.ReactNode; tone?: 'neutral' | 'primary' | 'accent' | 'sky' | 'mint' | 'dark' | 'sun' | 'teal' }) {
   const tones = {
-    neutral: 'bg-surface-2 text-ink-2 border border-line',
-    primary: 'bg-primary-soft text-primary-ink',
-    accent: 'bg-amber-bg text-amber-ink',
-    sky: 'bg-st-developing-soft text-st-developing',
-    mint: 'bg-mint-bg text-mint-ink',
-    dark: 'bg-ink text-surface',
+    neutral: 'bg-paper-2 text-ink-2 border border-line', primary: 'bg-teal-soft text-teal-ink dark:text-teal', teal: 'bg-teal-soft text-teal-ink dark:text-teal',
+    accent: 'bg-st-notyet-soft text-st-notyet', sky: 'bg-sky-soft text-sky', mint: 'bg-leaf-soft text-st-consistent', dark: 'bg-ink text-paper', sun: 'bg-sun-soft text-sun-ink dark:text-sun',
   };
   return <span className={cn('inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-[12px] font-semibold leading-5', tones[tone], className)}>{children}</span>;
 }
 
-/** Small stat chip (icon tile + number + caption). */
-export function StatChip({ icon, hue = 'indigo', value, label }: { icon: LucideIcon; hue?: Hue; value: React.ReactNode; label: string }) {
+/** Quiet summary strip: figures separated by hairlines (no tiles, no icons). */
+export function SummaryStrip({ items }: { items: { label: string; value: React.ReactNode }[] }) {
   return (
-    <div className="flex min-w-[132px] shrink-0 items-center gap-3 rounded-[14px] border border-line bg-surface px-3.5 py-2.5 shadow-card">
-      <IconTile icon={icon} hue={hue} size={32} />
-      <div>
-        <div className="text-[18px] font-bold leading-6 tabular">{value}</div>
-        <div className="text-[12px] leading-4 text-ink-2">{label}</div>
-      </div>
-    </div>
+    <dl className="grid grid-cols-3 divide-x divide-line rounded-[14px] border border-line bg-card/60 sm:inline-grid sm:auto-cols-fr">
+      {items.map((it) => (
+        <div key={it.label} className="px-4 py-2.5 sm:px-6">
+          <dt className="text-[12px] font-medium tracking-[.02em] text-ink-2">{it.label}</dt>
+          <dd className="font-heading text-[28px] font-bold leading-9 tabular">{it.value}</dd>
+        </div>
+      ))}
+    </dl>
   );
 }
 
-/** Large stat card (icon + big number + label), used in right rails. */
-export function Stat({ label, value, sub, icon, hue = 'grey' }: { label: string; value: React.ReactNode; sub?: React.ReactNode; icon?: LucideIcon; hue?: Hue }) {
+/** Kept for older call sites: a quiet figure card. */
+export function StatChip({ icon, hue = 'teal', value, label }: { icon: LucideIcon; hue?: Hue; value: React.ReactNode; label: string }) {
+  return (
+    <div className="flex min-w-[132px] shrink-0 items-center gap-3 rounded-[14px] border border-line bg-card px-3.5 py-2.5">
+      <IconTile icon={icon} hue={hue} size={32} />
+      <div><div className="font-heading text-[18px] font-bold leading-6 tabular">{value}</div><div className="text-[12px] leading-4 text-ink-2">{label}</div></div>
+    </div>
+  );
+}
+export function Stat({ label, value, sub, icon, hue = 'stone' }: { label: string; value: React.ReactNode; sub?: React.ReactNode; icon?: LucideIcon; hue?: Hue }) {
   return (
     <Card className="flex items-center gap-4 p-5 sm:p-5">
-      {icon && <IconTile icon={icon} hue={hue} size={56} className="rounded-full" />}
+      {icon && <IconTile icon={icon} hue={hue} size={48} />}
       <div className="min-w-0">
-        <div className="text-[32px] font-bold leading-9 tracking-[-0.02em] tabular">{value}</div>
+        <div className="font-heading text-[36px] font-bold leading-10 tracking-[-0.02em] tabular">{value}</div>
         <div className="text-[13px] text-ink-2">{label}</div>
         {sub && <div className="text-[12px] text-ink-3">{sub}</div>}
       </div>
@@ -111,40 +162,36 @@ export function Stat({ label, value, sub, icon, hue = 'grey' }: { label: string;
 export function SampleDataBadge({ className }: { className?: string }) {
   return (
     <Tooltip text="These are synthetic learners created for the demo, not real children.">
-      <span className={cn('inline-flex items-center gap-1.5 rounded-full border border-st-notyet/30 bg-amber-bg px-2.5 py-1 text-[12px] font-semibold text-amber-ink', className)}>
+      <span className={cn('inline-flex items-center gap-1.5 rounded-full border border-line-strong bg-sun-soft px-2.5 py-1 text-[12px] font-semibold text-sun-ink dark:text-sun', className)}>
         <FlaskConical className="size-3.5" aria-hidden /> Illustrative sample data
       </span>
     </Tooltip>
   );
 }
-/** Back-compat: older screens render a banner; it is now the badge. */
-export const SampleDataBanner = ({ className }: { className?: string }) => <div className={cn('mb-1', className)}><SampleDataBadge /></div>;
+export const SampleDataBanner = ({ className }: { className?: string }) => <div className={cn('mb-2', className)}><SampleDataBadge /></div>;
 
 export function NotADiagnosis() {
-  return <p className="mt-8 border-t border-line pt-4 text-[12px] text-ink-3">This shows which skills a child has demonstrated so far. It is not a diagnosis.</p>;
+  return <p className="mt-10 border-t border-dashed border-line-strong pt-4 text-[13px] text-ink-2">This shows which skills a child has demonstrated so far. It is not a diagnosis.</p>;
 }
+export const InlineNote = NotADiagnosis;
 
 export function KeyValue({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <div className="min-w-0">
-      <div className="text-[12px] font-medium leading-4 text-ink-3">{label}</div>
-      <div className="mt-1 truncate text-[14px] font-semibold">{children}</div>
+      <div className="text-[12px] font-medium tracking-[.02em] text-ink-2">{label}</div>
+      <div className="mt-0.5 truncate text-[15px] font-semibold">{children}</div>
     </div>
   );
 }
 
 export const Kbd = ({ children }: { children: React.ReactNode }) => (
-  <kbd className="inline-flex h-5 min-w-5 items-center justify-center rounded-md border border-line-strong bg-surface-2 px-1.5 font-mono text-[11px] font-semibold text-ink-2">{children}</kbd>
+  <kbd className="inline-flex h-5 min-w-5 items-center justify-center rounded-md border border-line-strong bg-paper-2 px-1.5 font-mono text-[11px] text-ink-2">{children}</kbd>
 );
-
-export function LinkArrow({ href, children }: { href: string; children: React.ReactNode }) {
-  return <Link href={href} className="inline-flex items-center gap-1 font-semibold underline underline-offset-4">{children}<ArrowRight className="size-4" aria-hidden /></Link>;
-}
 
 export function LinearProgress({ value, label }: { value: number; label: string }) {
   return (
-    <div role="progressbar" aria-label={label} aria-valuenow={Math.round(value)} aria-valuemin={0} aria-valuemax={100} className="h-2 w-full overflow-hidden rounded-full bg-surface-2">
-      <div className="h-full rounded-full bg-primary transition-[width] duration-500" style={{ width: `${Math.max(0, Math.min(100, value))}%` }} />
+    <div role="progressbar" aria-label={label} aria-valuenow={Math.round(value)} aria-valuemin={0} aria-valuemax={100} className="h-2 w-full overflow-hidden rounded-full bg-paper-2">
+      <div className="h-full rounded-full bg-teal transition-[width] duration-500" style={{ width: `${Math.max(0, Math.min(100, value))}%` }} />
     </div>
   );
 }
