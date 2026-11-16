@@ -2,17 +2,24 @@
 import { useState, useTransition } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { Download, Trash2, RotateCcw, Plus } from 'lucide-react';
+import { Download, Trash2, RotateCcw, Plus, User, GraduationCap, Languages, ShieldCheck, Palette, Database } from 'lucide-react';
 import { Button, ButtonLink } from '@/components/ui/button';
-import { Badge, Card, Field, Input, Select } from '@/components/ui/primitives';
+import { Badge, Field, IndexCard, Input, Select } from '@/components/ui/primitives';
+import { Switch } from '@/components/ui/tabs';
 import { Dialog } from '@/components/ui/dialog';
 import { useToast } from '@/components/ui/toast';
+import { NightSwitch } from '@/components/layout/theme-toggle';
 import { deleteClassroom, setAiEnabled, updateProfile } from '@/lib/actions/setup';
 import { deleteLearner } from '@/lib/actions/learners';
 import { resetDemoClass } from '@/lib/actions/demo';
+import { cn } from '@/lib/utils';
 import type { ClassroomLite } from '@/lib/server/context';
 
 type L = { id: string; code: string; name: string; classroomId: string; archived: boolean; states: { skill_id: string; state: string }[] };
+const SECTIONS = [
+  { id: 'profile', label: 'Profile', icon: User }, { id: 'class', label: 'Classes', icon: GraduationCap }, { id: 'language', label: 'Language', icon: Languages },
+  { id: 'ai', label: 'AI and privacy', icon: ShieldCheck }, { id: 'appearance', label: 'Appearance', icon: Palette }, { id: 'data', label: 'Data', icon: Database },
+];
 
 export function SettingsForms({ fullName, email, aiEnabled, aiServer, schools, classrooms, learners, isDemo }: {
   fullName: string; email: string; aiEnabled: boolean; aiServer: { enabled: boolean; ready: boolean; model: string | null };
@@ -21,91 +28,116 @@ export function SettingsForms({ fullName, email, aiEnabled, aiServer, schools, c
   const router = useRouter();
   const toast = useToast();
   const [pending, start] = useTransition();
+  const [section, setSection] = useState('profile');
   const [name, setName] = useState(fullName);
   const [nameErr, setNameErr] = useState<string>();
   const [del, setDel] = useState<null | { kind: 'class'; c: ClassroomLite; confirm: string; error?: string } | { kind: 'learner'; l: L; confirm: string; error?: string }>(null);
   const [learnerPick, setLearnerPick] = useState('');
 
   const exportCsv = (c: ClassroomLite) => {
-    const rows = [['name', 'code', 'skill', 'state'], ...learners.filter((l) => l.classroomId === c.id).flatMap((l) => (l.states.length ? l.states : [{ skill_id: '', state: 'not assessed' }]).map((s) => [l.name, l.code, s.skill_id, s.state]))];
+    const rows = [['name', 'code', 'skill', 'state', ...(c.is_demo ? ['note'] : [])], ...learners.filter((l) => l.classroomId === c.id).flatMap((l) => (l.states.length ? l.states : [{ skill_id: '', state: 'not checked' }]).map((s) => [l.name, l.code, s.skill_id, s.state, ...(c.is_demo ? ['Illustrative sample data'] : [])]))];
     const body = rows.map((r) => r.map((x) => `"${x.replace(/"/g, '""')}"`).join(',')).join('\n');
     const url = URL.createObjectURL(new Blob([body], { type: 'text/csv' }));
     const a = document.createElement('a'); a.href = url; a.download = `${c.name.replace(/\W+/g, '-')}-skill-states.csv`; a.click(); URL.revokeObjectURL(url);
   };
+  const go = (id: string) => { setSection(id); document.getElementById(`s-${id}`)?.scrollIntoView({ behavior: 'smooth', block: 'start' }); };
 
   return (
-    <div className="grid gap-6 lg:grid-cols-2">
-      <Card>
-        <h2 className="mb-3 text-lg font-bold">Profile</h2>
-        <form className="space-y-3" onSubmit={(e) => { e.preventDefault(); start(async () => {
-          const r = await updateProfile({ fullName: name });
-          if (!r.ok) { setNameErr(r.error.fields?.fullName ?? r.error.message); return; }
-          setNameErr(undefined); toast('Profile saved.'); router.refresh();
-        }); }}>
-          <Field label="Your name" htmlFor="fn" error={nameErr}><Input id="fn" maxLength={80} value={name} onChange={(e) => setName(e.target.value)} invalid={!!nameErr} /></Field>
-          <p className="text-[14px] text-muted">Signed in as {email}</p>
-          <Button type="submit" loading={pending}>Save</Button>
-        </form>
-      </Card>
-
-      <Card>
-        <h2 className="mb-3 text-lg font-bold">AI features</h2>
-        <label className="flex cursor-pointer items-start gap-3">
-          <input type="checkbox" className="mt-1 size-5 accent-[#0F6B5C]" checked={aiEnabled} disabled={pending} onChange={(e) => {
-            const next = e.target.checked; // read before the controlled input re-renders
-            start(async () => {
-              const r = await setAiEnabled(next);
-              if (!r.ok) toast(r.error.message, 'error'); else { toast(next ? 'AI features on.' : 'AI features off. Built-in practice only.'); router.refresh(); }
-            });
-          }} />
-          <span className="text-[15px]">Use AI to draft practice and answer questions. When off, you get built-in practice only and the assistant is disabled.</span>
-        </label>
-        <p className="mt-3 text-[13px] text-muted">
-          Server status: {aiServer.ready ? <>ready{aiServer.model ? <> · model <code>{aiServer.model}</code></> : null}</> : aiServer.enabled ? 'not configured (missing key or model)' : 'turned off by the administrator'}.
-          AI sees learner codes and skill data only, never names.
-        </p>
-      </Card>
-
-      <Card>
-        <div className="mb-3 flex items-center justify-between"><h2 className="text-lg font-bold">Schools and classrooms</h2><ButtonLink size="sm" variant="secondary" href="/onboarding"><Plus className="size-4" aria-hidden /> Add</ButtonLink></div>
-        <ul className="space-y-4">
-          {schools.map((s) => (
-            <li key={s.id}>
-              <div className="flex items-center gap-2 font-semibold">{s.name} <Badge>{s.role}</Badge></div>
-              <ul className="mt-2 divide-y divide-line">
-                {classrooms.filter((c) => c.school_id === s.id).map((c) => (
-                  <li key={c.id} className="flex flex-wrap items-center justify-between gap-2 py-2">
-                    <Link href={`/classrooms/${c.id}`} className="text-[15px] hover:underline">{c.name}{c.is_demo && <Badge tone="accent" className="ml-2">sample</Badge>}</Link>
-                    <span className="flex gap-1">
-                      <Button size="sm" variant="ghost" onClick={() => exportCsv(c)} aria-label={`Export ${c.name}`}><Download className="size-4" /></Button>
-                      <Button size="sm" variant="ghost" onClick={() => setDel({ kind: 'class', c, confirm: '' })} aria-label={`Delete ${c.name}`}><Trash2 className="size-4" /></Button>
-                    </span>
-                  </li>
-                ))}
-              </ul>
-              {(isDemo || classrooms.some((c) => c.school_id === s.id && c.is_demo)) && (
-                <Button size="sm" variant="secondary" className="mt-2" disabled={pending} onClick={() => start(async () => {
-                  const r = await resetDemoClass(s.id);
-                  if (!r.ok) toast(r.error.message, 'error'); else { toast('Demo class reset.'); router.push(`/classrooms/${r.data.classroomId}`); }
-                })}><RotateCcw className="size-4" aria-hidden /> Reset demo class</Button>
-              )}
-            </li>
+    <div className="grid gap-8 lg:grid-cols-[220px_minmax(0,1fr)]">
+      <nav aria-label="Settings sections" className="lg:sticky lg:top-24 lg:self-start">
+        <ul className="no-scrollbar -mx-1 flex gap-1 overflow-x-auto px-1 lg:flex-col">
+          {SECTIONS.map((s) => (
+            <li key={s.id}><button onClick={() => go(s.id)} aria-current={section === s.id ? 'true' : undefined}
+              className={cn('flex min-h-11 w-full shrink-0 items-center gap-2 rounded-[12px] px-3 text-[14px] font-semibold whitespace-nowrap', section === s.id ? 'bg-teal-soft text-teal-ink dark:text-teal' : 'text-ink-2 hover:bg-paper-2 hover:text-ink')}>
+              <s.icon className="size-4" aria-hidden />{s.label}</button></li>
           ))}
         </ul>
-      </Card>
+      </nav>
 
-      <Card>
-        <h2 className="mb-1 text-lg font-bold">Delete a learner&apos;s data</h2>
-        <p className="mb-3 text-[14px] text-muted">Archiving (on the Learners page) hides a child but keeps their history. Deleting removes the learner and all their answers, states and notes permanently.</p>
-        <div className="flex gap-2">
-          <Select aria-label="Learner to delete" value={learnerPick} onChange={(e) => setLearnerPick(e.target.value)}>
-            <option value="">Choose a learner</option>
-            {learners.map((l) => <option key={l.id} value={l.id}>{l.name} ({l.code}){l.archived ? ' · archived' : ''}</option>)}
-          </Select>
-          <Button variant="danger" disabled={!learnerPick} onClick={() => { const l = learners.find((x) => x.id === learnerPick); if (l) setDel({ kind: 'learner', l, confirm: '' }); }}>Delete</Button>
-        </div>
-        <p className="mt-3 text-[13px] text-muted">Retention: data is kept until a teacher deletes it. See the <Link href="/privacy" className="underline">privacy page</Link>.</p>
-      </Card>
+      <div className="space-y-10">
+        <IndexCard tab="Profile" id="s-profile">
+          <form className="max-w-md space-y-4" onSubmit={(e) => { e.preventDefault(); start(async () => {
+            const r = await updateProfile({ fullName: name });
+            if (!r.ok) { setNameErr(r.error.fields?.fullName ?? r.error.message); return; }
+            setNameErr(undefined); toast('Profile saved.'); router.refresh();
+          }); }}>
+            <Field label="Your name" htmlFor="fn" error={nameErr}><Input id="fn" maxLength={80} value={name} onChange={(e) => setName(e.target.value)} invalid={!!nameErr} /></Field>
+            <p className="text-[14px] text-ink-2">Signed in as {email}</p>
+            <Button type="submit" loading={pending}>Save</Button>
+          </form>
+        </IndexCard>
+
+        <IndexCard tab="Classes" id="s-class">
+          <div className="mb-4 flex items-center justify-between gap-2"><p className="text-[15px] text-ink-2">Your schools and classes.</p><ButtonLink size="sm" variant="secondary" href="/onboarding"><Plus className="size-4" aria-hidden /> New class</ButtonLink></div>
+          <ul className="space-y-5">
+            {schools.map((s) => (
+              <li key={s.id}>
+                <div className="flex items-center gap-2 font-heading font-semibold">{s.name} <Badge>{s.role}</Badge></div>
+                <ul className="mt-2 divide-y divide-line rounded-[14px] border border-line">
+                  {classrooms.filter((c) => c.school_id === s.id).map((c) => (
+                    <li key={c.id} className="flex min-h-14 flex-wrap items-center justify-between gap-2 px-4">
+                      <Link href={`/classrooms/${c.id}`} className="text-[15px] font-medium hover:underline">{c.name}{c.is_demo && <Badge tone="sun" className="ml-2">sample</Badge>}</Link>
+                      <span className="text-[13px] text-ink-2">{learners.filter((l) => l.classroomId === c.id && !l.archived).length} learners · {c.grade_label}</span>
+                    </li>
+                  ))}
+                </ul>
+                {(isDemo || classrooms.some((c) => c.school_id === s.id && c.is_demo)) && (
+                  <Button size="sm" variant="secondary" className="mt-3" disabled={pending} onClick={() => start(async () => {
+                    const r = await resetDemoClass(s.id);
+                    if (!r.ok) toast(r.error.message, 'error'); else { toast('Demo class reset.'); router.push(`/classrooms/${r.data.classroomId}`); }
+                  })}><RotateCcw className="size-4" aria-hidden /> Reset demo class</Button>
+                )}
+              </li>
+            ))}
+          </ul>
+          <p className="mt-4 text-[13px] text-ink-2">Renaming a class and inviting co-teachers are not available in this version.</p>
+        </IndexCard>
+
+        <IndexCard tab="Language" id="s-language">
+          <Field label="Content language" htmlFor="lang" hint="Yoruba, Hausa and Igbo content is planned. All practice and checks are in English for now."><Select id="lang" disabled className="max-w-xs"><option>English</option></Select></Field>
+        </IndexCard>
+
+        <IndexCard tab="AI and privacy" id="s-ai">
+          <div className="flex items-start justify-between gap-6">
+            <div>
+              <p className="font-semibold">Use AI for practice drafts and Ask</p>
+              <p className="mt-1 max-w-prose text-[14px] text-ink-2">When on, Google&apos;s Gemini drafts practice questions and answers questions about your class. It receives skill facts and random learner codes only, never names, ages or notes. When off, you get built-in practice and Ask is turned off.</p>
+            </div>
+            <Switch checked={aiEnabled} disabled={pending} label="Use AI" onChange={(v) => start(async () => {
+              const r = await setAiEnabled(v);
+              if (!r.ok) toast(r.error.message, 'error'); else { toast(v ? 'AI features on.' : 'AI features off. Built-in practice only.'); router.refresh(); }
+            })} />
+          </div>
+          <p className="mt-4 text-[13px] text-ink-2">Server status: {aiServer.ready ? <>ready{aiServer.model ? <> · model <span className="font-mono">{aiServer.model}</span></> : null}</> : aiServer.enabled ? 'not configured' : 'turned off by the administrator'}. <Link href="/privacy" className="font-semibold text-teal underline">How we handle data</Link></p>
+        </IndexCard>
+
+        <IndexCard tab="Appearance" id="s-appearance"><NightSwitch /></IndexCard>
+
+        <IndexCard tab="Data" id="s-data" tabTone="clay">
+          <div className="space-y-6">
+            <div>
+              <p className="font-semibold">Export class data</p>
+              <p className="mb-3 text-[14px] text-ink-2">A CSV of each learner&apos;s skill states. Sample-data classes are labelled in the file.</p>
+              <div className="flex flex-wrap gap-2">{classrooms.map((c) => <Button key={c.id} size="sm" variant="secondary" onClick={() => exportCsv(c)}><Download className="size-4" aria-hidden /> {c.name}</Button>)}</div>
+            </div>
+            <div>
+              <p className="font-semibold">Archive a learner</p>
+              <p className="text-[14px] text-ink-2">Archiving hides a child but keeps their history. Do it from the <Link href={classrooms[0] ? `/classrooms/${classrooms[0].id}/learners` : '/dashboard'} className="font-semibold text-teal underline">Learners</Link> page.</p>
+            </div>
+            <div className="rounded-[14px] border border-st-notyet/30 bg-st-notyet-soft p-4">
+              <p className="font-semibold text-st-notyet">Danger zone</p>
+              <p className="mt-1 text-[14px]">Deleting is permanent and removes all answers, skill states and notes.</p>
+              <div className="mt-3 flex flex-wrap items-end gap-2">
+                <div className="min-w-56 flex-1"><label htmlFor="del-learner" className="mb-1.5 block text-[13px] font-semibold">Delete a learner</label>
+                  <Select id="del-learner" value={learnerPick} onChange={(e) => setLearnerPick(e.target.value)}><option value="">Choose a learner</option>{learners.map((l) => <option key={l.id} value={l.id}>{l.name} ({l.code}){l.archived ? ' · archived' : ''}</option>)}</Select></div>
+                <Button variant="quiet-warn" disabled={!learnerPick} onClick={() => { const l = learners.find((x) => x.id === learnerPick); if (l) setDel({ kind: 'learner', l, confirm: '' }); }}><Trash2 className="size-4" aria-hidden /> Delete learner</Button>
+              </div>
+              <div className="mt-4 flex flex-wrap gap-2">{classrooms.map((c) => <Button key={c.id} size="sm" variant="quiet-warn" onClick={() => setDel({ kind: 'class', c, confirm: '' })}><Trash2 className="size-4" aria-hidden /> Delete {c.name}</Button>)}</div>
+              <p className="mt-4 text-[13px] text-ink-2">Deleting your account is not available in this version. Deleting your classes removes all learner data.</p>
+            </div>
+          </div>
+        </IndexCard>
+      </div>
 
       <Dialog open={!!del} onClose={() => setDel(null)} title={del?.kind === 'class' ? `Delete ${del.c.name}?` : del ? `Delete ${del.l.name}?` : ''}>
         {del && (
@@ -114,11 +146,11 @@ export function SettingsForms({ fullName, email, aiEnabled, aiServer, schools, c
             if (!r.ok) { setDel({ ...del, error: r.error.message }); return; }
             toast('Deleted permanently.'); setDel(null); setLearnerPick(''); router.refresh();
           }); }}>
-            <p className="text-[15px]">This permanently deletes {del.kind === 'class' ? 'the classroom, all its learners and all their data' : 'this learner and all their answers, skill states and notes'}. It cannot be undone.</p>
+            <p className="text-[15px]">This permanently deletes {del.kind === 'class' ? 'the class, all its learners and all their data' : 'this learner and all their answers, skill states and notes'}. It can&apos;t be undone.</p>
             <Field label={`Type ${del.kind === 'class' ? 'the class name' : 'the learner code'} to confirm: ${del.kind === 'class' ? del.c.name : del.l.code}`} htmlFor="cf" error={del.error}>
               <Input id="cf" value={del.confirm} onChange={(e) => setDel({ ...del, confirm: e.target.value })} invalid={!!del.error} autoComplete="off" />
             </Field>
-            <div className="flex gap-2"><Button type="submit" variant="danger" loading={pending}>Delete permanently</Button><Button type="button" variant="ghost" onClick={() => setDel(null)}>Cancel</Button></div>
+            <div className="flex gap-2"><Button type="submit" variant="quiet-warn" loading={pending}>Delete permanently</Button><Button type="button" variant="ghost" onClick={() => setDel(null)}>Cancel</Button></div>
           </form>
         )}
       </Dialog>
