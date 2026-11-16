@@ -1,34 +1,50 @@
 'use client';
-import { Bar, BarChart, CartesianGrid, Legend, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
-import { STATE_UI } from '@/components/ui/state-badge';
+import { useState } from 'react';
+import { Bar, BarChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
+import { STATUS } from '@/components/ui/status';
 
 export interface DistRow { skill: string; name: string; not_yet: number; developing: number; consistent: number; insufficient: number }
-
 const ORDER = ['not_yet', 'developing', 'consistent', 'insufficient'] as const;
 
-/** Stacked horizontal bars: learners per state for each skill. Includes a text table for screen readers. */
-export function DistributionChart({ data, title }: { data: DistRow[]; title: string }) {
-  const height = Math.max(180, data.length * 40 + 60);
+/** StateDistributionBar: stacked horizontal bars per skill, legend with counts, text summary and table toggle. */
+export function DistributionChart({ data, title, hideTitle }: { data: DistRow[]; title: string; hideTitle?: boolean }) {
+  const [table, setTable] = useState(false);
+  const totals = ORDER.map((k) => ({ k, n: data.reduce((s, r) => s + r[k], 0) }));
+  const height = Math.max(160, data.length * 38 + 16);
+  const summary = data.map((r) => `${r.name}: ${r.consistent} consistent, ${r.developing} developing, ${r.not_yet} not yet`).join('; ');
   return (
     <figure>
-      <figcaption className="mb-2 font-semibold">{title}</figcaption>
-      <div style={{ height }} aria-hidden>
-        <ResponsiveContainer width="100%" height="100%">
-          <BarChart data={data} layout="vertical" margin={{ left: 8, right: 16, top: 4, bottom: 4 }} barCategoryGap={8}>
-            <CartesianGrid horizontal={false} stroke="#E4DFD6" />
-            <XAxis type="number" allowDecimals={false} tick={{ fontSize: 12, fill: '#55646A' }} />
-            <YAxis type="category" dataKey="name" width={110} tick={{ fontSize: 13, fill: '#1B2A2F' }} />
-            <Tooltip cursor={{ fill: '#F2EEE6' }} contentStyle={{ borderRadius: 12, border: '1px solid #E4DFD6', fontSize: 13 }} />
-            <Legend wrapperStyle={{ fontSize: 12 }} />
-            {ORDER.map((k) => <Bar key={k} dataKey={k} name={STATE_UI[k].short} stackId="a" fill={STATE_UI[k].fill} radius={0} />)}
-          </BarChart>
-        </ResponsiveContainer>
+      <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
+        {!hideTitle ? <figcaption className="text-[16px] font-semibold">{title}</figcaption> : <figcaption className="sr-only">{title}</figcaption>}
+        <button onClick={() => setTable((t) => !t)} className="text-[12px] font-semibold text-primary underline-offset-4 hover:underline">{table ? 'View as chart' : 'View as table'}</button>
       </div>
-      <table className="sr-only">
-        <caption>{title}</caption>
-        <thead><tr><th>Skill</th>{ORDER.map((k) => <th key={k}>{STATE_UI[k].label}</th>)}</tr></thead>
-        <tbody>{data.map((r) => <tr key={r.skill}><td>{r.name}</td>{ORDER.map((k) => <td key={k}>{r[k]}</td>)}</tr>)}</tbody>
-      </table>
+      <ul className="mb-3 flex flex-wrap gap-x-4 gap-y-1" aria-label="Legend">
+        {totals.map(({ k, n }) => (
+          <li key={k} className="flex items-center gap-1.5 text-[12px] text-ink-2"><span className="size-2.5 rounded-full" style={{ background: STATUS[k].fill }} aria-hidden />{STATUS[k].short} <b className="tabular text-ink">{n}</b></li>
+        ))}
+      </ul>
+      {table ? (
+        <div className="overflow-x-auto">
+          <table className="w-full text-left text-[13px]">
+            <thead className="text-[12px] text-ink-3"><tr><th className="py-2 font-medium">Skill</th>{ORDER.map((k) => <th key={k} className="font-medium">{STATUS[k].short}</th>)}</tr></thead>
+            <tbody className="divide-y divide-line tabular">{data.map((r) => <tr key={r.skill} className="h-10"><td>{r.name}</td>{ORDER.map((k) => <td key={k}>{r[k]}</td>)}</tr>)}</tbody>
+          </table>
+        </div>
+      ) : (
+        <>
+          <p className="sr-only">{summary}</p>
+          <div style={{ height }} aria-hidden>
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart data={data} layout="vertical" margin={{ left: 0, right: 8, top: 0, bottom: 0 }} barCategoryGap={10}>
+                <XAxis type="number" hide allowDecimals={false} />
+                <YAxis type="category" dataKey="name" width={104} axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: 'var(--ink-2)' }} />
+                <Tooltip cursor={{ fill: 'var(--surface-2)' }} contentStyle={{ borderRadius: 14, border: '1px solid var(--line)', background: 'var(--surface)', boxShadow: 'var(--shadow-pop)', fontSize: 12 }} />
+                {ORDER.map((k, i) => <Bar key={k} dataKey={k} name={STATUS[k].short} stackId="a" fill={STATUS[k].fill} radius={i === 0 ? [8, 0, 0, 8] : i === ORDER.length - 1 ? [0, 8, 8, 0] : 0} />)}
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+        </>
+      )}
     </figure>
   );
 }

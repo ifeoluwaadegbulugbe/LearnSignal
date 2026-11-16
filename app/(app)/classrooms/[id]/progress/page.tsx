@@ -48,8 +48,8 @@ export default async function ProgressPage({ params, searchParams }: { params: P
       {classroom.is_demo && <SampleDataBanner className="mb-4" />}
       <PageHeader eyebrow={classroom.name} title="Progress" subtitle="Change between each learner's first and latest check, for learners assessed at least twice." />
       <div className="mb-6 grid gap-4 sm:grid-cols-3">
-        <Stat label="Reassessed learners" value={new Set([...perLS.entries()].filter(([, m]) => m.size >= 2).map(([k]) => k.split('|')[0])).size} icon={<TrendingUp className="size-5" />} />
-        <Stat label="Practice completed" value={`${done}/${assignments?.length ?? 0}`} sub={`${pct(done, assignments?.length ?? 0)}% of assigned sets`} icon={<CheckCircle2 className="size-5" />} />
+        <Stat label="Reassessed learners" value={new Set([...perLS.entries()].filter(([, m]) => m.size >= 2).map(([k]) => k.split('|')[0])).size} icon={TrendingUp} hue="indigo" />
+        <Stat label="Practice completed" value={`${done}/${assignments?.length ?? 0}`} sub={`${pct(done, assignments?.length ?? 0)}% of assigned sets`} icon={CheckCircle2} hue="mint" />
         <Stat label="Skills with change data" value={rows.length} />
       </div>
       {rows.length === 0 ? (

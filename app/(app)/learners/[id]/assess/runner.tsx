@@ -199,7 +199,7 @@ export function AssessmentRunner({ learner, isDemo }: { learner: { id: string; c
           {it.content.picture && <p className="mb-3 break-words text-[40px] leading-snug tracking-wider" aria-label={`${[...new Intl.Segmenter().segment(it.content.picture)].length} pictures`}>{it.content.picture}</p>}
           <div className="flex items-start justify-between gap-3">
             <h2 className="text-[28px] font-bold leading-snug">{it.type === 'listen_choose' ? 'Listen…' : it.content.stem}</h2>
-            <Button variant="accent" size="lg" className="shrink-0 rounded-full" onClick={() => speak(audio)} aria-label="Read the question aloud"><Volume2 className="size-6" aria-hidden /></Button>
+            <Button variant="lime" size="lg" className="shrink-0 rounded-full" onClick={() => speak(audio)} aria-label="Read the question aloud"><Volume2 className="size-6" aria-hidden /></Button>
           </div>
           {it.type === 'listen_choose' && <p className="mt-1 text-[15px] text-muted font-sans">Teacher: tap the speaker or say: “{audio}”</p>}
 
