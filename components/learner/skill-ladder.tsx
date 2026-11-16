@@ -73,7 +73,7 @@ export function SkillLadder({ strand, states, evidence = {}, oral = [], compact 
   );
 }
 
-function EvidenceBody({ s, evidence, oral }: { s: LadderState; evidence: LadderEvidence; oral: { wcpm: number; accuracy: number }[] }) {
+export function EvidenceBody({ s, evidence, oral }: { s: LadderState; evidence: LadderEvidence; oral: { wcpm: number; accuracy: number }[] }) {
   const [explain, setExplain] = useState(false);
   const pc = Math.round(Number(s.p) * 100);
   const ev = evidence[s.skill_id]?.sessions ?? [];
