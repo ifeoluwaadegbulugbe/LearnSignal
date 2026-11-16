@@ -49,15 +49,22 @@ export function toEvidence(responses: RawResponse[]): Evidence[] {
     .map((r) => ({ correct: r.correct as boolean, sessionsAgo: rank.get(r.sessionId) ?? 0, source: r.source, sessionId: r.sessionId }));
 }
 
-export interface StateBySkill { skillId: string; sequence: number; state: SkillStateName }
+export interface StateBySkill { skillId: string; sequence: number; state: SkillStateName; p?: number; provisional?: boolean }
+
+/** Strong first-session result: "developing" only because a second session is still needed. */
+export const isProvisionallySecure = (s: { state: SkillStateName; p?: number; provisional?: boolean }) =>
+  s.state === 'developing' && !!s.provisional && (s.p ?? 0) >= 0.8;
 
 /**
  * Working skill per strand = lowest-sequence skill that is not_yet or developing.
+ * Exception (see docs/ASSUMPTIONS.md): a skill that is "developing" only because it has a single strong
+ * session (p ≥ 0.8, provisional) is not treated as a gap — otherwise after one baseline every passed skill
+ * would be "developing" and every child would be grouped at the bottom of the ladder.
  * If nothing is flagged but some skills are `insufficient`, returns the lowest insufficient one with recheck=true.
  */
 export function workingSkill(states: StateBySkill[]): { skillId: string; recheck: boolean } | null {
   const sorted = [...states].sort((a, b) => a.sequence - b.sequence);
-  const flagged = sorted.find((s) => s.state === 'not_yet' || s.state === 'developing');
+  const flagged = sorted.find((s) => s.state === 'not_yet' || (s.state === 'developing' && !isProvisionallySecure(s)));
   if (flagged) return { skillId: flagged.skillId, recheck: false };
   const insufficient = sorted.find((s) => s.state === 'insufficient');
   if (insufficient) return { skillId: insufficient.skillId, recheck: true };

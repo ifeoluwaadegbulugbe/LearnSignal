@@ -1,8 +1,8 @@
 import 'server-only';
 import type { SupabaseClient } from '@supabase/supabase-js';
-import { applyDowngradeGuard, computeSkillState, toEvidence, workingSkill, type RawResponse, type SkillStateName } from '@/lib/scoring/skillState';
-import { SKILL_BY_ID, skillsForStrand, type Strand } from '@/lib/content/skills';
-import { INTERVENTIONS } from '@/lib/content/interventions';
+import type { RawResponse, SkillStateName } from '@/lib/scoring/skillState';
+import { skillsForStrand, type Strand } from '@/lib/content/skills';
+import { computeStates, ruleRecommendation } from '@/lib/scoring/compute';
 
 export interface StoredState {
   skill_id: string; state: SkillStateName; p: number; n_eff: number; sessions: number;
@@ -35,22 +35,7 @@ export async function recomputeSkillStates(supabase: SupabaseClient, learnerId: 
   const evidence = await loadEvidence(supabase, learnerId);
   const { data: prevRows } = await supabase.from('skill_states').select('skill_id, state').eq('learner_id', learnerId).in('skill_id', skillIds);
   const prev = new Map((prevRows ?? []).map((r) => [r.skill_id, r.state as SkillStateName]));
-
-  // Session ranking across all of this learner's evidence (not per skill), so "sessionsAgo" means the same everywhere.
-  const all = [...evidence.values()].flat();
-  const allEv = toEvidence(all.map((r) => ({ ...r, correct: r.correct ?? false })));
-  const rank = new Map(allEv.map((e) => [e.sessionId, e.sessionsAgo]));
-
-  const rows: StoredState[] = [];
-  for (const skillId of skillIds) {
-    const raw = evidence.get(skillId) ?? [];
-    const ev = raw.filter((r) => r.correct !== null).map((r) => ({ correct: r.correct as boolean, sessionsAgo: rank.get(r.sessionId) ?? 0, source: r.source, sessionId: r.sessionId }));
-    const s = applyDowngradeGuard(prev.get(skillId), computeSkillState(ev));
-    rows.push({
-      skill_id: skillId, state: s.state, p: Math.round(s.p * 1000) / 1000, n_eff: Math.round(s.nEff * 100) / 100,
-      sessions: s.sessions, confidence: s.confidence, provisional: s.provisional, retest_suggested: s.retestSuggested,
-    });
-  }
+  const rows: StoredState[] = computeStates(evidence, skillIds, prev);
   const now = new Date().toISOString();
   const { error } = await supabase.from('skill_states').upsert(rows.map((r) => ({ ...r, learner_id: learnerId, updated_at: now })));
   if (error) throw error;
@@ -63,20 +48,12 @@ export async function recomputeSkillStates(supabase: SupabaseClient, learnerId: 
 
 /** Create a rule-based recommendation for the learner's working skill in a strand (replacing older suggested ones). */
 export async function createRuleRecommendation(supabase: SupabaseClient, learnerId: string, strand: Strand) {
-  const { data: states } = await supabase.from('skill_states').select('skill_id, state, p, n_eff, confidence').eq('learner_id', learnerId);
+  const { data: states } = await supabase.from('skill_states').select('skill_id, state, p, provisional').eq('learner_id', learnerId);
   const strandSkills = skillsForStrand(strand);
-  const ws = workingSkill(
-    strandSkills.map((sk) => ({ skillId: sk.id, sequence: sk.sequence, state: (states?.find((s) => s.skill_id === sk.id)?.state ?? 'insufficient') as SkillStateName }))
-      .filter((s) => states?.some((x) => x.skill_id === s.skillId)),
-  );
   await supabase.from('recommendations').delete().eq('learner_id', learnerId).eq('status', 'suggested').in('skill_id', strandSkills.map((s) => s.id));
-  if (!ws) return null;
-  const t = INTERVENTIONS[ws.skillId];
-  const skill = SKILL_BY_ID[ws.skillId];
-  const rationale = ws.recheck
-    ? `Not enough evidence yet on ${skill.name}. Re-check this skill before grouping.`
-    : `${skill.name} is the first skill on the ladder not yet demonstrated consistently. Suggested 15-minute activity: ${t.activity} Success check: ${t.successCheck}.`;
-  const { data } = await supabase.from('recommendations').insert({ learner_id: learnerId, skill_id: ws.skillId, source: 'rules', rationale }).select('id').single();
+  const rec = ruleRecommendation((states ?? []) as { skill_id: string; state: SkillStateName; p: number; provisional: boolean }[], strand);
+  if (!rec) return null;
+  const { data } = await supabase.from('recommendations').insert({ learner_id: learnerId, skill_id: rec.skillId, source: 'rules', rationale: rec.rationale }).select('id').single();
   return data?.id ?? null;
 }
 

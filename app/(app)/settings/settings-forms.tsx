@@ -51,10 +51,13 @@ export function SettingsForms({ fullName, email, aiEnabled, aiServer, schools, c
       <Card>
         <h2 className="mb-3 text-lg font-bold">AI features</h2>
         <label className="flex cursor-pointer items-start gap-3">
-          <input type="checkbox" className="mt-1 size-5 accent-[#0F6B5C]" checked={aiEnabled} disabled={pending} onChange={(e) => start(async () => {
-            const r = await setAiEnabled(e.target.checked);
-            if (!r.ok) toast(r.error.message, 'error'); else { toast(e.target.checked ? 'AI features on.' : 'AI features off. Built-in practice only.'); router.refresh(); }
-          })} />
+          <input type="checkbox" className="mt-1 size-5 accent-[#0F6B5C]" checked={aiEnabled} disabled={pending} onChange={(e) => {
+            const next = e.target.checked; // read before the controlled input re-renders
+            start(async () => {
+              const r = await setAiEnabled(next);
+              if (!r.ok) toast(r.error.message, 'error'); else { toast(next ? 'AI features on.' : 'AI features off. Built-in practice only.'); router.refresh(); }
+            });
+          }} />
           <span className="text-[15px]">Use AI to draft practice and answer questions. When off, you get built-in practice only and the assistant is disabled.</span>
         </label>
         <p className="mt-3 text-[13px] text-muted">

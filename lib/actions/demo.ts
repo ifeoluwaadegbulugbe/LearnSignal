@@ -6,7 +6,8 @@ import { createClient } from '@/lib/supabase/server';
 import { fail, logServerError, ok, type Result } from '@/lib/result';
 import { ITEMS } from '@/lib/content/items.seed';
 import { SKILLS, type Strand } from '@/lib/content/skills';
-import { createRuleRecommendation, recomputeSkillStates } from '@/lib/server/engine';
+import { computeStates, ruleRecommendation, type StateRow } from '@/lib/scoring/compute';
+import type { RawResponse, SkillStateName } from '@/lib/scoring/skillState';
 
 type Profile = Record<string, number>; // skillId -> probability of a correct answer (deterministic pattern below)
 interface DemoLearner { name: string; ageBand: string; sessions: { daysAgo: number; profile: Profile }[] }
@@ -25,9 +26,9 @@ const LEARNERS: DemoLearner[] = [
     { daysAgo: 4, profile: P(1, { N4: 0.75, N5: 0.25, N6: 0 }) }] },
   { name: 'Learner D', ageBand: '9-10', sessions: [{ daysAgo: 21, profile: ALL(1) }, { daysAgo: 6, profile: ALL(1) }] },
   { name: 'Learner E', ageBand: '7-8', sessions: [
-    { daysAgo: 30, profile: P(0.75, { N3: 1, N4: 1 }) }, { daysAgo: 18, profile: P(0.75, { N3: 1, N4: 1 }) },
-    { daysAgo: 3, profile: P(0.75, { N3: 1, N4: 0 }) }] }, // one bad day after good history
-  { name: 'Learner F', ageBand: '7-8', sessions: [{ daysAgo: 19, profile: P(0.75, { N4: 0.25, N5: 0, N6: 0, L4: 0.5, L5: 0, L6: 0 }) }] },
+    { daysAgo: 30, profile: P(1, { N3: 1, N4: 1 }) }, { daysAgo: 18, profile: P(1, { N3: 1, N4: 1 }) },
+    { daysAgo: 3, profile: P(1, { N3: 1, N4: 0 }) }] }, // one bad day after good history
+  { name: 'Learner F', ageBand: '7-8', sessions: [{ daysAgo: 19, profile: P(1, { N4: 0.25, N5: 0, N6: 0, L4: 0.5, L5: 0, L6: 0 }) }] },
   { name: 'Learner G', ageBand: '5-6', sessions: [{ daysAgo: 19, profile: P(0.25, { L1: 0.5, N1: 1, N2: 0.5 }) }] },
   { name: 'Learner H', ageBand: '7-8', sessions: [{ daysAgo: 18, profile: P(1, { N4: 0.25, N5: 0, N6: 0, L5: 0.5, L6: 0 }) }] },
   { name: 'Learner I', ageBand: '9-10', sessions: [{ daysAgo: 18, profile: P(1, { N5: 0.25, N6: 0, L6: 0.25 }) }] },
@@ -53,35 +54,59 @@ export async function loadDemoClass(schoolId: string): Promise<Result<{ classroo
     cid = newId as string;
     await supabase.from('classrooms').update({ is_demo: true }).eq('id', cid);
     const now = Date.now();
+    const nowIso = new Date(now).toISOString();
+
+    // Batched: ~6 round trips total instead of hundreds (keeps this well inside serverless time limits).
+    const { data: inserted, error: lErr } = await supabase.from('learners').insert(LEARNERS.map((dl) => ({
+      classroom_id: cid, display_name: dl.name, age_band: dl.ageBand, consent_confirmed: true, consent_confirmed_at: nowIso,
+    }))).select('id, display_name');
+    if (lErr || !inserted) throw lErr;
+    const idByName = new Map(inserted.map((l) => [l.display_name, l.id]));
+
+    const sessions: Record<string, unknown>[] = [];
+    const responses: { session_id: string; learner_id: string; item_id: string; skill_id: string; correct: boolean; response: object; created_at: string }[] = [];
+    const states: Record<string, unknown>[] = [];
+    const history: Record<string, unknown>[] = [];
+    const recs: Record<string, unknown>[] = [];
 
     for (const dl of LEARNERS) {
-      const { data: learner, error: lErr } = await supabase.from('learners').insert({
-        classroom_id: cid, display_name: dl.name, age_band: dl.ageBand, consent_confirmed: true, consent_confirmed_at: new Date().toISOString(),
-      }).select('id').single();
-      if (lErr || !learner) throw lErr;
-
-      for (const [si, sess] of dl.sessions.entries()) {
+      const learnerId = idByName.get(dl.name)!;
+      const raw = new Map<string, RawResponse[]>();
+      const prev = new Map<string, SkillStateName>();
+      let latest: StateRow[] = [];
+      for (const [si, sess] of [...dl.sessions].sort((a, b) => b.daysAgo - a.daysAgo).entries()) {
         const at = new Date(now - sess.daysAgo * 86_400_000).toISOString();
         for (const strand of ['literacy', 'numeracy'] as Strand[]) {
-          const { data: s, error: sErr } = await supabase.from('assessment_sessions').insert({
-            learner_id: learner.id, strand, kind: si === 0 ? 'baseline' : 'reassessment', administered_by: user.id, started_at: at, completed_at: at,
-          }).select('id').single();
-          if (sErr || !s) throw sErr;
-          const prefix = strand === 'literacy' ? 'L' : 'N';
-          const rows = SKILLS.filter((sk) => sk.strand === strand).flatMap((sk) =>
-            ITEMS.filter((it) => it.skillId === sk.id && it.difficulty <= 2).slice(0, 4).map((it, i) => ({
-              session_id: s.id, learner_id: learner.id, item_id: it.id, skill_id: sk.id,
-              correct: correctAt(sess.profile[sk.id] ?? 0, i), response: { sample: true }, created_at: at,
-            })));
-          const { error: rErr } = await supabase.from('item_responses').insert(rows.filter((r) => r.skill_id[0] === prefix));
-          if (rErr) throw rErr;
-          await recomputeSkillStates(supabase, learner.id, SKILLS.filter((sk) => sk.strand === strand).map((sk) => sk.id), s.id);
+          const sid = crypto.randomUUID();
+          sessions.push({ id: sid, learner_id: learnerId, strand, kind: si === 0 ? 'baseline' : 'reassessment', administered_by: user.id, started_at: at, completed_at: at });
+          const skills = SKILLS.filter((sk) => sk.strand === strand);
+          for (const sk of skills) {
+            ITEMS.filter((it) => it.skillId === sk.id && it.difficulty <= 2).slice(0, 4).forEach((it, i) => {
+              const correct = correctAt(sess.profile[sk.id] ?? 0, i);
+              responses.push({ session_id: sid, learner_id: learnerId, item_id: it.id, skill_id: sk.id, correct, response: { sample: true }, created_at: at });
+              if (!raw.has(sk.id)) raw.set(sk.id, []);
+              raw.get(sk.id)!.push({ correct, sessionId: sid, source: 'assessment', at });
+            });
+          }
+          const rows = computeStates(raw, skills.map((s) => s.id), prev);
+          for (const r of rows) {
+            prev.set(r.skill_id, r.state);
+            history.push({ learner_id: learnerId, skill_id: r.skill_id, session_id: sid, state: r.state, p: r.p, created_at: at });
+          }
+          latest = [...latest.filter((x) => !rows.some((r) => r.skill_id === x.skill_id)), ...rows];
         }
       }
-      if (dl.sessions.length) {
-        await createRuleRecommendation(supabase, learner.id, 'literacy');
-        await createRuleRecommendation(supabase, learner.id, 'numeracy');
+      for (const r of latest) states.push({ ...r, learner_id: learnerId, updated_at: nowIso });
+      for (const strand of ['literacy', 'numeracy'] as Strand[]) {
+        const rec = latest.length ? ruleRecommendation(latest, strand) : null;
+        if (rec) recs.push({ learner_id: learnerId, skill_id: rec.skillId, source: 'rules', rationale: rec.rationale });
       }
+    }
+
+    for (const [table, rows] of [['assessment_sessions', sessions], ['item_responses', responses], ['skill_states', states], ['skill_state_history', history], ['recommendations', recs]] as const) {
+      if (!rows.length) continue;
+      const { error } = await supabase.from(table).insert(rows);
+      if (error) throw error;
     }
     revalidatePath('/', 'layout');
     return ok({ classroomId: cid as string });

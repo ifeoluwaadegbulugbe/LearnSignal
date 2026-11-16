@@ -7,7 +7,7 @@ import { workingSkill, type SkillStateName } from '@/lib/scoring/skillState';
 export interface LearnerRow {
   id: string; code: string; display_name: string; age_band: string | null; archived_at: string | null; created_at: string;
   lastAssessed: string | null;
-  states: { skill_id: string; state: SkillStateName; confidence: 'low' | 'medium' | 'high'; provisional: boolean; retest_suggested: boolean }[];
+  states: { skill_id: string; state: SkillStateName; p: number; confidence: 'low' | 'medium' | 'high'; provisional: boolean; retest_suggested: boolean }[];
   working: { literacy: string | null; numeracy: string | null };
 }
 
@@ -18,7 +18,7 @@ export async function getClassroom(id: string, opts: { includeArchived?: boolean
   if (!classroom) notFound();
 
   let q = supabase.from('learners')
-    .select('id, code, display_name, age_band, archived_at, created_at, skill_states(skill_id, state, confidence, provisional, retest_suggested), assessment_sessions(completed_at)')
+    .select('id, code, display_name, age_band, archived_at, created_at, skill_states(skill_id, state, p, confidence, provisional, retest_suggested), assessment_sessions(completed_at)')
     .eq('classroom_id', id).order('display_name');
   if (!opts.includeArchived) q = q.is('archived_at', null);
   const { data: rows, error } = await q;
@@ -28,7 +28,7 @@ export async function getClassroom(id: string, opts: { includeArchived?: boolean
     const states = (r.skill_states ?? []) as LearnerRow['states'];
     const done = ((r.assessment_sessions ?? []) as { completed_at: string | null }[]).map((s) => s.completed_at).filter(Boolean) as string[];
     const ws = (strand: 'literacy' | 'numeracy') => workingSkill(states.filter((s) => SKILL_BY_ID[s.skill_id].strand === strand)
-      .map((s) => ({ skillId: s.skill_id, sequence: SKILL_BY_ID[s.skill_id].sequence, state: s.state })))?.skillId ?? null;
+      .map((s) => ({ skillId: s.skill_id, sequence: SKILL_BY_ID[s.skill_id].sequence, state: s.state, p: Number(s.p), provisional: s.provisional })))?.skillId ?? null;
     return {
       id: r.id, code: r.code, display_name: r.display_name, age_band: r.age_band, archived_at: r.archived_at, created_at: r.created_at,
       lastAssessed: done.sort().at(-1) ?? null, states, working: { literacy: ws('literacy'), numeracy: ws('numeracy') },

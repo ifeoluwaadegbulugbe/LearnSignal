@@ -14,11 +14,11 @@ const META = Object.fromEntries(SKILLS.map((s) => [s.id, { name: s.name, sequenc
 export async function formGroups(classroomId: string, strand: 'literacy' | 'numeracy'): Promise<Result<SuggestedGroup[]>> {
   const supabase = await createClient();
   const { data: learners, error } = await supabase.from('learners')
-    .select('id, code, display_name, skill_states(skill_id, state)').eq('classroom_id', classroomId).is('archived_at', null);
+    .select('id, code, display_name, skill_states(skill_id, state, p, provisional)').eq('classroom_id', classroomId).is('archived_at', null);
   if (error) { logServerError('formGroups', error); return fail('db', 'Could not load learners.'); }
   return ok(suggestGroups((learners ?? []).map((l) => ({
     learnerId: l.id, code: l.code, displayName: l.display_name,
-    states: (l.skill_states as { skill_id: string; state: SkillStateName }[]).map((s) => ({ skillId: s.skill_id, state: s.state, sequence: META[s.skill_id].sequence, strand: META[s.skill_id].strand })),
+    states: (l.skill_states as { skill_id: string; state: SkillStateName; p: number; provisional: boolean }[]).map((s) => ({ skillId: s.skill_id, state: s.state, p: Number(s.p), provisional: s.provisional, sequence: META[s.skill_id].sequence, strand: META[s.skill_id].strand })),
   })), strand, META));
 }
 
