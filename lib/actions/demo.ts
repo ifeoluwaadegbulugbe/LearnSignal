@@ -43,9 +43,14 @@ export async function loadDemoClass(schoolId: string): Promise<Result<{ classroo
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return fail('unauthenticated', 'Please sign in.');
+  let cid: string | null = null;
   try {
-    const { data: cid, error: cErr } = await supabase.rpc('create_classroom', { p_school: schoolId, p_name: 'Class 3A (sample data)', p_grade: 'Primary 3', p_language: 'en' });
+    // Fail fast with a clear message if the content seed has not been run.
+    const { count: items } = await supabase.from('assessment_items').select('id', { count: 'exact', head: true });
+    if (!items) return fail('not_seeded', 'The question bank is empty. Run supabase/seed.sql in the Supabase SQL editor, then try again.');
+    const { data: newId, error: cErr } = await supabase.rpc('create_classroom', { p_school: schoolId, p_name: 'Class 3A (sample data)', p_grade: 'Primary 3', p_language: 'en' });
     if (cErr) throw cErr;
+    cid = newId as string;
     await supabase.from('classrooms').update({ is_demo: true }).eq('id', cid);
     const now = Date.now();
 
@@ -82,6 +87,7 @@ export async function loadDemoClass(schoolId: string): Promise<Result<{ classroo
     return ok({ classroomId: cid as string });
   } catch (e) {
     logServerError('loadDemoClass', e);
+    if (cid) await supabase.from('classrooms').delete().eq('id', cid); // don't leave a half-built class behind
     return fail('db', 'Could not load the demo class. Make sure the database migration and seed have been run.');
   }
 }
