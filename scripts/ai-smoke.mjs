@@ -29,6 +29,12 @@ if (!which.length || which.includes('gen')) {
   await call('generate N4 level 2', '/api/generate-exercises', { skillId: 'N4', difficulty: 2, count: 5, language: 'en' });
   await call('generate L2 level 1', '/api/generate-exercises', { skillId: 'L2', difficulty: 1, count: 5, language: 'en' });
 }
+if (which.includes('gen2')) {
+  // Harder formats where validation is most likely to drop items.
+  for (const [skillId, difficulty] of [['N6', 2], ['N6', 3], ['N5', 2], ['N2', 2], ['L3', 2], ['L5', 2], ['N3', 3]]) {
+    await call(`generate ${skillId} level ${difficulty}`, '/api/generate-exercises', { skillId, difficulty, count: 5, language: 'en' });
+  }
+}
 if (!which.length || which.includes('ask')) {
   await call('ask: subtraction support', '/api/assistant', { classroomId, question: 'Who needs subtraction support?' });
   await call('ask: unsupported', '/api/assistant', { classroomId, question: 'Which learners have the best handwriting?' });

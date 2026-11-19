@@ -23,7 +23,7 @@ const LEARNERS: DemoLearner[] = [
   { name: 'Learner B', ageBand: '9-10', sessions: [{ daysAgo: 20, profile: P(0.9, { L5: 0.25, L6: 0 }) }] },
   { name: 'Learner C', ageBand: '7-8', sessions: [
     { daysAgo: 21, profile: P(1, { N4: 0.0, N5: 0, N6: 0 }) },
-    { daysAgo: 4, profile: P(1, { N4: 0.75, N5: 0.25, N6: 0 }) }] },
+    { daysAgo: 4, profile: P(1, { N4: 1, N5: 0.25, N6: 0 }) }] },
   { name: 'Learner D', ageBand: '9-10', sessions: [{ daysAgo: 21, profile: ALL(1) }, { daysAgo: 6, profile: ALL(1) }] },
   { name: 'Learner E', ageBand: '7-8', sessions: [
     { daysAgo: 30, profile: P(1, { N3: 1, N4: 1 }) }, { daysAgo: 18, profile: P(1, { N3: 1, N4: 1 }) },

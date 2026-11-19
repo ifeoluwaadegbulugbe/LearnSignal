@@ -1,0 +1,843 @@
+[
+  {
+    "label": "generate N6 level 2",
+    "path": "/api/generate-exercises",
+    "input": {
+      "skillId": "N6",
+      "difficulty": 2,
+      "count": 5,
+      "language": "en"
+    },
+    "status": 200,
+    "ms": 17246,
+    "output": {
+      "ok": true,
+      "data": {
+        "exerciseId": "2a19cca3-fa2c-4167-93f9-8dce4d238771",
+        "fallback": "partial",
+        "notice": "2 AI item(s) failed validation — filled with 2 built-in item(s).",
+        "report": {
+          "accepted": 3,
+          "rejected": 2,
+          "items": [
+            {
+              "index": 0,
+              "ok": true,
+              "reasons": [],
+              "stem": "Ada has 15 mangoes. She gives away 6 mangoes to her friend. How many mangoes does Ada have left?"
+            },
+            {
+              "index": 1,
+              "ok": false,
+              "reasons": [
+                "N6 operation is ambiguous (cannot verify)"
+              ],
+              "stem": "Musa bought 8 oranges at the market. His mother gave him 7 more oranges. How many oranges does Musa have now?"
+            },
+            {
+              "index": 2,
+              "ok": true,
+              "reasons": [],
+              "stem": "Aisha has 18 pencils in her school bag. She lost 5 pencils. How many pencils does Aisha have left?"
+            },
+            {
+              "index": 3,
+              "ok": false,
+              "reasons": [
+                "N6 operation is ambiguous (cannot verify)"
+              ],
+              "stem": "Emeka harvested 9 yams from the farm. Tolu gave him 4 more yams. How many yams does Emeka have in total?"
+            },
+            {
+              "index": 4,
+              "ok": true,
+              "reasons": [],
+              "stem": "Ngozi had 12 bus tickets. She gives away 4 bus tickets to her brother. How many bus tickets does Ngozi have left?"
+            }
+          ]
+        },
+        "items": [
+          {
+            "type": "numeric",
+            "stem": "Ada has 15 mangoes. She gives away 6 mangoes to her friend. How many mangoes does Ada have left?",
+            "audioText": "Ada has 15 mangoes. She gives away 6 mangoes to her friend. How many mangoes does Ada have left?",
+            "answer": 9,
+            "hint": "Subtract 6 from 15 to find out how many are left.",
+            "feedbackCorrect": "Great job! You solved it correctly.",
+            "feedbackTryAgain": "Keep trying! Think about subtracting 6 from 15.",
+            "source": "ai"
+          },
+          {
+            "type": "numeric",
+            "stem": "Aisha has 18 pencils in her school bag. She lost 5 pencils. How many pencils does Aisha have left?",
+            "audioText": "Aisha has 18 pencils in her school bag. She lost 5 pencils. How many pencils does Aisha have left?",
+            "answer": 13,
+            "hint": "Take away 5 from 18.",
+            "feedbackCorrect": "Wonderful work! You got it right.",
+            "feedbackTryAgain": "You can do this! Take 5 away from 18.",
+            "source": "ai"
+          },
+          {
+            "type": "numeric",
+            "stem": "Ngozi had 12 bus tickets. She gives away 4 bus tickets to her brother. How many bus tickets does Ngozi have left?",
+            "audioText": "Ngozi had 12 bus tickets. She gives away 4 bus tickets to her brother. How many bus tickets does Ngozi have left?",
+            "answer": 8,
+            "hint": "Subtract 4 from 12.",
+            "feedbackCorrect": "Super job!",
+            "feedbackTryAgain": "Don't give up! Take 4 away from 12.",
+            "source": "ai"
+          },
+          {
+            "type": "numeric",
+            "stem": "Ada has 4 mangoes. She gets 3 more. How many mangoes now?",
+            "audioText": "Ada has 4 mangoes. She gets 3 more. How many mangoes now?",
+            "answer": 7,
+            "hint": "Is the number getting bigger or smaller?",
+            "feedbackCorrect": "Well done!",
+            "feedbackTryAgain": "Nice try. Look again and have another go.",
+            "source": "seed"
+          },
+          {
+            "type": "numeric",
+            "stem": "Musa has 9 marbles. He gives 4 away. How many are left?",
+            "audioText": "Musa has 9 marbles. He gives 4 away. How many are left?",
+            "answer": 5,
+            "hint": "Is the number getting bigger or smaller?",
+            "feedbackCorrect": "Great work!",
+            "feedbackTryAgain": "Nice try. Look again and have another go.",
+            "source": "seed"
+          }
+        ]
+      }
+    }
+  },
+  {
+    "label": "generate N6 level 3",
+    "path": "/api/generate-exercises",
+    "input": {
+      "skillId": "N6",
+      "difficulty": 3,
+      "count": 5,
+      "language": "en"
+    },
+    "status": 200,
+    "ms": 13882,
+    "output": {
+      "ok": true,
+      "data": {
+        "exerciseId": "2cd604b0-d01e-4e6e-acb1-76eb0fb15eac",
+        "fallback": "none",
+        "report": {
+          "accepted": 5,
+          "rejected": 0,
+          "items": [
+            {
+              "index": 0,
+              "ok": true,
+              "reasons": [],
+              "stem": "Ada has 13 oranges at the market. She sells 5 oranges. How many oranges does Ada have left?"
+            },
+            {
+              "index": 1,
+              "ok": true,
+              "reasons": [],
+              "stem": "Musa digs up 9 yams in the morning. He digs up 8 more yams in the afternoon. How many yams does Musa have now?"
+            },
+            {
+              "index": 2,
+              "ok": true,
+              "reasons": [],
+              "stem": "Ngozi picks 16 ripe mangoes from a tree. She gives away 7 mangoes to her friends. How many mangoes does Ngozi have left?"
+            },
+            {
+              "index": 3,
+              "ok": true,
+              "reasons": [],
+              "stem": "Emeka sees 11 people sitting on a bus. 6 more people get on the bus. How many people are on the bus now?"
+            },
+            {
+              "index": 4,
+              "ok": true,
+              "reasons": [],
+              "stem": "Aisha has 18 pencils in her bag. She gives away 9 pencils to Emeka. How many pencils does Aisha have left?"
+            }
+          ]
+        },
+        "items": [
+          {
+            "type": "numeric",
+            "stem": "Ada has 13 oranges at the market. She sells 5 oranges. How many oranges does Ada have left?",
+            "audioText": "Ada has 13 oranges at the market. She sells 5 oranges. How many oranges does Ada have left?",
+            "answer": 8,
+            "hint": "Subtract 5 from 13 to find how many are left.",
+            "feedbackCorrect": "Well done! You solved it correctly.",
+            "feedbackTryAgain": "Try again! Take away 5 from 13.",
+            "source": "ai"
+          },
+          {
+            "type": "numeric",
+            "stem": "Musa digs up 9 yams in the morning. He digs up 8 more yams in the afternoon. How many yams does Musa have now?",
+            "audioText": "Musa digs up 9 yams in the morning. He digs up 8 more yams in the afternoon. How many yams does Musa have now?",
+            "answer": 17,
+            "hint": "Add 9 and 8 together to find the total yams.",
+            "feedbackCorrect": "Great job! That is correct.",
+            "feedbackTryAgain": "Keep trying! Add 9 and 8 together.",
+            "source": "ai"
+          },
+          {
+            "type": "numeric",
+            "stem": "Ngozi picks 16 ripe mangoes from a tree. She gives away 7 mangoes to her friends. How many mangoes does Ngozi have left?",
+            "audioText": "Ngozi picks 16 ripe mangoes from a tree. She gives away 7 mangoes to her friends. How many mangoes does Ngozi have left?",
+            "answer": 9,
+            "hint": "Take 7 away from 16 to get the answer.",
+            "feedbackCorrect": "Super! You got it right.",
+            "feedbackTryAgain": "Almost there! Subtract 7 from 16.",
+            "source": "ai"
+          },
+          {
+            "type": "numeric",
+            "stem": "Emeka sees 11 people sitting on a bus. 6 more people get on the bus. How many people are on the bus now?",
+            "audioText": "Emeka sees 11 people sitting on a bus. 6 more people get on the bus. How many people are on the bus now?",
+            "answer": 17,
+            "hint": "Add 11 and 6 to find how many people in total.",
+            "feedbackCorrect": "Fantastic work!",
+            "feedbackTryAgain": "You can do it! Add 6 to 11.",
+            "source": "ai"
+          },
+          {
+            "type": "numeric",
+            "stem": "Aisha has 18 pencils in her bag. She gives away 9 pencils to Emeka. How many pencils does Aisha have left?",
+            "audioText": "Aisha has 18 pencils in her bag. She gives away 9 pencils to Emeka. How many pencils does Aisha have left?",
+            "answer": 9,
+            "hint": "Subtract 9 from 18 to find how many are left.",
+            "feedbackCorrect": "Excellent! That is the right answer.",
+            "feedbackTryAgain": "Give it another try! Take away 9 from 18.",
+            "source": "ai"
+          }
+        ]
+      }
+    }
+  },
+  {
+    "label": "generate N5 level 2",
+    "path": "/api/generate-exercises",
+    "input": {
+      "skillId": "N5",
+      "difficulty": 2,
+      "count": 5,
+      "language": "en"
+    },
+    "status": 200,
+    "ms": 18708,
+    "output": {
+      "ok": true,
+      "data": {
+        "exerciseId": "10df91d8-c01f-470c-9e5f-c6adc46cf7d9",
+        "fallback": "partial",
+        "notice": "1 AI item(s) failed validation — filled with 1 built-in item(s).",
+        "report": {
+          "accepted": 4,
+          "rejected": 1,
+          "items": [
+            {
+              "index": 0,
+              "ok": true,
+              "reasons": [],
+              "stem": "What is the value of 5 in 58?"
+            },
+            {
+              "index": 1,
+              "ok": true,
+              "reasons": [],
+              "stem": "Ada bought 74 mangoes. How many tens are in 74?"
+            },
+            {
+              "index": 2,
+              "ok": true,
+              "reasons": [],
+              "stem": "Musa has 3 tens and 6 ones. What number does Musa have?"
+            },
+            {
+              "index": 3,
+              "ok": true,
+              "reasons": [],
+              "stem": "Ngozi counted 89 yams. What is the value of 9 in 89?"
+            },
+            {
+              "index": 4,
+              "ok": false,
+              "reasons": [
+                "N5 stem pattern not recognised (cannot verify answer)"
+              ],
+              "stem": "Emeka saw 42 buses. What does the digit 4 mean in 42?"
+            }
+          ]
+        },
+        "items": [
+          {
+            "type": "mcq",
+            "stem": "What is the value of 5 in 58?",
+            "audioText": "What is the value of 5 in 58?",
+            "options": [
+              "5",
+              "50",
+              "8",
+              "58"
+            ],
+            "answer": "50",
+            "hint": "Look at the tens place.",
+            "feedbackCorrect": "Great job! The 5 stands for 5 tens or 50.",
+            "feedbackTryAgain": "Remember, 5 is in the tens place.",
+            "source": "ai"
+          },
+          {
+            "type": "mcq",
+            "stem": "Ada bought 74 mangoes. How many tens are in 74?",
+            "audioText": "Ada bought 74 mangoes. How many tens are in 74?",
+            "options": [
+              "4",
+              "7",
+              "70",
+              "40"
+            ],
+            "answer": "7",
+            "hint": "Count the digit in the tens position.",
+            "feedbackCorrect": "Well done! 74 has 7 tens.",
+            "feedbackTryAgain": "Check the first digit of 74 to find the tens.",
+            "source": "ai"
+          },
+          {
+            "type": "mcq",
+            "stem": "Musa has 3 tens and 6 ones. What number does Musa have?",
+            "audioText": "Musa has 3 tens and 6 ones. What number does Musa have?",
+            "options": [
+              "36",
+              "63",
+              "30",
+              "9"
+            ],
+            "answer": "36",
+            "hint": "Put the tens first, then the ones.",
+            "feedbackCorrect": "Super! 3 tens and 6 ones make 36.",
+            "feedbackTryAgain": "Combine 30 and 6 to get the number.",
+            "source": "ai"
+          },
+          {
+            "type": "mcq",
+            "stem": "Ngozi counted 89 yams. What is the value of 9 in 89?",
+            "audioText": "Ngozi counted 89 yams. What is the value of 9 in 89?",
+            "options": [
+              "90",
+              "9",
+              "80",
+              "8"
+            ],
+            "answer": "9",
+            "hint": "Is 9 in the tens or ones place?",
+            "feedbackCorrect": "Correct! 9 is in the ones place.",
+            "feedbackTryAgain": "Look at the second digit of 89.",
+            "source": "ai"
+          },
+          {
+            "type": "mcq",
+            "stem": "What is the value of 2 in 26?",
+            "audioText": "What is the value of 2 in 26?",
+            "options": [
+              "2",
+              "20",
+              "26"
+            ],
+            "answer": "20",
+            "hint": "The first digit tells you how many tens.",
+            "feedbackCorrect": "Well done!",
+            "feedbackTryAgain": "Nice try. Look again and have another go.",
+            "source": "seed"
+          }
+        ]
+      }
+    }
+  },
+  {
+    "label": "generate N2 level 2",
+    "path": "/api/generate-exercises",
+    "input": {
+      "skillId": "N2",
+      "difficulty": 2,
+      "count": 5,
+      "language": "en"
+    },
+    "status": 200,
+    "ms": 14700,
+    "output": {
+      "ok": true,
+      "data": {
+        "exerciseId": "e41d1e0d-c2bb-4ac2-a7bc-952b3015224d",
+        "fallback": "none",
+        "report": {
+          "accepted": 5,
+          "rejected": 0,
+          "items": [
+            {
+              "index": 0,
+              "ok": true,
+              "reasons": [],
+              "stem": "How many? 🥭🥭🥭🥭🥭🥭🥭🥭🥭🥭🥭🥭"
+            },
+            {
+              "index": 1,
+              "ok": true,
+              "reasons": [],
+              "stem": "How many? 🍊🍊🍊🍊🍊🍊🍊🍊🍊🍊🍊🍊🍊🍊🍊"
+            },
+            {
+              "index": 2,
+              "ok": true,
+              "reasons": [],
+              "stem": "How many? ⚽⚽⚽⚽⚽⚽⚽⚽⚽"
+            },
+            {
+              "index": 3,
+              "ok": true,
+              "reasons": [],
+              "stem": "How many? ⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐"
+            },
+            {
+              "index": 4,
+              "ok": true,
+              "reasons": [],
+              "stem": "How many? ⚽⚽⚽⚽⚽⚽⚽⚽⚽⚽⚽⚽⚽⚽"
+            }
+          ]
+        },
+        "items": [
+          {
+            "type": "numeric",
+            "stem": "How many? 🥭🥭🥭🥭🥭🥭🥭🥭🥭🥭🥭🥭",
+            "audioText": "Count the sweet mangoes. How many mangoes are there?",
+            "answer": 12,
+            "hint": "Point to each mango as you count them one by one.",
+            "feedbackCorrect": "Well done! You counted all twelve mangoes correctly.",
+            "feedbackTryAgain": "Count carefully again. You can do it!",
+            "source": "ai"
+          },
+          {
+            "type": "numeric",
+            "stem": "How many? 🍊🍊🍊🍊🍊🍊🍊🍊🍊🍊🍊🍊🍊🍊🍊",
+            "audioText": "Count the ripe oranges. How many oranges can you see?",
+            "answer": 15,
+            "hint": "Start from the left and count each orange aloud.",
+            "feedbackCorrect": "Great job! That is correct.",
+            "feedbackTryAgain": "Take your time and count them one more time.",
+            "source": "ai"
+          },
+          {
+            "type": "numeric",
+            "stem": "How many? ⚽⚽⚽⚽⚽⚽⚽⚽⚽",
+            "audioText": "How many footballs are on the field?",
+            "answer": 9,
+            "hint": "Touch each ball as you say the numbers.",
+            "feedbackCorrect": "Awesome! You are a super counter.",
+            "feedbackTryAgain": "Try counting one more time. You are almost there!",
+            "source": "ai"
+          },
+          {
+            "type": "numeric",
+            "stem": "How many? ⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐",
+            "audioText": "Count the bright stars. How many are there?",
+            "answer": 18,
+            "hint": "Count slowly from the first star to the last star.",
+            "feedbackCorrect": "Fantastic work! Star counting champion!",
+            "feedbackTryAgain": "Nice try! Let us count the stars together again.",
+            "source": "ai"
+          },
+          {
+            "type": "numeric",
+            "stem": "How many? ⚽⚽⚽⚽⚽⚽⚽⚽⚽⚽⚽⚽⚽⚽",
+            "audioText": "Count the footballs. How many balls do you see?",
+            "answer": 14,
+            "hint": "Count each ball slowly from one to the end.",
+            "feedbackCorrect": "Splendid! You got it right.",
+            "feedbackTryAgain": "Keep going! Try counting them once more.",
+            "source": "ai"
+          }
+        ]
+      }
+    }
+  },
+  {
+    "label": "generate L3 level 2",
+    "path": "/api/generate-exercises",
+    "input": {
+      "skillId": "L3",
+      "difficulty": 2,
+      "count": 5,
+      "language": "en"
+    },
+    "status": 200,
+    "ms": 12540,
+    "output": {
+      "ok": true,
+      "data": {
+        "exerciseId": "e7dce700-8629-4de5-ac78-811323822480",
+        "fallback": "none",
+        "report": {
+          "accepted": 5,
+          "rejected": 0,
+          "items": [
+            {
+              "index": 0,
+              "ok": true,
+              "reasons": [],
+              "stem": "Tap the word you hear."
+            },
+            {
+              "index": 1,
+              "ok": true,
+              "reasons": [],
+              "stem": "Tap the word you hear."
+            },
+            {
+              "index": 2,
+              "ok": true,
+              "reasons": [],
+              "stem": "Tap the word you hear."
+            },
+            {
+              "index": 3,
+              "ok": true,
+              "reasons": [],
+              "stem": "Tap the word you hear."
+            },
+            {
+              "index": 4,
+              "ok": true,
+              "reasons": [],
+              "stem": "Tap the word you hear."
+            }
+          ]
+        },
+        "items": [
+          {
+            "type": "listen_choose",
+            "stem": "Tap the word you hear.",
+            "audioText": "Tap the word: the",
+            "options": [
+              "the",
+              "they",
+              "ten",
+              "that"
+            ],
+            "answer": "the",
+            "hint": "Look for the short word that starts with t-h.",
+            "feedbackCorrect": "Well done! You found the word!",
+            "feedbackTryAgain": "Try again. Look closely at the letters.",
+            "source": "ai"
+          },
+          {
+            "type": "listen_choose",
+            "stem": "Tap the word you hear.",
+            "audioText": "Tap the word: said",
+            "options": [
+              "sad",
+              "said",
+              "say",
+              "side"
+            ],
+            "answer": "said",
+            "hint": "Look for the word that ends with the letter d.",
+            "feedbackCorrect": "Great job! That is correct.",
+            "feedbackTryAgain": "Keep trying! Listen to the sound again.",
+            "source": "ai"
+          },
+          {
+            "type": "listen_choose",
+            "stem": "Tap the word you hear.",
+            "audioText": "Tap the word: was",
+            "options": [
+              "saw",
+              "was",
+              "has",
+              "way"
+            ],
+            "answer": "was",
+            "hint": "This word starts with the letter w.",
+            "feedbackCorrect": "Awesome work! You got it right!",
+            "feedbackTryAgain": "Give it another try! You can do it.",
+            "source": "ai"
+          },
+          {
+            "type": "listen_choose",
+            "stem": "Tap the word you hear.",
+            "audioText": "Tap the word: they",
+            "options": [
+              "that",
+              "them",
+              "they",
+              "the"
+            ],
+            "answer": "they",
+            "hint": "This word ends with the letter y.",
+            "feedbackCorrect": "Fantastic! You are doing great.",
+            "feedbackTryAgain": "Take another look and try again.",
+            "source": "ai"
+          },
+          {
+            "type": "listen_choose",
+            "stem": "Tap the word you hear.",
+            "audioText": "Tap the word: because",
+            "options": [
+              "became",
+              "become",
+              "because",
+              "before"
+            ],
+            "answer": "because",
+            "hint": "Look for the long word starting with b-e.",
+            "feedbackCorrect": "Super! You chose the right word.",
+            "feedbackTryAgain": "Nice effort! Try picking again.",
+            "source": "ai"
+          }
+        ]
+      }
+    }
+  },
+  {
+    "label": "generate L5 level 2",
+    "path": "/api/generate-exercises",
+    "input": {
+      "skillId": "L5",
+      "difficulty": 2,
+      "count": 5,
+      "language": "en"
+    },
+    "status": 200,
+    "ms": 15057,
+    "output": {
+      "ok": true,
+      "data": {
+        "exerciseId": "1dfe43c6-968e-4077-8f0b-32ed078d6d3b",
+        "fallback": "none",
+        "report": {
+          "accepted": 5,
+          "rejected": 0,
+          "items": [
+            {
+              "index": 0,
+              "ok": true,
+              "reasons": [],
+              "stem": "Ada walked to the big market on Tuesday. She bought three sweet mangoes from the vendor. What did Ada buy at the market?"
+            },
+            {
+              "index": 1,
+              "ok": true,
+              "reasons": [],
+              "stem": "Musa took a blue bus to school this morning. He sat next to his friend Emeka. Where was Musa going on the bus?"
+            },
+            {
+              "index": 2,
+              "ok": true,
+              "reasons": [],
+              "stem": "Aisha went to the farm with her uncle. They carried big yams in a red basket. Who went to the farm with Aisha?"
+            },
+            {
+              "index": 3,
+              "ok": true,
+              "reasons": [],
+              "stem": "Ngozi lost her yellow pencil under the desk. Tolu found it and gave it back to her. Who found the yellow pencil?"
+            },
+            {
+              "index": 4,
+              "ok": true,
+              "reasons": [],
+              "stem": "Emeka washed six juicy oranges in a clean bowl. He shared them with Aisha after playing. Where did Emeka wash the oranges?"
+            }
+          ]
+        },
+        "items": [
+          {
+            "type": "mcq",
+            "stem": "Ada walked to the big market on Tuesday. She bought three sweet mangoes from the vendor. What did Ada buy at the market?",
+            "audioText": "Ada walked to the big market on Tuesday. She bought three sweet mangoes from the vendor. What did Ada buy at the market?",
+            "options": [
+              "Three sweet mangoes",
+              "Two ripe bananas",
+              "Four fresh yams"
+            ],
+            "answer": "Three sweet mangoes",
+            "hint": "Look at the second sentence to see what Ada bought.",
+            "feedbackCorrect": "Great job! Ada bought three sweet mangoes.",
+            "feedbackTryAgain": "Read the story again to find what Ada bought.",
+            "source": "ai"
+          },
+          {
+            "type": "mcq",
+            "stem": "Musa took a blue bus to school this morning. He sat next to his friend Emeka. Where was Musa going on the bus?",
+            "audioText": "Musa took a blue bus to school this morning. He sat next to his friend Emeka. Where was Musa going on the bus?",
+            "options": [
+              "To the market",
+              "To school",
+              "To the farm"
+            ],
+            "answer": "To school",
+            "hint": "Check the first sentence to see Musa's destination.",
+            "feedbackCorrect": "Well done! Musa was going to school.",
+            "feedbackTryAgain": "Try again! Look at where the bus was taking Musa.",
+            "source": "ai"
+          },
+          {
+            "type": "mcq",
+            "stem": "Aisha went to the farm with her uncle. They carried big yams in a red basket. Who went to the farm with Aisha?",
+            "audioText": "Aisha went to the farm with her uncle. They carried big yams in a red basket. Who went to the farm with Aisha?",
+            "options": [
+              "Her uncle",
+              "Her teacher",
+              "Her friend"
+            ],
+            "answer": "Her uncle",
+            "hint": "Look at the first sentence to see who was with Aisha.",
+            "feedbackCorrect": "Awesome! Aisha went to the farm with her uncle.",
+            "feedbackTryAgain": "Read the first sentence again carefully.",
+            "source": "ai"
+          },
+          {
+            "type": "mcq",
+            "stem": "Ngozi lost her yellow pencil under the desk. Tolu found it and gave it back to her. Who found the yellow pencil?",
+            "audioText": "Ngozi lost her yellow pencil under the desk. Tolu found it and gave it back to her. Who found the yellow pencil?",
+            "options": [
+              "Ngozi",
+              "Tolu",
+              "Emeka"
+            ],
+            "answer": "Tolu",
+            "hint": "Check the second sentence to see who picked up the pencil.",
+            "feedbackCorrect": "Fantastic! Tolu found the pencil.",
+            "feedbackTryAgain": "Take another look at who found the pencil.",
+            "source": "ai"
+          },
+          {
+            "type": "mcq",
+            "stem": "Emeka washed six juicy oranges in a clean bowl. He shared them with Aisha after playing. Where did Emeka wash the oranges?",
+            "audioText": "Emeka washed six juicy oranges in a clean bowl. He shared them with Aisha after playing. Where did Emeka wash the oranges?",
+            "options": [
+              "In a clean bowl",
+              "Under a big tree",
+              "On a green desk"
+            ],
+            "answer": "In a clean bowl",
+            "hint": "Read the first sentence to see where the oranges were washed.",
+            "feedbackCorrect": "Super work! He washed them in a clean bowl.",
+            "feedbackTryAgain": "Try reading the first sentence again.",
+            "source": "ai"
+          }
+        ]
+      }
+    }
+  },
+  {
+    "label": "generate N3 level 3",
+    "path": "/api/generate-exercises",
+    "input": {
+      "skillId": "N3",
+      "difficulty": 3,
+      "count": 5,
+      "language": "en"
+    },
+    "status": 200,
+    "ms": 31484,
+    "output": {
+      "ok": true,
+      "data": {
+        "exerciseId": "335a0005-d1b8-4f31-a142-c363a632a509",
+        "fallback": "none",
+        "report": {
+          "accepted": 5,
+          "rejected": 0,
+          "items": [
+            {
+              "index": 0,
+              "ok": true,
+              "reasons": [],
+              "stem": "9 + 8 = ?"
+            },
+            {
+              "index": 1,
+              "ok": true,
+              "reasons": [],
+              "stem": "7 + 9 = ?"
+            },
+            {
+              "index": 2,
+              "ok": true,
+              "reasons": [],
+              "stem": "8 + 7 = ?"
+            },
+            {
+              "index": 3,
+              "ok": true,
+              "reasons": [],
+              "stem": "9 + 9 = ?"
+            },
+            {
+              "index": 4,
+              "ok": true,
+              "reasons": [],
+              "stem": "6 + 8 = ?"
+            }
+          ]
+        },
+        "items": [
+          {
+            "type": "numeric",
+            "stem": "9 + 8 = ?",
+            "audioText": "What is 9 plus 8?",
+            "answer": 17,
+            "hint": "Start at 9 and count 8 more.",
+            "feedbackCorrect": "Great job! You got it right.",
+            "feedbackTryAgain": "Try again! You can count carefully.",
+            "source": "ai"
+          },
+          {
+            "type": "numeric",
+            "stem": "7 + 9 = ?",
+            "audioText": "What is 7 plus 9?",
+            "answer": 16,
+            "hint": "Add 3 to 7 to make 10, then add 6 more.",
+            "feedbackCorrect": "Well done! Excellent addition.",
+            "feedbackTryAgain": "Keep going! Try counting on your fingers.",
+            "source": "ai"
+          },
+          {
+            "type": "numeric",
+            "stem": "8 + 7 = ?",
+            "audioText": "What is 8 plus 7?",
+            "answer": 15,
+            "hint": "Add 2 to 8 to make 10, then add 5 more.",
+            "feedbackCorrect": "Super work! That is correct.",
+            "feedbackTryAgain": "You are close! Take your time and try again.",
+            "source": "ai"
+          },
+          {
+            "type": "numeric",
+            "stem": "9 + 9 = ?",
+            "audioText": "What is 9 plus 9?",
+            "answer": 18,
+            "hint": "Think about doubling 9.",
+            "feedbackCorrect": "Fantastic! You are doing so well.",
+            "feedbackTryAgain": "Good effort! Count again slowly.",
+            "source": "ai"
+          },
+          {
+            "type": "numeric",
+            "stem": "6 + 8 = ?",
+            "audioText": "What is 6 plus 8?",
+            "answer": 14,
+            "hint": "Start with the larger number 8 and count up 6.",
+            "feedbackCorrect": "Wonderful! You solved it.",
+            "feedbackTryAgain": "Do not give up! Give it another try.",
+            "source": "ai"
+          }
+        ]
+      }
+    }
+  }
+]

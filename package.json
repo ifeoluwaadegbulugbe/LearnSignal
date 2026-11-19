@@ -10,7 +10,8 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "seed:gen": "node scripts/gen-seed.ts",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "test:rls": "vitest run -c vitest.rls.config.ts"
   },
   "dependencies": {
     "@google/genai": "^3.3.0",
