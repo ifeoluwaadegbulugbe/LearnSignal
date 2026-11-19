@@ -14,7 +14,21 @@ const browser = await chromium.launch();
 const ctx = await browser.newContext();
 const page = await ctx.newPage();
 
+// Auth screens must be captured while signed out.
+const only0 = process.argv.slice(2);
+for (const name of ['login', 'signup']) {
+  if (only0.length && !only0.includes(name)) continue;
+  for (const [w, h] of WIDTHS) {
+    await page.setViewportSize({ width: w, height: h });
+    await page.goto(`${BASE}/${name}`, { waitUntil: 'networkidle', timeout: 90000 });
+    await page.waitForTimeout(500);
+    await page.screenshot({ path: new URL(`${name}-${w}.png`, out).pathname.replace(/^\/([A-Z]:)/, '$1'), fullPage: true });
+    console.log(`captured ${name} @ ${w}`);
+  }
+}
+
 // Sign in once (public pages work without it).
+await page.setViewportSize({ width: 1280, height: 900 });
 await page.goto(`${BASE}/login`);
 await page.fill('#email', env.TEST_TEACHER_A_EMAIL);
 await page.fill('#password', env.TEST_TEACHER_A_PASSWORD);

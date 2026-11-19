@@ -64,7 +64,8 @@ export default async function ProgressPage({ params, searchParams }: { params: P
 
   const changes: ChangeRow[] = learners.filter((l) => l.states.length).map((l) => {
     const moves = l.states.map((s) => ({ s, f: first.get(`${l.id}|${s.skill_id}`) }));
-    const up = moves.filter(({ s, f }) => f && RANK[s.state] > RANK[f.state] && f.state !== 'insufficient').map(({ s }) => s.skill_id);
+    // Count as progress only from a genuine gap: not "developing" that was already strong but unconfirmed (p ≥ 0.8, one session).
+    const up = moves.filter(({ s, f }) => f && RANK[s.state] > RANK[f.state] && f.state !== 'insufficient' && !(f.state === 'developing' && f.p >= 0.8)).map(({ s }) => s.skill_id);
     const retest = l.states.filter((s) => s.retest_suggested).map((s) => s.skill_id);
     return { id: l.id, name: l.display_name, code: l.code, up, retest, working: l.working, change: retest.length ? 'retest' : up.length ? 'up' : 'held' };
   });

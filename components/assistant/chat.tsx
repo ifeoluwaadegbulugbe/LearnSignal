@@ -50,8 +50,9 @@ export function AssistantChat({ classrooms, learners, aiReady, compact, initialC
     } finally { setLoading(false); }
   }
 
-  /** Codes become learner chips; names are resolved here, the model only saw the code. */
-  const inline = (line: string) => line.split(/(LS-[A-Z0-9]{6})/g).map((part, i) => {
+  /** Codes become learner chips (names resolved here; the model only saw codes). **bold** renders as bold. */
+  const inline = (line: string) => line.split(/(LS-[A-Z0-9]{6}|\*\*[^*]+\*\*)/g).map((part, i) => {
+    if (/^\*\*[^*]+\*\*$/.test(part)) return <b key={i}>{part.slice(2, -2)}</b>;
     const l = byCode.get(part);
     return l ? (
       <Link key={i} href={`/learners/${l.id}`} className="mx-0.5 inline-flex items-center gap-1 rounded-full border border-line bg-card py-0.5 pl-0.5 pr-2 align-middle text-[13px] font-semibold hover:border-teal">
@@ -61,7 +62,7 @@ export function AssistantChat({ classrooms, learners, aiReady, compact, initialC
   });
   const renderAnswer = (text: string) => {
     const lines = text.split('\n').filter((l) => l.trim());
-    const items = lines.filter((l) => /^\s*([-*•]|\d+\.)\s+/.test(l));
+    const items = lines.filter((l) => /^\s*([-*•]|\d+\.)\s+(?!\*)/.test(l) || /^\s*[-•]\s+\*\*/.test(l) || /^\s*\*\s+/.test(l));
     if (items.length >= 2) {
       return <>{lines.filter((l) => !items.includes(l)).map((l, i) => <p key={i}>{inline(l)}</p>)}
         <ul className="mt-2 divide-y divide-line rounded-[12px] border border-line bg-card">{items.map((l, i) => <li key={i} className="px-3 py-2">{inline(l.replace(/^\s*([-*•]|\d+\.)\s+/, ''))}</li>)}</ul></>;
@@ -99,7 +100,13 @@ export function AssistantChat({ classrooms, learners, aiReady, compact, initialC
             </div>
           </div>
         )}
-        {msgs.map((m, i) => m.role === 'user' ? (
+        {msgs.flatMap((m) => {
+          // Split a mixed answer so general guidance is never styled as class data.
+          if (m.role !== 'assistant' || m.blocked) return [m];
+          const at = m.text.search(/General guidance/i);
+          if (at <= 0) return [m];
+          return [{ ...m, text: m.text.slice(0, at).trim() }, { ...m, text: m.text.slice(at).trim() }];
+        }).map((m, i) => m.role === 'user' ? (
           <div key={i} className="ml-auto w-fit max-w-[85%] rounded-[18px] rounded-br-md bg-teal-soft px-4 py-2.5 text-[15px] text-teal-ink dark:text-teal">{m.text}</div>
         ) : m.text === NO_DATA || m.blocked ? (
           <IndexCard key={i} tab="Answer" tabTone="stone" className="max-w-[92%]"><p className="flex items-start gap-2 text-[15px] text-ink-2"><Info className="mt-1 size-4 shrink-0" aria-hidden />{m.text === NO_DATA ? "I don't have data for that yet." : m.text}</p></IndexCard>

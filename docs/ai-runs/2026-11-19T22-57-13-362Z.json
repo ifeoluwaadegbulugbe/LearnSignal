@@ -1,0 +1,326 @@
+[
+  {
+    "label": "generate N4 level 2",
+    "path": "/api/generate-exercises",
+    "input": {
+      "skillId": "N4",
+      "difficulty": 2,
+      "count": 5,
+      "language": "en"
+    },
+    "status": 200,
+    "ms": 44526,
+    "output": {
+      "ok": true,
+      "data": {
+        "exerciseId": "08b3d2f4-6a38-4276-8959-38850c0c93a6",
+        "fallback": "none",
+        "report": {
+          "accepted": 5,
+          "rejected": 0,
+          "items": [
+            {
+              "index": 0,
+              "ok": true,
+              "reasons": [],
+              "stem": "14 − 6 = ?"
+            },
+            {
+              "index": 1,
+              "ok": true,
+              "reasons": [],
+              "stem": "17 − 9 = ?"
+            },
+            {
+              "index": 2,
+              "ok": true,
+              "reasons": [],
+              "stem": "15 − 8 = ?"
+            },
+            {
+              "index": 3,
+              "ok": true,
+              "reasons": [],
+              "stem": "12 − 5 = ?"
+            },
+            {
+              "index": 4,
+              "ok": true,
+              "reasons": [],
+              "stem": "16 − 7 = ?"
+            }
+          ]
+        },
+        "items": [
+          {
+            "type": "numeric",
+            "stem": "14 − 6 = ?",
+            "audioText": "What is 14 take away 6?",
+            "answer": 8,
+            "hint": "Count back 6 steps starting from 14.",
+            "feedbackCorrect": "Great job! You got it right.",
+            "feedbackTryAgain": "Try again! You can count back from 14.",
+            "source": "ai"
+          },
+          {
+            "type": "numeric",
+            "stem": "17 − 9 = ?",
+            "audioText": "What is 17 take away 9?",
+            "answer": 8,
+            "hint": "Start at 17 and count down 9 times.",
+            "feedbackCorrect": "Well done! Excellent work.",
+            "feedbackTryAgain": "Keep trying! Take away 9 from 17.",
+            "source": "ai"
+          },
+          {
+            "type": "numeric",
+            "stem": "15 − 8 = ?",
+            "audioText": "What is 15 take away 8?",
+            "answer": 7,
+            "hint": "Think of what number added to 8 gives 15.",
+            "feedbackCorrect": "Awesome work! That is correct.",
+            "feedbackTryAgain": "Nice try! Count back 8 from 15.",
+            "source": "ai"
+          },
+          {
+            "type": "numeric",
+            "stem": "12 − 5 = ?",
+            "audioText": "What is 12 take away 5?",
+            "answer": 7,
+            "hint": "Take away 2 first to get 10, then take away 3 more.",
+            "feedbackCorrect": "Correct! You are doing so well.",
+            "feedbackTryAgain": "You can do this! Take away 5 from 12.",
+            "source": "ai"
+          },
+          {
+            "type": "numeric",
+            "stem": "16 − 7 = ?",
+            "audioText": "What is 16 take away 7?",
+            "answer": 9,
+            "hint": "Count backwards 7 steps starting from 16.",
+            "feedbackCorrect": "Super star! That is right.",
+            "feedbackTryAgain": "Almost there! Try counting back 7 from 16.",
+            "source": "ai"
+          }
+        ]
+      }
+    }
+  },
+  {
+    "label": "generate L2 level 1",
+    "path": "/api/generate-exercises",
+    "input": {
+      "skillId": "L2",
+      "difficulty": 1,
+      "count": 5,
+      "language": "en"
+    },
+    "status": 200,
+    "ms": 41434,
+    "output": {
+      "ok": true,
+      "data": {
+        "exerciseId": "1f31e155-1abc-4766-afba-c9676e5fc4e5",
+        "fallback": "none",
+        "report": {
+          "accepted": 5,
+          "rejected": 0,
+          "items": [
+            {
+              "index": 0,
+              "ok": true,
+              "reasons": [],
+              "stem": "Blend the sounds: c-a-t. What word does it make?"
+            },
+            {
+              "index": 1,
+              "ok": true,
+              "reasons": [],
+              "stem": "Blend the sounds: d-o-g. What word does it make?"
+            },
+            {
+              "index": 2,
+              "ok": true,
+              "reasons": [],
+              "stem": "Blend the sounds: s-u-n. What word does it make?"
+            },
+            {
+              "index": 3,
+              "ok": true,
+              "reasons": [],
+              "stem": "Blend the sounds: p-i-g. What word does it make?"
+            },
+            {
+              "index": 4,
+              "ok": true,
+              "reasons": [],
+              "stem": "Blend the sounds: f-r-o-g. What word does it make?"
+            }
+          ]
+        },
+        "items": [
+          {
+            "type": "mcq",
+            "stem": "Blend the sounds: c-a-t. What word does it make?",
+            "audioText": "Blend the sounds: c, a, t. What word does it make?",
+            "options": [
+              "cat",
+              "cot",
+              "can"
+            ],
+            "answer": "cat",
+            "hint": "Say the sounds fast together: c-a-t.",
+            "feedbackCorrect": "Well done! You blended the sounds into cat.",
+            "feedbackTryAgain": "Listen to each sound again and try one more time.",
+            "source": "ai"
+          },
+          {
+            "type": "mcq",
+            "stem": "Blend the sounds: d-o-g. What word does it make?",
+            "audioText": "Blend the sounds: d, o, g. What word does it make?",
+            "options": [
+              "dig",
+              "dot",
+              "dog"
+            ],
+            "answer": "dog",
+            "hint": "Put d, o, and g together quickly.",
+            "feedbackCorrect": "Great job! That makes dog.",
+            "feedbackTryAgain": "Keep going! Say the sounds closer together.",
+            "source": "ai"
+          },
+          {
+            "type": "mcq",
+            "stem": "Blend the sounds: s-u-n. What word does it make?",
+            "audioText": "Blend the sounds: s, u, n. What word does it make?",
+            "options": [
+              "sun",
+              "run",
+              "sit"
+            ],
+            "answer": "sun",
+            "hint": "Start with s and say the next sounds fast.",
+            "feedbackCorrect": "Super! You made the word sun.",
+            "feedbackTryAgain": "You can do it! Try blending the sounds again.",
+            "source": "ai"
+          },
+          {
+            "type": "mcq",
+            "stem": "Blend the sounds: p-i-g. What word does it make?",
+            "audioText": "Blend the sounds: p, i, g. What word does it make?",
+            "options": [
+              "peg",
+              "pig",
+              "pen"
+            ],
+            "answer": "pig",
+            "hint": "Join p, i, and g to hear the word.",
+            "feedbackCorrect": "Fantastic work! The word is pig.",
+            "feedbackTryAgain": "Almost there! Listen closely to the sounds.",
+            "source": "ai"
+          },
+          {
+            "type": "mcq",
+            "stem": "Blend the sounds: f-r-o-g. What word does it make?",
+            "audioText": "Blend the sounds: f, r, o, g. What word does it make?",
+            "options": [
+              "from",
+              "frog",
+              "flag"
+            ],
+            "answer": "frog",
+            "hint": "Blend all four sounds: f-r-o-g.",
+            "feedbackCorrect": "Wonderful! You blended frog correctly.",
+            "feedbackTryAgain": "Take your time and blend the sounds together.",
+            "source": "ai"
+          }
+        ]
+      }
+    }
+  },
+  {
+    "label": "ask: subtraction support",
+    "path": "/api/assistant",
+    "input": {
+      "classroomId": "63897f39-257c-4e14-af2a-99725e0bd72c",
+      "question": "Who needs subtraction support?"
+    },
+    "status": 200,
+    "ms": 54097,
+    "output": {
+      "ok": true,
+      "data": {
+        "answer": "The following 9 learners currently need support with Subtraction (N4):\n\n**Not yet demonstrated:**\n* LS-1254D6\n* LS-7308AA\n* LS-85427B\n* LS-946620\n* LS-A25249\n* LS-B85FDE\n\n**Developing:**\n* LS-208055\n* LS-7F2901\n* LS-C18A90",
+        "citedCodes": [
+          "LS-1254D6",
+          "LS-7308AA",
+          "LS-85427B",
+          "LS-946620",
+          "LS-A25249",
+          "LS-B85FDE",
+          "LS-208055",
+          "LS-7F2901",
+          "LS-C18A90"
+        ],
+        "toolCalls": [
+          "learners_by_skill_state"
+        ],
+        "asOf": "2026-11-19T22:55:33.310Z",
+        "blocked": false
+      }
+    }
+  },
+  {
+    "label": "ask: unsupported",
+    "path": "/api/assistant",
+    "input": {
+      "classroomId": "63897f39-257c-4e14-af2a-99725e0bd72c",
+      "question": "Which learners have the best handwriting?"
+    },
+    "status": 200,
+    "ms": 25831,
+    "output": {
+      "ok": true,
+      "data": {
+        "answer": "I don't have data for that. You may wish to assess handwriting or letter formation separately.",
+        "citedCodes": [],
+        "toolCalls": [
+          "class_summary"
+        ],
+        "asOf": "2026-11-19T22:56:25.256Z",
+        "blocked": false
+      }
+    }
+  },
+  {
+    "label": "ask: general guidance",
+    "path": "/api/assistant",
+    "input": {
+      "classroomId": "63897f39-257c-4e14-af2a-99725e0bd72c",
+      "question": "Give me a 15-minute blending activity."
+    },
+    "status": 200,
+    "ms": 24800,
+    "output": {
+      "ok": true,
+      "data": {
+        "answer": "Learners who currently need support with L2 (Blending) as either not yet demonstrated or developing: LS-4C92D4, LS-208055, LS-946620, LS-B85FDE, LS-A25249, LS-C18A90, LS-7308AA, and LS-85427B.\n\nGeneral guidance (not from your class data):\n\n**15-Minute CVC Blending Activity**\n* **Warm-up (3 mins):** Flash individual sound cards (e.g., /s/, /a/, /t/, /p/) for rapid recall.\n* **Main Activity (8 mins):** \n  * Place three letter cards on a table to form a CVC word (e.g., *c-a-t*).\n  * Have learners say each sound while tapping under the letter, then slide a finger across to blend them into the full word.\n  * Swap cards to build new words (e.g., *p-i-n*, *m-a-p*).\n* **Wrap-up (4 mins):** Oral blending game—say individual sounds slowly (e.g., /b/-/u/-/s/) and have learners call out the blended word.",
+        "citedCodes": [
+          "LS-4C92D4",
+          "LS-208055",
+          "LS-946620",
+          "LS-B85FDE",
+          "LS-A25249",
+          "LS-C18A90",
+          "LS-7308AA",
+          "LS-85427B"
+        ],
+        "toolCalls": [
+          "learners_by_skill_state"
+        ],
+        "asOf": "2026-11-19T22:56:50.306Z",
+        "blocked": false
+      }
+    }
+  }
+]

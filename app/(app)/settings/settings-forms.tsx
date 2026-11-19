@@ -10,10 +10,32 @@ import { Dialog } from '@/components/ui/dialog';
 import { useToast } from '@/components/ui/toast';
 import { NightSwitch } from '@/components/layout/theme-toggle';
 import { deleteClassroom, setAiEnabled, updateProfile } from '@/lib/actions/setup';
+import { createClient as createBrowserClient } from '@/lib/supabase/client';
 import { deleteLearner } from '@/lib/actions/learners';
 import { resetDemoClass } from '@/lib/actions/demo';
 import { cn } from '@/lib/utils';
 import type { ClassroomLite } from '@/lib/server/context';
+
+function ChangePassword() {
+  const [pw, setPw] = useState('');
+  const [msg, setMsg] = useState<{ ok: boolean; text: string } | null>(null);
+  const [busy, setBusy] = useState(false);
+  return (
+    <form className="mt-8 max-w-md space-y-3 border-t border-dashed border-line-strong pt-6" onSubmit={async (e) => {
+      e.preventDefault();
+      if (pw.length < 8) { setMsg({ ok: false, text: 'Use at least 8 characters.' }); return; }
+      setBusy(true);
+      const { error } = await createBrowserClient().auth.updateUser({ password: pw });
+      setBusy(false);
+      setMsg(error ? { ok: false, text: error.message } : { ok: true, text: 'Password updated.' }); if (!error) setPw('');
+    }}>
+      <Field label="New password" htmlFor="new-pw" error={msg && !msg.ok ? msg.text : undefined} hint={msg?.ok ? msg.text : 'At least 8 characters.'}>
+        <Input id="new-pw" type="password" autoComplete="new-password" value={pw} onChange={(e) => setPw(e.target.value)} invalid={!!msg && !msg.ok} />
+      </Field>
+      <Button type="submit" variant="secondary" loading={busy}>Change password</Button>
+    </form>
+  );
+}
 
 type L = { id: string; code: string; name: string; classroomId: string; archived: boolean; states: { skill_id: string; state: string }[] };
 const SECTIONS = [
@@ -65,6 +87,7 @@ export function SettingsForms({ fullName, email, aiEnabled, aiServer, schools, c
             <p className="text-[14px] text-ink-2">Signed in as {email}</p>
             <Button type="submit" loading={pending}>Save</Button>
           </form>
+          {!isDemo && <ChangePassword />}
         </IndexCard>
 
         <IndexCard tab="Classes" id="s-class">
