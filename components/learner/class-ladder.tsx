@@ -33,9 +33,9 @@ export function ClassLadder({ learners, strand, onSelect, interactive = true }: 
   const dot = (l: LadderLearner, i: number) => (
     <Tooltip key={l.id} text={`${l.name} · ${l.code}${l.recheck[strand] ? ' · re-check suggested' : ''}`}>
       <button type="button" disabled={!interactive} onClick={() => onSelect?.({ kind: 'learner', id: l.id })}
-        className={cn('dot-settle -ml-1.5 rounded-full ring-2 ring-card first:ml-0 enabled:hover:z-10 enabled:hover:-translate-y-0.5 enabled:transition-transform', l.recheck[strand] && 'outline-2 outline-dashed outline-offset-1 outline-st-notyet')}
+        className={cn('dot-settle -ml-1.5 rounded-full ring-2 ring-surface first:ml-0 enabled:hover:z-10 enabled:hover:-translate-y-0.5 enabled:transition-transform', l.recheck[strand] && 'outline-2 outline-dashed outline-offset-1 outline-st-notyet')}
         style={{ animationDelay: `${Math.min(i, 12) * 30}ms` }} aria-label={`${l.name}, learner code ${l.code}`}>
-        <Avatar name={l.name} seed={l.code} size={24} label="" />
+        <Avatar name={l.name} seed={l.code} size={28} label="" />
       </button>
     </Tooltip>
   );
@@ -43,28 +43,28 @@ export function ClassLadder({ learners, strand, onSelect, interactive = true }: 
   return (
     <div>
       {/* Above the ladder: no gap flagged on skills checked */}
-      <div className="mb-2 flex min-h-10 items-center gap-3 rounded-[12px] border border-dashed border-line-strong px-3 py-1.5">
-        <button type="button" disabled={!interactive || !secure.length} onClick={() => onSelect?.({ kind: 'secure' })} className="w-28 shrink-0 text-left text-[12px] font-semibold text-ink-2 sm:w-40">No gap flagged <span className="tabular text-ink">({secure.length})</span></button>
+      <div className="mb-3 flex min-h-11 items-center gap-3 rounded-[14px] bg-st-consistent-soft/60 px-3 py-1.5">
+        <button type="button" disabled={!interactive || !secure.length} onClick={() => onSelect?.({ kind: 'secure' })} className="w-28 shrink-0 text-left text-[12px] font-semibold text-st-consistent sm:w-40">No gap flagged <span className="tabular">({secure.length})</span></button>
         <div className="flex flex-wrap gap-y-1">{secure.length ? secure.map(dot) : <span className="text-[12px] text-ink-3">—</span>}</div>
       </div>
-      <ol className="relative" aria-label={`${strand} class ladder`}>
-        {/* ladder rails */}
-        <span aria-hidden className="absolute bottom-3 left-[4.75rem] top-3 w-1 rounded-full bg-teal/20 sm:left-[9.25rem]" />
-        <span aria-hidden className="absolute bottom-3 right-2 top-3 w-1 rounded-full bg-teal/20" />
-        {skills.map((sk) => {
+      <ol className="relative overflow-hidden rounded-[16px] border border-line" aria-label={`${strand} class ladder`}>
+        {/* violet rails on both edges */}
+        <span aria-hidden className="absolute inset-y-0 left-0 z-[2] w-1.5 bg-violet" />
+        <span aria-hidden className="absolute inset-y-0 right-0 z-[2] w-1.5 bg-violet" />
+        {skills.map((sk, i) => {
           const here = assessed.filter((l) => l.working[strand] === sk.id);
           return (
-            <li key={sk.id} className="relative flex min-h-14 items-center gap-3 py-1.5">
+            <li key={sk.id} className={cn('relative flex min-h-[60px] items-center gap-3 border-b border-line px-4 py-2 last:border-b-0 sm:px-5', i % 2 ? 'bg-surface' : 'bg-surface-2/70')}>
               <button type="button" disabled={!interactive} onClick={() => onSelect?.({ kind: 'rung', skillId: sk.id })}
-                className="w-[4.25rem] shrink-0 rounded-[10px] px-1 py-1 text-left enabled:hover:bg-paper-2 sm:w-[8.75rem]" aria-label={`${sk.id} ${sk.name}: ${here.length} learner${here.length === 1 ? '' : 's'} working here`}>
-                <span className="block font-mono text-[12px] text-ink-2">{sk.id}</span>
-                <span className="hidden truncate text-[13px] font-semibold sm:block">{sk.shortName}</span>
+                className="flex w-[4.25rem] shrink-0 items-center gap-2 rounded-[10px] py-1 text-left enabled:hover:text-violet-deep sm:w-[10.5rem]" aria-label={`${sk.id} ${sk.name}: ${here.length} learner${here.length === 1 ? '' : 's'} working here`}>
+                <span className="rounded-full bg-violet-soft px-2 py-0.5 font-mono text-[12px] font-medium text-violet-deep dark:text-violet">{sk.id}</span>
+                <span className="hidden truncate text-[14px] font-semibold sm:block">{sk.shortName}</span>
               </button>
-              <div className={cn('relative z-[1] flex min-h-10 flex-1 items-center gap-3 rounded-full border px-3 py-1.5', here.length ? 'border-teal/30 bg-teal-soft/70' : 'border-dashed border-line-strong bg-card')}>
+              <div className="flex min-h-10 flex-1 items-center gap-3">
                 {here.length ? (
                   <div className="no-scrollbar flex flex-1 flex-wrap items-center gap-y-1 overflow-x-auto">{here.map(dot)}</div>
-                ) : <span className="flex-1 text-[12px] text-ink-3">No one here yet</span>}
-                <span className="shrink-0 rounded-full bg-card px-2 text-[12px] font-semibold tabular text-ink-2">{here.length}</span>
+                ) : <span className="flex-1 border-b border-dotted border-line-strong pb-1 text-[12px] text-ink-3">No one here yet</span>}
+                <span className={cn('shrink-0 rounded-full px-2.5 text-[12px] font-semibold tabular', here.length ? 'bg-violet text-white dark:text-[#0C0F1A]' : 'bg-surface-2 text-ink-3')}>{here.length}</span>
               </div>
             </li>
           );
@@ -73,7 +73,7 @@ export function ClassLadder({ learners, strand, onSelect, interactive = true }: 
       {unchecked.length > 0 && (
         <p className="mt-3 flex flex-wrap items-center gap-2 text-[12px] text-ink-2">
           Not checked on {strand} yet:
-          <span className="flex opacity-60">{unchecked.slice(0, 12).map((l) => <Avatar key={l.id} name={l.name} seed={l.code} size={24} className="-ml-1.5 ring-2 ring-paper first:ml-0" />)}</span>
+          <span className="flex opacity-60">{unchecked.slice(0, 12).map((l) => <Avatar key={l.id} name={l.name} seed={l.code} size={24} className="-ml-1.5 ring-2 ring-surface first:ml-0" />)}</span>
           {unchecked.length > 12 && <span>+{unchecked.length - 12}</span>}
         </p>
       )}
@@ -100,7 +100,7 @@ export function ClassLadderBoard({ learners, defaultStrand = 'numeracy' }: { lea
       <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
         <SegmentedTabs label="Strand" value={strand} onChange={(v) => setStrand(v as Strand)} items={[{ id: 'literacy', label: 'Literacy' }, { id: 'numeracy', label: 'Numeracy' }]} />
         <ul className="flex flex-wrap gap-x-4 gap-y-1 text-[12px] text-ink-2" aria-label="Legend">
-          <li className="flex items-center gap-1.5"><span className="size-3 rounded-full bg-teal-soft ring-1 ring-teal/40" aria-hidden /> Working here</li>
+          <li className="flex items-center gap-1.5"><span className="size-3 rounded-full bg-violet" aria-hidden /> Count working here</li>
           <li className="flex items-center gap-1.5"><span className="size-3 rounded-full outline-2 outline-dashed outline-st-notyet" aria-hidden /> Re-check suggested</li>
         </ul>
       </div>

@@ -3,7 +3,8 @@ import { getClassroom, getGroups } from '@/lib/server/classroom';
 import { SKILL_BY_ID } from '@/lib/content/skills';
 import { STATUS } from '@/components/ui/status';
 import { ButtonLink } from '@/components/ui/button';
-import { IndexCard, NotADiagnosis, SampleDataBadge, SectionHeader, SummaryStrip } from '@/components/ui/primitives';
+import { AuroraBackdrop, IndexCard, MetaRow, NotADiagnosis, SampleDataBadge, SectionHeader, SummaryTiles } from '@/components/ui/primitives';
+import { SkillArt } from '@/components/ui/skill-art';
 import { NextStepCard, Timeline } from '@/components/ui/cards';
 import { EmptyState } from '@/components/ui/states';
 import { AvatarStack } from '@/components/ui/avatar';
@@ -22,7 +23,7 @@ export default async function Today({ params }: { params: Promise<{ id: string }
   const ids = learners.map((l) => l.id);
   const [{ data: assignments }, { data: history }] = ids.length ? await Promise.all([
     ctx.supabase.from('assignments').select('learner_id, status, exercises(skill_id)').in('learner_id', ids),
-    ctx.supabase.from('skill_state_history').select('learner_id, skill_id, state, created_at').in('learner_id', ids).order('created_at'),
+    ctx.supabase.from('skill_state_history').select('learner_id, skill_id, state, p, created_at').in('learner_id', ids).order('created_at'),
   ]) : [{ data: [] }, { data: [] }];
 
   const firstName = ctx.fullName.split(' ')[0];
@@ -52,13 +53,16 @@ export default async function Today({ params }: { params: Promise<{ id: string }
         : null;
 
   // Recent changes: real state moves from history (newest first), plus re-checks due.
-  const prev = new Map<string, SkillStateName>();
+  const prev = new Map<string, { state: SkillStateName; p: number }>();
   const moves: { id: string; title: string; meta: string; href: string; tone: 'leaf' | 'sky' | 'sun' }[] = [];
-  for (const h of history ?? []) {
+  for (const h of (history ?? []) as { learner_id: string; skill_id: string; state: string; p: number; created_at: string }[]) {
     const k = `${h.learner_id}|${h.skill_id}`;
-    const before = prev.get(k);
+    const b = prev.get(k);
+    const before = b?.state;
     const now = h.state as SkillStateName;
-    if (before && before !== now && now !== 'insufficient') {
+    // Skip "confirmations" (a strong first session becoming consistent): not a real move.
+    const confirmation = before === 'developing' && now === 'consistent' && (b?.p ?? 0) >= 0.8;
+    if (before && before !== now && now !== 'insufficient' && !confirmation) {
       const l = learners.find((x) => x.id === h.learner_id);
       if (l) moves.push({
         id: `${k}|${h.created_at}`, href: `/learners/${l.id}`,
@@ -66,7 +70,7 @@ export default async function Today({ params }: { params: Promise<{ id: string }
         meta: `${SKILL_BY_ID[h.skill_id].shortName} · ${fmtDate(h.created_at)}`, tone: RANK[now] > RANK[before] ? 'leaf' : 'sky',
       });
     }
-    prev.set(k, now);
+    prev.set(k, { state: now, p: Number(h.p) });
   }
   const timeline = [
     ...(recheck.length ? [{ id: 'recheck', title: `${recheck.length} re-check${recheck.length === 1 ? '' : 's'} suggested`, meta: recheck.map((l) => l.display_name).slice(0, 4).join(', '), href: `/learners/${recheck[0].id}`, tone: 'sun' as const }] : []),
@@ -85,24 +89,25 @@ export default async function Today({ params }: { params: Promise<{ id: string }
   }
 
   return (
-    <div className="space-y-8">
-      <div className="flex flex-col gap-5 xl:flex-row xl:items-end xl:justify-between fade-up">
-        <div className="space-y-2">{classroom.is_demo && <SampleDataBadge />}<Greeting firstName={firstName} className={classroom.name} learners={learners.length} /></div>
-        <SummaryStrip items={[
-          { label: 'Learners', value: learners.length },
-          { label: 'Checked', value: `${pct(assessed.length, learners.length)}%` },
-          { label: 'Need a closer look', value: closer.length },
-        ]} />
+    <div className="relative isolate space-y-10">
+      <AuroraBackdrop className="-top-8" />
+      <div className="flex flex-col gap-6 xl:flex-row xl:items-end xl:justify-between fade-up">
+        <div className="space-y-3">{classroom.is_demo && <SampleDataBadge />}<Greeting firstName={firstName} className={classroom.name} learners={learners.length} /></div>
+        <div className="xl:w-[480px]"><SummaryTiles items={[
+          { label: 'Learners', value: learners.length, tone: 'violet', glyph: 'dots' },
+          { label: 'Checked', value: `${pct(assessed.length, learners.length)}%`, tone: 'aqua', glyph: 'check' },
+          { label: 'Need a closer look', value: closer.length, tone: 'tangerine', glyph: 'eye' },
+        ]} /></div>
       </div>
 
-      {next && <NextStepCard id={next.id} sentence={next.sentence} detail={next.detail} action={<ButtonLink href={next.href} variant="sun">{next.cta}<ArrowRight className="size-4" aria-hidden /></ButtonLink>} />}
+      {next && <NextStepCard id={next.id} sentence={next.sentence} detail={next.detail} action={<ButtonLink href={next.href} variant="primary">{next.cta}<ArrowRight className="size-4" aria-hidden /></ButtonLink>} />}
 
       <section aria-labelledby="ladder">
         <SectionHeader id="ladder" title="Class ladder" info="Each dot is a learner, placed on the rung they are working on now. Click a rung or a dot for details." />
         <IndexCard className="fade-up"><ClassLadderBoard learners={ladder} /></IndexCard>
       </section>
 
-      <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_340px]">
+      <div className="grid gap-8 lg:grid-cols-[2fr_1fr]">
         <section aria-labelledby="groups" id="groups">
           <SectionHeader id="groups-h" title="Groups" href={`/classrooms/${id}/groups`} linkLabel="Plan groups" />
           {groups.length === 0 ? (
@@ -119,11 +124,11 @@ export default async function Today({ params }: { params: Promise<{ id: string }
                   if (st) counts[st]++;
                 }
                 return (
-                  <IndexCard key={g.id} tab="Group" interactive>
+                  <IndexCard key={g.id} interactive art={<SkillArt skill={g.target_skill_id} />}>
                     <div className="flex items-start justify-between gap-3">
                       <div className="min-w-0">
-                        <h3 className="truncate font-heading text-[16px] font-semibold">{g.name}</h3>
-                        <p className="font-mono text-[12px] text-ink-2">{g.target_skill_id} · {g.members.length} learner{g.members.length === 1 ? '' : 's'}</p>
+                        <h3 className="truncate text-[16px] font-semibold [font-family:var(--font-sans)]">{g.name}</h3>
+                        <MetaRow className="mt-2" items={[{ label: 'Learners', value: g.members.length }, { label: 'Skill', value: g.target_skill_id }, { label: 'Practice', value: rows.length ? `${pct(done, rows.length)}%` : '—' }]} />
                       </div>
                       <MeterRing value={rows.length ? pct(done, rows.length) : 0} size={44} label={`${g.name} practice completed`}>
                         <span className="text-[11px] font-bold tabular">{rows.length ? `${done}/${rows.length}` : '—'}</span>
@@ -141,7 +146,7 @@ export default async function Today({ params }: { params: Promise<{ id: string }
 
         <section aria-labelledby="changes">
           <SectionHeader id="changes" title="Recent changes" href={`/classrooms/${id}/progress`} linkLabel="Insights" />
-          <IndexCard ruled>
+          <IndexCard>
             <Timeline items={timeline} empty="Changes appear here after learners are re-checked or finish practice." />
           </IndexCard>
         </section>

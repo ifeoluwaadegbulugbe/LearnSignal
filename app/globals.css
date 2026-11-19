@@ -2,91 +2,108 @@
 @custom-variant dark (&:where([data-theme=night], [data-theme=night] *));
 
 /* ============================================================
-   LearnSignal identity v3: "the teacher's field notebook meets a signal".
-   Warm paper, ink, one confident teal, sun-yellow as the signal.
+   LearnSignal "Daylight" identity (UI redesign v4).
+   Violet brand, tangerine signal, aqua support, on cool white.
    [data-theme="night"] on <html> switches theme (set before paint).
    ============================================================ */
 :root {
-  /* paper + ink */
-  --paper: #FBF8F2; --paper-2: #F3EEE4; --card: #FFFFFF; --card-2: #FAF7F0;
-  --ink: #16222B; --ink-2: #4F5B66; --ink-3: #7B8791;
-  --line: #E7E0D2; --line-strong: #D4CAB6;
-  /* brand */
-  --teal: #0D5C63; --teal-hover: #0A4A50; --teal-soft: #DCEEEC; --teal-ink: #06353A;
-  --sun: #FFB627; --sun-soft: #FFF0CC; --sun-ink: #5C3D00;
-  --clay: #C8643C; --clay-soft: #FBE6DB;
-  --sky: #3B82C4; --sky-soft: #E1EEF9;
-  --leaf: #2E9D63; --leaf-soft: #DDF3E8;
-  --stone: #6E7780; --stone-soft: #ECEAE4;
-  /* status (icon + label always) */
+  --canvas: #F6F7FC; --surface: #FFFFFF; --surface-2: #F0F2FA;
+  --ink: #13172B; --ink-2: #4E5675; --ink-3: #7F88A8;
+  --line: #E4E7F3; --line-strong: #CFD4E8;
+  --violet: #5B3FE0; --violet-hover: #4A2FD0; --violet-soft: #ECE8FF; --violet-deep: #3A24A8;
+  --tangerine: #FF7A2F; --tangerine-soft: #FFEBDD; --tangerine-ink: #9A3D06;
+  --aqua: #12B3A8; --aqua-soft: #DDF6F3; --aqua-ink: #0B6B64;
+  --sky: #3D9BFF; --sky-soft: #E2F1FF; --sky-ink: #1A5FB0;
+  --sunshine: #FFC83D; --sunshine-soft: #FFF5D6; --sunshine-ink: #7A5600;
+  --rose: #F06A9B; --rose-soft: #FFE6F0;
+  --slate: #6A7391; --slate-soft: #ECEEF6;
   --st-not-yet: #A86A0C; --st-not-yet-bg: #FFEFD2;
   --st-dev: #2B6FB3; --st-dev-bg: #E1EEF9;
   --st-consistent: #1F8A55; --st-consistent-bg: #DDF3E8;
-  --st-insufficient: #6E7780; --st-insufficient-bg: #ECEAE4;
-  /* shape + depth */
-  --r-card: 18px; --r-tile: 12px; --r-input: 10px; --r-pill: 999px; --r-tab: 10px;
-  --shadow-card: 0 1px 0 rgba(22,34,43,.04), 0 6px 18px rgba(22,34,43,.06);
-  --shadow-card-hover: 0 1px 0 rgba(22,34,43,.05), 0 12px 28px rgba(22,34,43,.10);
-  --shadow-pop: 0 14px 44px rgba(22,34,43,.18);
-  --focus: 0 0 0 3px rgba(13,92,99,.35);
+  --st-insufficient: #6A7391; --st-insufficient-bg: #ECEEF6;
+  --grad-violet: linear-gradient(135deg, #6C52F0 0%, #4A2FD0 100%);
+  --grad-aurora: radial-gradient(80% 120% at 0% 0%, #ECE8FF 0%, transparent 60%), radial-gradient(70% 100% at 100% 0%, #FFEBDD 0%, transparent 55%);
+  --r-card: 20px; --r-tile: 14px; --r-input: 12px; --r-pill: 999px;
+  --shadow-card: 0 1px 2px rgba(19,23,43,.04), 0 10px 30px rgba(19,23,43,.06);
+  --shadow-lift: 0 2px 4px rgba(19,23,43,.05), 0 16px 40px rgba(91,63,224,.14);
+  --shadow-pop: 0 18px 56px rgba(19,23,43,.20);
+  --focus: 0 0 0 3px rgba(91,63,224,.38);
   --ease: cubic-bezier(.2,.8,.2,1);
-  --rule: rgba(22,34,43,.04);
   color-scheme: light;
+}
+/* Variable aliases for SVG/inline styles written against older names (resolve in both themes). */
+:root, [data-theme="night"] {
+  --paper: var(--canvas); --paper-2: var(--surface-2); --card: var(--surface); --card-2: var(--surface-2);
+  --teal: var(--violet); --teal-soft: var(--violet-soft); --teal-ink: var(--violet-deep);
+  --sun: var(--tangerine); --sun-soft: var(--tangerine-soft);
+  --clay: var(--rose); --clay-soft: var(--rose-soft); --leaf: var(--aqua); --leaf-soft: var(--aqua-soft);
+  --stone: var(--slate); --stone-soft: var(--slate-soft); --primary: var(--violet);
 }
 
 [data-theme="night"] {
-  --paper: #0F1519; --paper-2: #151D22; --card: #1A242B; --card-2: #1F2A32;
-  --ink: #F2EFE8; --ink-2: #B8C0C6; --ink-3: #8C98A1; --line: #2A353D; --line-strong: #38454F;
-  --teal: #5CC3C8; --teal-hover: #7AD3D7; --teal-soft: #11353A; --teal-ink: #BFEFF1;
-  --sun: #FFC95A; --sun-soft: #3A2C08; --sun-ink: #FFE3A6;
-  --clay-soft: #3A2017; --sky-soft: #14293B; --leaf-soft: #12301F; --stone-soft: #222B31;
+  --canvas: #0C0F1A; --surface: #151A2B; --surface-2: #1B2136;
+  --ink: #F3F5FD; --ink-2: #B7BFDA; --ink-3: #8790B0;
+  --line: #262D47; --line-strong: #343C5C;
+  --violet: #8D78FF; --violet-hover: #A593FF; --violet-soft: #241F52; --violet-deep: #CFC6FF;
+  --tangerine: #FF9A5C; --tangerine-soft: #3A2314; --tangerine-ink: #FFC39C;
+  --aqua: #3DD6CA; --aqua-soft: #0F2F2D; --aqua-ink: #8FEDE5;
+  --sky: #6DB6FF; --sky-soft: #112A44; --sky-ink: #A8D3FF;
+  --sunshine: #FFD66E; --sunshine-soft: #3A3010; --sunshine-ink: #FFE3A0;
+  --rose: #FF8FB8; --rose-soft: #3A1828;
+  --slate: #A9B1CE; --slate-soft: #1F2538;
   --st-not-yet: #F2B15C; --st-not-yet-bg: #33260F; --st-dev: #7DB8F2; --st-dev-bg: #122639;
-  --st-consistent: #6FD3A3; --st-consistent-bg: #0F2B20; --st-insufficient: #A5AEB6; --st-insufficient-bg: #222B31;
-  --shadow-card: 0 1px 0 rgba(0,0,0,.5), 0 8px 22px rgba(0,0,0,.35);
-  --shadow-card-hover: 0 1px 0 rgba(0,0,0,.55), 0 14px 30px rgba(0,0,0,.45);
-  --focus: 0 0 0 3px rgba(92,195,200,.45);
-  --rule: rgba(242,239,232,.05);
+  --st-consistent: #6FD3A3; --st-consistent-bg: #0F2B20; --st-insufficient: #A9B1CE; --st-insufficient-bg: #1F2538;
+  --grad-violet: linear-gradient(135deg, #7A62F5 0%, #5638D8 100%);
+  --grad-aurora: radial-gradient(80% 120% at 0% 0%, #241F52 0%, transparent 60%), radial-gradient(70% 100% at 100% 0%, #3A2314 0%, transparent 55%);
+  --shadow-card: 0 1px 2px rgba(0,0,0,.5), 0 10px 30px rgba(0,0,0,.35);
+  --shadow-lift: 0 2px 4px rgba(0,0,0,.5), 0 16px 40px rgba(141,120,255,.18);
+  --focus: 0 0 0 3px rgba(141,120,255,.45);
   color-scheme: dark;
 }
 
 @theme inline {
-  --color-paper: var(--paper); --color-paper-2: var(--paper-2); --color-card: var(--card); --color-card-2: var(--card-2);
+  --color-canvas: var(--canvas); --color-surface: var(--surface); --color-surface-2: var(--surface-2);
   --color-ink: var(--ink); --color-ink-2: var(--ink-2); --color-ink-3: var(--ink-3);
   --color-line: var(--line); --color-line-strong: var(--line-strong);
-  --color-teal: var(--teal); --color-teal-hover: var(--teal-hover); --color-teal-soft: var(--teal-soft); --color-teal-ink: var(--teal-ink);
-  --color-sun: var(--sun); --color-sun-soft: var(--sun-soft); --color-sun-ink: var(--sun-ink);
-  --color-clay: var(--clay); --color-clay-soft: var(--clay-soft);
-  --color-sky: var(--sky); --color-sky-soft: var(--sky-soft);
-  --color-leaf: var(--leaf); --color-leaf-soft: var(--leaf-soft);
-  --color-stone: var(--stone); --color-stone-soft: var(--stone-soft);
+  --color-violet: var(--violet); --color-violet-hover: var(--violet-hover); --color-violet-soft: var(--violet-soft); --color-violet-deep: var(--violet-deep);
+  --color-tangerine: var(--tangerine); --color-tangerine-soft: var(--tangerine-soft); --color-tangerine-ink: var(--tangerine-ink);
+  --color-aqua: var(--aqua); --color-aqua-soft: var(--aqua-soft); --color-aqua-ink: var(--aqua-ink);
+  --color-sky: var(--sky); --color-sky-soft: var(--sky-soft); --color-sky-ink: var(--sky-ink);
+  --color-sunshine: var(--sunshine); --color-sunshine-soft: var(--sunshine-soft); --color-sunshine-ink: var(--sunshine-ink);
+  --color-rose: var(--rose); --color-rose-soft: var(--rose-soft);
+  --color-slate: var(--slate); --color-slate-soft: var(--slate-soft);
 
   --color-st-notyet: var(--st-not-yet); --color-st-notyet-soft: var(--st-not-yet-bg);
   --color-st-developing: var(--st-dev); --color-st-developing-soft: var(--st-dev-bg);
   --color-st-consistent: var(--st-consistent); --color-st-consistent-soft: var(--st-consistent-bg);
   --color-st-insufficient: var(--st-insufficient); --color-st-insufficient-soft: var(--st-insufficient-bg);
 
-  /* aliases used across screens (all resolve to v3 tokens) */
-  --color-bg: var(--paper); --color-surface: var(--card); --color-surface-2: var(--card-2);
-  --color-muted: var(--ink-2);
-  --color-primary: var(--teal); --color-primary-hover: var(--teal-hover); --color-primary-dark: var(--teal-hover);
-  --color-primary-soft: var(--teal-soft); --color-primary-ink: var(--teal-ink);
+  /* Compatibility aliases so existing class names resolve to Daylight tokens. */
+  --color-paper: var(--canvas); --color-paper-2: var(--surface-2); --color-card: var(--surface); --color-card-2: var(--surface-2);
+  --color-bg: var(--canvas); --color-muted: var(--ink-2);
+  --color-teal: var(--violet); --color-teal-hover: var(--violet-hover); --color-teal-soft: var(--violet-soft); --color-teal-ink: var(--violet-deep);
+  --color-primary: var(--violet); --color-primary-hover: var(--violet-hover); --color-primary-dark: var(--violet-hover); --color-primary-soft: var(--violet-soft); --color-primary-ink: var(--violet-deep);
+  --color-sun: var(--tangerine); --color-sun-soft: var(--tangerine-soft); --color-sun-ink: var(--tangerine-ink);
+  --color-accent: var(--tangerine); --color-accent-soft: var(--tangerine-soft);
+  --color-clay: var(--rose); --color-clay-soft: var(--rose-soft);
+  --color-leaf: var(--aqua); --color-leaf-soft: var(--aqua-soft);
+  --color-stone: var(--slate); --color-stone-soft: var(--slate-soft);
   --color-amber-bg: var(--st-not-yet-bg); --color-amber-ink: var(--st-not-yet);
-  --color-mint-bg: var(--leaf-soft); --color-mint-ink: var(--st-consistent);
-  --color-accent: var(--sun); --color-accent-soft: var(--sun-soft);
+  --color-mint-bg: var(--aqua-soft); --color-mint-ink: var(--st-consistent);
   --color-danger: var(--st-not-yet);
 
   --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
-  --font-heading: var(--font-bricolage), var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  --font-heading: var(--font-sora), var(--font-inter), ui-sans-serif, system-ui, sans-serif;
   --font-child: var(--font-nunito), ui-rounded, system-ui, sans-serif;
   --font-mono: var(--font-jbmono), ui-monospace, Menlo, Consolas, monospace;
 
-  --radius-card: var(--r-card); --radius-tile: var(--r-tile); --radius-input: var(--r-input); --radius-tab: var(--r-tab);
-  --shadow-card: var(--shadow-card); --shadow-card-hover: var(--shadow-card-hover); --shadow-pop: var(--shadow-pop);
+  --radius-card: var(--r-card); --radius-tile: var(--r-tile); --radius-input: var(--r-input);
+  --shadow-card: var(--shadow-card); --shadow-lift: var(--shadow-lift); --shadow-card-hover: var(--shadow-lift); --shadow-pop: var(--shadow-pop);
 }
 
-html { background: var(--paper); }
+html { background: var(--canvas); }
 body {
-  background: var(--paper);
+  background: var(--canvas);
   color: var(--ink);
   font-family: var(--font-sans);
   font-size: 15px;
@@ -98,12 +115,11 @@ h1, h2, h3, .font-heading { font-family: var(--font-heading); }
 :focus-visible { outline: none; box-shadow: var(--focus); border-radius: 10px; }
 .tabular { font-variant-numeric: tabular-nums; }
 
-/* notebook textures */
-.ruled { background-image: repeating-linear-gradient(to bottom, transparent 0, transparent 27px, var(--rule) 27px, var(--rule) 28px); }
-.dotted-rules { background-image: radial-gradient(var(--rule) 1px, transparent 1.2px); background-size: 12px 28px; }
-.margin-line { position: relative; }
-.margin-line::before { content: ""; position: absolute; left: 16px; top: 0; bottom: 0; width: 1px; background: color-mix(in srgb, var(--clay) 22%, transparent); }
-.torn-edge { --tear: 10px; -webkit-mask: radial-gradient(circle at 50% calc(100% + 4px), transparent 6px, #000 6.5px) bottom / 14px var(--tear) repeat-x, linear-gradient(#000 0 0) top / 100% calc(100% - var(--tear) + 1px) no-repeat; mask: radial-gradient(circle at 50% calc(100% + 4px), transparent 6px, #000 6.5px) bottom / 14px var(--tear) repeat-x, linear-gradient(#000 0 0) top / 100% calc(100% - var(--tear) + 1px) no-repeat; }
+/* Daylight surfaces */
+.bg-grad-violet { background: var(--grad-violet); }
+.bg-aurora { background: var(--grad-aurora); }
+/* Retired notebook textures (kept as no-ops so older markup is harmless). */
+.ruled, .dotted-rules, .margin-line, .torn-edge {}
 
 /* motion */
 @keyframes ls-fade-up { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
@@ -113,19 +129,18 @@ h1, h2, h3, .font-heading { font-family: var(--font-heading); }
 .stagger > *:nth-child(4) { animation-delay: 120ms; } .stagger > *:nth-child(5) { animation-delay: 160ms; }
 .stagger > *:nth-child(n+6) { animation-delay: 200ms; }
 .lift { transition: transform 180ms var(--ease), box-shadow 180ms var(--ease); }
-.lift:hover { transform: translateY(-2px); box-shadow: var(--shadow-card-hover); }
+.lift:hover { transform: translateY(-2px); box-shadow: var(--shadow-lift); }
 @keyframes ls-settle { 0% { opacity: 0; transform: translateY(-6px) scale(.7); } 70% { transform: translateY(1px) scale(1.06); } 100% { opacity: 1; transform: none; } }
 .dot-settle { animation: ls-settle 380ms var(--ease) both; }
 @keyframes ls-arc { from { opacity: .15; } to { opacity: 1; } }
 .arc-light { animation: ls-arc 300ms var(--ease) both; }
 @keyframes ls-shimmer { 0% { background-position: -400px 0; } 100% { background-position: 400px 0; } }
-.ls-skeleton { border-radius: 10px; background: linear-gradient(90deg, var(--paper-2) 0%, var(--line) 50%, var(--paper-2) 100%); background-size: 800px 100%; animation: ls-shimmer 1.4s linear infinite; }
+.ls-skeleton { border-radius: 10px; background: linear-gradient(90deg, var(--surface-2) 0%, var(--line) 50%, var(--surface-2) 100%); background-size: 800px 100%; animation: ls-shimmer 1.4s linear infinite; }
 @keyframes ls-draw { from { stroke-dashoffset: var(--len); } }
 .ring-draw { animation: ls-draw 600ms var(--ease) both; }
-@keyframes ls-pulse-ring { 0% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--sun) 60%, transparent); } 100% { box-shadow: 0 0 0 10px transparent; } }
+@keyframes ls-pulse-ring { 0% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--tangerine) 55%, transparent); } 100% { box-shadow: 0 0 0 10px transparent; } }
 .pulse-ring { animation: ls-pulse-ring 1.6s var(--ease) infinite; }
-@keyframes ls-slide-in { from { transform: translateX(24px); opacity: 0; } to { transform: none; opacity: 1; } }
-.slide-in { animation: ls-slide-in 200ms var(--ease) both; }
+.pulse-once { animation: ls-pulse-ring 1.6s var(--ease) 2; }
 
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; } }
 
@@ -133,7 +148,7 @@ h1, h2, h3, .font-heading { font-family: var(--font-heading); }
 .no-scrollbar::-webkit-scrollbar { display: none; }
 .no-scrollbar { scrollbar-width: none; }
 
-dialog::backdrop { background: rgb(22 34 43 / 0.40); backdrop-filter: blur(3px); }
+dialog::backdrop { background: rgb(19 23 43 / 0.40); backdrop-filter: blur(4px); }
 
 @media print {
   .no-print { display: none !important; }

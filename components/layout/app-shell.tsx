@@ -72,57 +72,60 @@ export function AppShell({ data, children }: { data: ShellData; children: React.
     else setPalette('check');
   };
 
-  return (
-    <div className="min-h-dvh bg-paper">
-      {/* ---------- Rail (tablet: icons only; desktop: icon over label) ---------- */}
-      <aside className="fixed inset-y-0 left-0 z-40 hidden w-[72px] flex-col items-center border-r border-line bg-paper-2 py-4 md:flex lg:w-[92px] no-print" aria-label="Main navigation">
-        <Link href={cid ? `/classrooms/${cid}` : '/dashboard'} aria-label="LearnSignal, Today" className="mb-5 rounded-[10px]"><LogoMark size={36} /></Link>
-        <nav className="no-scrollbar flex w-full flex-1 flex-col items-stretch gap-1 overflow-y-auto">
-          {nav.map((n) => {
-            const on = n.label === activeLabel;
-            return (
-              <Link key={n.label} href={n.href} aria-current={on ? 'page' : undefined} title={n.label}
-                className={cn('group relative mx-2 flex flex-col items-center gap-1 rounded-[12px] py-2 text-[11px] font-semibold transition-colors', on ? 'text-teal' : 'text-ink-2 hover:bg-paper hover:text-ink')}>
-                {on && <span aria-hidden className="absolute -right-2 top-2 bottom-2 w-[3px] rounded-l-full bg-teal" />}
-                <span className={cn('flex size-10 items-center justify-center rounded-[12px] transition-colors', on && 'bg-teal-soft')}><n.icon className="size-5" strokeWidth={1.75} aria-hidden /></span>
-                <span className="sr-only lg:not-sr-only">{n.label}</span>
-              </Link>
-            );
-          })}
-        </nav>
-        <div className="flex flex-col items-center gap-2 pt-3">
-          <NightButton />
-          <UserMenu data={data} placement="rail" />
-        </div>
-      </aside>
+  const dock = nav.filter((n) => !['Ask', 'Settings'].includes(n.label));
+  const [firstVisit, setFirstVisit] = useState(false);
+  useEffect(() => { try { if (!localStorage.getItem('ls-check-seen')) { setFirstVisit(true); localStorage.setItem('ls-check-seen', '1'); } } catch {} }, []);
 
-      <div className="md:pl-[72px] lg:pl-[92px]">
-        {/* ---------- Context bar ---------- */}
-        <header className="sticky top-0 z-30 border-b border-line/70 bg-paper/85 backdrop-blur-lg no-print">
-          <div className="mx-auto flex h-14 max-w-[1240px] items-center gap-2 px-4 sm:px-6 md:h-16 md:gap-3 xl:px-10">
-            {current ? <ClassSwitcher current={current} count={learnerCount(cid)} classrooms={data.classrooms} countFor={learnerCount} /> : <span className="font-heading font-bold">LearnSignal</span>}
-            <button onClick={() => setPalette('all')} className="mx-auto hidden h-11 w-full max-w-[460px] items-center gap-2 rounded-[12px] border border-line-strong bg-card px-3.5 text-left text-[14px] text-ink-3 hover:border-teal/50 md:flex">
+  return (
+    <div className="min-h-dvh bg-canvas">
+      {/* ---------- Header with pill dock ---------- */}
+      <header className="sticky top-0 z-30 border-b border-line bg-surface/95 backdrop-blur-lg no-print">
+        <div className="mx-auto flex h-14 max-w-[1280px] items-center gap-2 px-4 sm:px-6 md:h-[72px] md:gap-3 xl:px-10">
+          <Link href={cid ? `/classrooms/${cid}` : '/dashboard'} aria-label="LearnSignal, Today" className="hidden shrink-0 items-center gap-2 rounded-[10px] md:flex">
+            <LogoMark size={34} /><span className="hidden font-heading text-[18px] font-bold tracking-[-0.02em] xl:inline">LearnSignal</span>
+          </Link>
+          {current ? <ClassSwitcher current={current} count={learnerCount(cid)} classrooms={data.classrooms} countFor={learnerCount} /> : <span className="font-heading font-bold md:hidden">LearnSignal</span>}
+
+          {/* PillNav: desktop shows labels; tablet shows icons with a label on the active pill only */}
+          <nav aria-label="Main navigation" className="mx-auto hidden md:block">
+            <ul className="flex items-center gap-1 rounded-full bg-surface-2 p-1">
+              {dock.map((n) => {
+                const on = n.label === activeLabel;
+                return (
+                  <li key={n.label}>
+                    <Link href={n.href} aria-current={on ? 'page' : undefined} title={n.label}
+                      className={cn('flex h-9 items-center gap-1.5 rounded-full px-3 text-[14px] font-semibold transition-[background,color,box-shadow] duration-200',
+                        on ? 'bg-violet text-white shadow-[0_6px_16px_rgba(91,63,224,.30)] dark:text-[#0C0F1A]' : 'text-ink-2 hover:bg-surface hover:text-ink')}>
+                      <n.icon className={cn('size-4', on ? '' : 'lg:hidden')} strokeWidth={2} aria-hidden />
+                      <span className={cn(on ? 'inline' : 'sr-only lg:not-sr-only')}>{n.label}</span>
+                    </Link>
+                  </li>
+                );
+              })}
+            </ul>
+          </nav>
+
+          <div className="ml-auto flex items-center gap-1.5 md:ml-0">
+            <button onClick={() => setPalette('all')} className="hidden h-11 w-[280px] items-center gap-2 rounded-full border border-line-strong bg-surface px-4 text-left text-[14px] text-ink-3 hover:border-violet/40 2xl:flex">
               <Search className="size-4" aria-hidden /><span className="flex-1 truncate">Find a learner, skill or practice set</span><Kbd>⌘K</Kbd>
             </button>
-            <div className="ml-auto flex items-center gap-1 md:ml-0">
-              <button onClick={() => setPalette('all')} className="flex size-10 items-center justify-center rounded-[12px] text-ink-2 hover:bg-paper-2 md:hidden" aria-label="Search"><Search className="size-5" /></button>
-              <button onClick={() => setAskAi(true)} className="flex h-10 items-center gap-1.5 rounded-[12px] px-2.5 text-[14px] font-semibold text-teal hover:bg-teal-soft sm:px-3" aria-label="Ask about your class">
-                <Sparkles className="size-4" aria-hidden /><span className="hidden sm:inline">Ask</span>
-              </button>
-              <Notifications items={data.notifications} />
-              <span className="md:hidden"><UserMenu data={data} placement="top" /></span>
-            </div>
+            <button onClick={() => setPalette('all')} className="flex size-10 items-center justify-center rounded-full text-ink-2 hover:bg-surface-2 2xl:hidden" aria-label="Find a learner, skill or practice set"><Search className="size-5" /></button>
+            <button onClick={() => setAskAi(true)} className="flex h-10 items-center gap-1.5 rounded-[12px] border border-line-strong bg-surface px-2.5 text-[14px] font-semibold text-ink hover:border-violet/40 sm:px-3.5" aria-label="Ask about your class">
+              <Sparkles className="size-4 text-violet" aria-hidden /><span className="hidden sm:inline">Ask</span>
+            </button>
+            <Notifications items={data.notifications} />
+            <UserMenu data={data} placement="top" />
           </div>
-        </header>
-        <main id="main" className="mx-auto max-w-[1240px] px-4 pb-32 pt-6 sm:px-6 md:pb-14 xl:px-10 xl:pt-8">{children}</main>
-      </div>
+        </div>
+      </header>
+      <main id="main" className="mx-auto max-w-[1280px] px-4 pb-32 pt-6 sm:px-6 md:pb-14 xl:px-10 xl:pt-8">{children}</main>
 
-      {/* ---------- Mobile bottom bar with raised Check button ---------- */}
-      <nav aria-label="Primary" className="fixed inset-x-0 bottom-0 z-40 grid h-[68px] grid-cols-5 items-end border-t border-line bg-card/95 pb-[env(safe-area-inset-bottom)] backdrop-blur-lg md:hidden no-print">
+      {/* ---------- Phone bottom bar with raised Check button ---------- */}
+      <nav aria-label="Primary" className="fixed inset-x-0 bottom-0 z-40 grid h-[68px] grid-cols-5 items-end border-t border-line bg-surface/95 pb-[env(safe-area-inset-bottom)] backdrop-blur-lg md:hidden no-print">
         {[nav[0], nav[1]].map((n) => <BottomItem key={n.label} item={n} on={n.label === activeLabel} />)}
         <div className="flex justify-center">
-          <button onClick={startCheck} aria-label="Start a check" className="-mt-7 mb-2 flex size-16 flex-col items-center justify-center rounded-full bg-teal text-white shadow-pop ring-4 ring-paper active:scale-95">
-            <SignalMark level={3} size={26} color="#FBF8F2" /><span className="-mt-0.5 text-[10px] font-bold">Check</span>
+          <button onClick={startCheck} aria-label="Start a check" className={cn('-mt-6 mb-2 flex size-14 flex-col items-center justify-center rounded-full bg-grad-violet text-white shadow-[0_10px_24px_rgba(91,63,224,.38)] ring-4 ring-surface active:scale-95', firstVisit && 'pulse-once')}>
+            <SignalMark level={3} size={22} color="#FFFFFF" /><span className="-mt-0.5 text-[10px] font-bold">Check</span>
           </button>
         </div>
         <BottomItem item={nav[3]} on={nav[3].label === activeLabel} />
@@ -132,9 +135,11 @@ export function AppShell({ data, children }: { data: ShellData; children: React.
       <Dialog open={more} onClose={() => setMore(false)} title="More">
         <ul className="grid grid-cols-2 gap-2">
           {nav.filter((n) => !['Today', 'Learners', 'Groups'].includes(n.label)).map((n) => (
-            <li key={n.label}><Link href={n.href} onClick={() => setMore(false)} className="flex min-h-14 items-center gap-3 rounded-[14px] border border-line px-3 text-[14px] font-semibold hover:bg-paper-2"><n.icon className="size-5 text-teal" aria-hidden />{n.label}</Link></li>
+            <li key={n.label}><Link href={n.href} onClick={() => setMore(false)} className="flex min-h-14 items-center gap-3 rounded-[14px] border border-line px-3 text-[14px] font-semibold hover:bg-surface-2"><n.icon className="size-5 text-violet" aria-hidden />{n.label}</Link></li>
           ))}
         </ul>
+        <div className="mt-3 flex min-h-12 items-center justify-between rounded-[14px] border border-line px-3 text-[14px] font-semibold">Appearance <NightButton /></div>
+        <form action="/auth/signout" method="post" className="mt-2"><button className="flex min-h-12 w-full items-center gap-3 rounded-[14px] border border-line px-3 text-[14px] font-semibold hover:bg-surface-2"><LogOut className="size-5 text-ink-2" aria-hidden />Sign out</button></form>
       </Dialog>
 
       <CommandPalette mode={palette} onClose={() => setPalette(false)} data={data} cid={cid} />
@@ -147,8 +152,8 @@ export function AppShell({ data, children }: { data: ShellData; children: React.
 
 function BottomItem({ item, on }: { item: NavItem; on: boolean }) {
   return (
-    <Link href={item.href} aria-current={on ? 'page' : undefined} className={cn('flex h-full flex-col items-center justify-center gap-1 text-[11px] font-semibold', on ? 'text-teal' : 'text-ink-2')}>
-      <span className={cn('flex h-7 w-12 items-center justify-center rounded-full', on && 'bg-teal-soft')}><item.icon className="size-5" strokeWidth={1.75} aria-hidden /></span>{item.label}
+    <Link href={item.href} aria-current={on ? 'page' : undefined} className={cn('flex h-full flex-col items-center justify-center gap-1 text-[11px] font-semibold', on ? 'text-violet-deep dark:text-violet' : 'text-ink-2')}>
+      <span className={cn('flex h-7 w-12 items-center justify-center rounded-full', on && 'bg-violet-soft')}><item.icon className="size-5" strokeWidth={1.75} aria-hidden /></span>{item.label}
     </Link>
   );
 }
@@ -171,7 +176,7 @@ function ClassSwitcher({ current, count, classrooms, countFor }: { current: Shel
   return (
     <div ref={ref} className="relative min-w-0">
       <button onClick={() => setOpen((o) => !o)} aria-expanded={open} aria-haspopup="menu"
-        className="flex h-10 min-w-0 max-w-[60vw] items-center gap-2 rounded-full border border-line-strong bg-card pl-3.5 pr-2.5 text-[14px] font-semibold hover:border-teal/50 md:max-w-[260px]">
+        className="flex h-10 min-w-0 max-w-[60vw] items-center gap-2 rounded-full border border-line-strong bg-surface pl-3.5 pr-2.5 text-[14px] font-semibold hover:border-violet/40 md:max-w-[220px]">
         <span className="truncate">{current.name}</span>
         <span className="shrink-0 rounded-full bg-paper-2 px-2 text-[12px] font-medium tabular text-ink-2">{count}</span>
         <ChevronDown className="size-4 shrink-0 text-ink-2" aria-hidden />
@@ -200,7 +205,7 @@ function Notifications({ items }: { items: ShellData['notifications'] }) {
       <button onClick={() => setOpen((o) => !o)} aria-expanded={open} className="relative flex size-10 items-center justify-center rounded-[12px] text-ink-2 hover:bg-paper-2"
         aria-label={`Notifications${items.length ? `, ${items.length} need action` : ''}`}>
         <Bell className="size-5" strokeWidth={1.75} />
-        {items.length > 0 && <span className="absolute right-2.5 top-2.5 size-2 rounded-full bg-sun ring-2 ring-paper" aria-hidden />}
+        {items.length > 0 && <span className="absolute right-2.5 top-2.5 size-2 rounded-full bg-tangerine ring-2 ring-surface" aria-hidden />}
       </button>
       {open && (
         <div className="absolute right-0 top-12 z-50 w-[min(360px,calc(100vw-2rem))] rounded-[18px] border border-line bg-card p-2 shadow-pop">

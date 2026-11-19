@@ -2,7 +2,7 @@ import { cn } from '@/lib/utils';
 import { Tooltip } from './primitives';
 
 /** Three concentric arcs (the LearnSignal motif). `level` 0–3 arcs lit. */
-export function SignalMark({ level = 3, size = 24, animate, className, color = 'var(--teal)', title }: { level?: 0 | 1 | 2 | 3; size?: number; animate?: boolean; className?: string; color?: string; title?: string }) {
+export function SignalMark({ level = 3, size = 24, animate, className, color = 'var(--violet)', title }: { level?: 0 | 1 | 2 | 3; size?: number; animate?: boolean; className?: string; color?: string; title?: string }) {
   const arcs = ['M9 17a4 4 0 0 1 6 0', 'M6 14a8.5 8.5 0 0 1 12 0', 'M3 11a13 13 0 0 1 18 0'];
   return (
     <svg viewBox="0 0 24 24" width={size} height={size} className={className} fill="none" role={title ? 'img' : undefined} aria-label={title} aria-hidden={title ? undefined : true}>
