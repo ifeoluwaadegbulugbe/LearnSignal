@@ -43,8 +43,8 @@ Requirements: Node 22+, a Supabase project, a Google AI Studio API key.
 5. Start: `npm run dev`, open http://localhost:3000, sign up, and choose **Load the demo class** in onboarding.
 
 ### Public demo account ("Try the demo")
-1. Sign up a new teacher in the app (e.g. `demo@yourdomain`), load the demo class.
-2. In the SQL editor: `insert into demo_accounts(user_id) select id from auth.users where email = 'demo@yourdomain';` (this skips the password prompt on learner-mode exit for that account only).
+1. Set `DEMO_EMAIL` and `DEMO_PASSWORD` in `.env.local`, start the app, then run `node scripts/setup-demo-account.mjs` (creates the account, a demo school and the sample class).
+2. In the SQL editor: `insert into demo_accounts(user_id) select id from auth.users where email = '<DEMO_EMAIL>' on conflict do nothing;` (this skips the password prompt on learner-mode exit for that account only).
 3. Set `DEMO_EMAIL` and `DEMO_PASSWORD` in Vercel. Judges can then click **Try the demo**. Use **Settings → Reset demo class** to restore it.
 
 ## Tests
@@ -71,6 +71,7 @@ Import the GitHub repo, add the environment variables above (Production and Prev
 - [docs/AI_BEHAVIOR.md](docs/AI_BEHAVIOR.md): real AI inputs, outputs and observed failures
 - [docs/SAFETY.md](docs/SAFETY.md): privacy, RLS, AI boundaries, child-mode rules
 - [docs/LIMITATIONS.md](docs/LIMITATIONS.md): what this prototype does not do
+- [docs/DESIGN.md](docs/DESIGN.md): the visual identity, components, screens and accessibility
 - [docs/ASSUMPTIONS.md](docs/ASSUMPTIONS.md): decisions and deviations from the build spec
 - [docs/DEMO.md](docs/DEMO.md): 4-minute demo script and sample-data disclosure
 - [docs/CREDITS.md](docs/CREDITS.md): stack, AI assistance, what was built during the event
