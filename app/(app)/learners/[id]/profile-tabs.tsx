@@ -4,7 +4,6 @@ import { useRouter } from 'next/navigation';
 import { ClipboardCheck, BookOpen, HelpCircle } from 'lucide-react';
 import { SKILL_BY_ID } from '@/lib/content/skills';
 import { INTERVENTIONS } from '@/lib/content/interventions';
-import type { SkillStateName } from '@/lib/scoring/skillState';
 import { TextTabs, SegmentedTabs } from '@/components/ui/tabs';
 import { Button, ButtonLink } from '@/components/ui/button';
 import { IndexCard, Field, Textarea, Badge } from '@/components/ui/primitives';
