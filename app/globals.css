@@ -2,171 +2,177 @@
 @custom-variant dark (&:where([data-theme=night], [data-theme=night] *));
 
 /* ============================================================
-   LearnSignal identity (redesign v5).
-   Violet brand, tangerine next step, aqua practice, sky AI/info;
-   sunshine and rose for illustration only. Neutral surfaces first.
+   LearnSignal visual system (redesign v6).
+   One hue family (violet, from the logo) plus one accent (tangerine).
+   Tangerine is only for: the Next Step tab, "Working here", re-check
+   rings and tags, and the logo dot. It is never a button colour.
+   Skill-state colours appear only inside status pills and bars.
    [data-theme="night"] on <html> switches theme (set before paint).
    ============================================================ */
 :root {
-  --canvas: #F8F8FC; --surface: #FFFFFF; --surface-2: #F3F3F8; --disabled: #B7B5C4;
-  --ink: #171625; --ink-2: #626273; --ink-3: #6B6B7C; --placeholder: #9292A1;
-  --line: #E9E8F0; --line-strong: #DAD8E5;
-  --violet: #5B3FE0; --violet-hover: #4A2FD0; --violet-soft: #ECE8FF; --violet-deep: #3A24A8;
-  --tangerine: #FF7A2F; --tangerine-soft: #FFEBDD; --tangerine-ink: #9A3D06;
-  --aqua: #12B3A8; --aqua-soft: #DDF6F3; --aqua-ink: #0B6B64;
-  --sky: #3D9BFF; --sky-soft: #E2F1FF; --sky-ink: #1A5FB0;
-  --sunshine: #FFC83D; --sunshine-soft: #FFF5D6; --sunshine-ink: #7A5600;
-  --rose: #F06A9B; --rose-soft: #FFE6F0;
-  --slate: #6A7391; --slate-soft: #ECEEF6;
-  --st-not-yet: #87540A; --st-not-yet-bg: #FFEFD2;
-  --st-dev: #235F9C; --st-dev-bg: #E1EEF9;
-  --st-consistent: #176E44; --st-consistent-bg: #DDF3E8;
-  --st-insufficient: #59607C; --st-insufficient-bg: #ECEEF6;
-  --grad-violet: linear-gradient(135deg, #6C52F0 0%, #4A2FD0 100%);
-  --grad-aurora: radial-gradient(70% 100% at 0% 0%, rgba(236,232,255,.7) 0%, transparent 60%);
-  --r-card: 16px; --r-panel: 20px; --r-tile: 12px; --r-input: 12px; --r-pill: 999px;
+  /* neutrals */
+  --ground: #F4F2FB; --surface: #FFFFFF; --inset: #F7F5FD;
+  --ink: #1A1635; --muted: #5F5A7A; --placeholder: #77728F; --disabled: #B9B4CC;
+  --line: #E3DEF3; --line-strong: #D2C9F0;
+  /* violet scale */
+  --violet-50: #F1EEFF; --violet-100: #E4DCFF; --violet-500: #5B3FE0; --violet-700: #4529C4;
+  --on-primary: #FFFFFF;
+  /* tangerine accent */
+  --tangerine: #FF7A2F; --tangerine-tint: #FFF6EF; --tangerine-line: #FFD9BF; --tangerine-ink: #9A3D06; --on-tangerine: #2A1300;
+  /* skill states (pills and bars only) */
+  --st-not-yet: #8A5600; --st-not-yet-bg: #FFF1D6;
+  --st-dev: #1F5FA0; --st-dev-bg: #E3EFFB;
+  --st-consistent: #146B41; --st-consistent-bg: #DDF3E7;
+  --st-insufficient: #5A5770; --st-insufficient-bg: #EEECF4;
+  /* shape and depth */
+  --r-card: 16px; --r-ctrl: 12px; --r-pill: 999px;
   --shadow-card: 0 4px 16px rgba(31,25,70,.05);
-  --shadow-lift: 0 8px 24px rgba(31,25,70,.09);
   --shadow-pop: 0 16px 48px rgba(31,25,70,.18);
-  --focus: 0 0 0 3px rgba(91,63,224,.38);
   --ease: cubic-bezier(.2,.8,.2,1);
   color-scheme: light;
 }
-/* Variable aliases for SVG/inline styles written against older names (resolve in both themes). */
-:root, [data-theme="night"] {
-  --paper: var(--canvas); --paper-2: var(--surface-2); --card: var(--surface); --card-2: var(--surface-2);
-  --teal: var(--violet); --teal-soft: var(--violet-soft); --teal-ink: var(--violet-deep);
-  --sun: var(--tangerine); --sun-soft: var(--tangerine-soft);
-  --clay: var(--rose); --clay-soft: var(--rose-soft); --leaf: var(--aqua); --leaf-soft: var(--aqua-soft);
-  --stone: var(--slate); --stone-soft: var(--slate-soft); --primary: var(--violet);
-}
 
 [data-theme="night"] {
-  --canvas: #0E0D17; --surface: #17162A; --surface-2: #1E1D33; --disabled: #4A4960; --placeholder: #7D7C93;
-  --ink: #F2F1FA; --ink-2: #B9B8CC; --ink-3: #9C9BB2;
-  --line: #2A2942; --line-strong: #393854;
-  --violet: #9C8BFF; --violet-hover: #A593FF; --violet-soft: #241F52; --violet-deep: #CFC6FF;
-  --tangerine: #FF9A5C; --tangerine-soft: #3A2314; --tangerine-ink: #FFC39C;
-  --aqua: #3DD6CA; --aqua-soft: #0F2F2D; --aqua-ink: #8FEDE5;
-  --sky: #6DB6FF; --sky-soft: #112A44; --sky-ink: #A8D3FF;
-  --sunshine: #FFD66E; --sunshine-soft: #3A3010; --sunshine-ink: #FFE3A0;
-  --rose: #FF8FB8; --rose-soft: #3A1828;
-  --slate: #A9B1CE; --slate-soft: #1F2538;
-  --st-not-yet: #F2B15C; --st-not-yet-bg: #33260F; --st-dev: #7DB8F2; --st-dev-bg: #122639;
-  --st-consistent: #6FD3A3; --st-consistent-bg: #0F2B20; --st-insufficient: #A9B1CE; --st-insufficient-bg: #1F2538;
-  --grad-violet: linear-gradient(135deg, #7A62F5 0%, #5638D8 100%);
-  --grad-aurora: radial-gradient(70% 100% at 0% 0%, rgba(36,31,82,.8) 0%, transparent 60%);
+  --ground: #14131F; --surface: #1D1C2B; --inset: #242336;
+  --ink: #F2F0FA; --muted: #B2AFC8; --placeholder: #8E8AA6; --disabled: #4A475F;
+  --line: #2E2C42; --line-strong: #3D3A58;
+  --violet-50: #24213D; --violet-100: #2F2A55; --violet-500: #8B7DFF; --violet-700: #B7ADFF;
+  --on-primary: #14131F;
+  --tangerine: #FF8F4F; --tangerine-tint: #2E2119; --tangerine-line: #5A3A22; --tangerine-ink: #FFC39C; --on-tangerine: #2A1300;
+  --st-not-yet: #F2B65C; --st-not-yet-bg: #33270F;
+  --st-dev: #86BCF2; --st-dev-bg: #14283C;
+  --st-consistent: #74D6A6; --st-consistent-bg: #102C21;
+  --st-insufficient: #BDB9D3; --st-insufficient-bg: #2A283C;
   --shadow-card: 0 4px 16px rgba(0,0,0,.28);
-  --shadow-lift: 0 8px 24px rgba(0,0,0,.4);
-  --focus: 0 0 0 3px rgba(141,120,255,.45);
+  --shadow-pop: 0 16px 48px rgba(0,0,0,.5);
   color-scheme: dark;
 }
 
+/* Older variable names used in inline styles and SVG (resolve in both themes). */
+:root, [data-theme="night"] {
+  --canvas: var(--ground); --surface-2: var(--inset); --card: var(--surface); --paper: var(--ground); --paper-2: var(--inset);
+  --ink-2: var(--muted); --ink-3: var(--muted);
+  --violet: var(--violet-500); --violet-soft: var(--violet-100); --violet-deep: var(--violet-700); --violet-hover: var(--violet-700);
+  --tangerine-soft: var(--tangerine-tint);
+  --teal: var(--violet-500); --teal-soft: var(--violet-100); --primary: var(--violet-500);
+  --sun: var(--tangerine); --sun-soft: var(--tangerine-tint);
+  /* retired hues collapse into the violet family */
+  --aqua: var(--violet-500); --aqua-soft: var(--violet-50); --sky: var(--violet-500); --sky-soft: var(--violet-50);
+  --sunshine: var(--violet-100); --rose: var(--violet-100); --leaf: var(--violet-500); --clay: var(--violet-100);
+  --slate: var(--muted); --stone: var(--muted);
+}
+
 @theme inline {
-  --color-canvas: var(--canvas); --color-surface: var(--surface); --color-surface-2: var(--surface-2);
-  --color-ink: var(--ink); --color-ink-2: var(--ink-2); --color-ink-3: var(--ink-3);
-  --color-line: var(--line); --color-line-strong: var(--line-strong); --color-disabled: var(--disabled); --color-placeholder: var(--placeholder);
-  --color-violet: var(--violet); --color-violet-hover: var(--violet-hover); --color-violet-soft: var(--violet-soft); --color-violet-deep: var(--violet-deep);
-  --color-tangerine: var(--tangerine); --color-tangerine-soft: var(--tangerine-soft); --color-tangerine-ink: var(--tangerine-ink);
-  --color-aqua: var(--aqua); --color-aqua-soft: var(--aqua-soft); --color-aqua-ink: var(--aqua-ink);
-  --color-sky: var(--sky); --color-sky-soft: var(--sky-soft); --color-sky-ink: var(--sky-ink);
-  --color-sunshine: var(--sunshine); --color-sunshine-soft: var(--sunshine-soft); --color-sunshine-ink: var(--sunshine-ink);
-  --color-rose: var(--rose); --color-rose-soft: var(--rose-soft);
-  --color-slate: var(--slate); --color-slate-soft: var(--slate-soft);
+  --color-ground: var(--ground); --color-surface: var(--surface); --color-inset: var(--inset);
+  --color-ink: var(--ink); --color-muted: var(--muted); --color-placeholder: var(--placeholder); --color-disabled: var(--disabled);
+  --color-line: var(--line); --color-line-strong: var(--line-strong);
+  --color-violet-50: var(--violet-50); --color-violet-100: var(--violet-100); --color-violet-500: var(--violet-500); --color-violet-700: var(--violet-700);
+  --color-on-primary: var(--on-primary);
+  --color-tangerine: var(--tangerine); --color-tangerine-tint: var(--tangerine-tint); --color-tangerine-line: var(--tangerine-line); --color-tangerine-ink: var(--tangerine-ink); --color-on-tangerine: var(--on-tangerine);
 
   --color-st-notyet: var(--st-not-yet); --color-st-notyet-soft: var(--st-not-yet-bg);
   --color-st-developing: var(--st-dev); --color-st-developing-soft: var(--st-dev-bg);
   --color-st-consistent: var(--st-consistent); --color-st-consistent-soft: var(--st-consistent-bg);
   --color-st-insufficient: var(--st-insufficient); --color-st-insufficient-soft: var(--st-insufficient-bg);
 
-  /* Compatibility aliases so existing class names resolve to Daylight tokens. */
-  --color-paper: var(--canvas); --color-paper-2: var(--surface-2); --color-card: var(--surface); --color-card-2: var(--surface-2);
-  --color-bg: var(--canvas); --color-muted: var(--ink-2);
-  --color-teal: var(--violet); --color-teal-hover: var(--violet-hover); --color-teal-soft: var(--violet-soft); --color-teal-ink: var(--violet-deep);
-  --color-primary: var(--violet); --color-primary-hover: var(--violet-hover); --color-primary-dark: var(--violet-hover); --color-primary-soft: var(--violet-soft); --color-primary-ink: var(--violet-deep);
-  --color-sun: var(--tangerine); --color-sun-soft: var(--tangerine-soft); --color-sun-ink: var(--tangerine-ink);
-  --color-accent: var(--tangerine); --color-accent-soft: var(--tangerine-soft);
-  --color-clay: var(--rose); --color-clay-soft: var(--rose-soft);
-  --color-leaf: var(--aqua); --color-leaf-soft: var(--aqua-soft);
-  --color-stone: var(--slate); --color-stone-soft: var(--slate-soft);
+  /* Compatibility names so older class names resolve to v6 tokens. */
+  --color-canvas: var(--ground); --color-surface-2: var(--inset); --color-paper: var(--ground); --color-paper-2: var(--inset);
+  --color-card: var(--surface); --color-card-2: var(--inset); --color-bg: var(--ground);
+  --color-ink-2: var(--muted); --color-ink-3: var(--muted);
+  --color-violet: var(--violet-500); --color-violet-hover: var(--violet-700); --color-violet-soft: var(--violet-100); --color-violet-deep: var(--violet-700);
+  --color-primary: var(--violet-500); --color-primary-hover: var(--violet-700); --color-primary-soft: var(--violet-100); --color-primary-ink: var(--violet-700); --color-primary-dark: var(--violet-700);
+  --color-teal: var(--violet-500); --color-teal-hover: var(--violet-700); --color-teal-soft: var(--violet-100); --color-teal-ink: var(--violet-700);
+  --color-tangerine-soft: var(--tangerine-tint);
+  --color-sun: var(--tangerine); --color-sun-soft: var(--tangerine-tint); --color-sun-ink: var(--tangerine-ink);
+  --color-accent: var(--tangerine); --color-accent-soft: var(--tangerine-tint);
+  --color-aqua: var(--violet-500); --color-aqua-soft: var(--violet-50); --color-aqua-ink: var(--violet-700);
+  --color-sky: var(--violet-500); --color-sky-soft: var(--violet-50); --color-sky-ink: var(--violet-700);
+  --color-sunshine: var(--violet-100); --color-sunshine-soft: var(--violet-50); --color-sunshine-ink: var(--violet-700);
+  --color-rose: var(--violet-100); --color-rose-soft: var(--violet-50);
+  --color-leaf: var(--violet-500); --color-leaf-soft: var(--violet-50);
+  --color-clay: var(--violet-100); --color-clay-soft: var(--violet-50);
+  --color-slate: var(--muted); --color-slate-soft: var(--inset); --color-stone: var(--muted); --color-stone-soft: var(--inset);
   --color-amber-bg: var(--st-not-yet-bg); --color-amber-ink: var(--st-not-yet);
-  --color-mint-bg: var(--aqua-soft); --color-mint-ink: var(--st-consistent);
+  --color-mint-bg: var(--st-consistent-bg); --color-mint-ink: var(--st-consistent);
   --color-danger: var(--st-not-yet);
 
-  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
-  --font-heading: var(--font-manrope), var(--font-inter), ui-sans-serif, system-ui, sans-serif;
-  --font-brand: var(--font-sora), var(--font-manrope), ui-sans-serif, system-ui, sans-serif;
-  --font-child: var(--font-nunito), ui-rounded, system-ui, sans-serif;
-  --font-mono: var(--font-jbmono), ui-monospace, Menlo, Consolas, monospace;
+  /* Two families: Sora for headings and the wordmark, DM Sans for everything else. */
+  --font-sans: var(--font-dmsans), ui-sans-serif, system-ui, sans-serif;
+  --font-heading: var(--font-sora), var(--font-dmsans), ui-sans-serif, system-ui, sans-serif;
+  --font-brand: var(--font-sora), ui-sans-serif, system-ui, sans-serif;
+  --font-child: var(--font-dmsans), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-dmsans), ui-sans-serif, system-ui, sans-serif;
 
-  --radius-card: var(--r-card); --radius-panel: var(--r-panel); --radius-tile: var(--r-tile); --radius-input: var(--r-input);
-  --shadow-card: var(--shadow-card); --shadow-lift: var(--shadow-lift); --shadow-card-hover: var(--shadow-lift); --shadow-pop: var(--shadow-pop);
+  --radius-card: var(--r-card); --radius-ctrl: var(--r-ctrl);
+  --shadow-card: var(--shadow-card); --shadow-lift: var(--shadow-card); --shadow-card-hover: var(--shadow-card); --shadow-pop: var(--shadow-pop);
+
+  /* Container sizes for the app shell (container queries). */
+  --container-tab: 760px; --container-desk: 1100px;
 }
 
-html { background: var(--canvas); }
+html { background: var(--ground); }
+/* Guard against accidental sideways page scroll. clip keeps sticky headers working. */
+html, body { overflow-x: clip; }
 body {
-  background: var(--canvas);
+  background: var(--ground);
   color: var(--ink);
   font-family: var(--font-sans);
-  font-size: 15px;
-  line-height: 24px;
+  font-size: 16px;
+  line-height: 1.5;
   -webkit-font-smoothing: antialiased;
 }
-h1, h2, h3, .font-heading { font-family: var(--font-heading); letter-spacing: -0.015em; }
+h1, h2, h3, .font-heading { font-family: var(--font-heading); letter-spacing: -0.02em; line-height: 1.15; }
 ::placeholder { color: var(--placeholder); opacity: 1; }
+/* Codes and counts: same family, tabular figures. */
+.font-mono, .tabular, code, kbd { font-variant-numeric: tabular-nums; }
+.font-mono { letter-spacing: .01em; }
 
-:focus-visible { outline: none; box-shadow: var(--focus); border-radius: 10px; }
-.tabular { font-variant-numeric: tabular-nums; }
+:focus-visible { outline: 2px solid var(--violet-500); outline-offset: 2px; border-radius: 8px; }
 
-/* surfaces */
-.bg-grad-violet { background: var(--grad-violet); }
-.bg-aurora { background: var(--grad-aurora); }
-/* Retired notebook textures (kept as no-ops so older markup is harmless). */
+/* surfaces: retired gradients render as quiet solid surfaces */
+.bg-grad-violet { background: var(--violet-700); }
+[data-theme="night"] .bg-grad-violet { background: #2A2160; }
+.bg-aurora { background: transparent; }
 .dotted-rules, .margin-line, .torn-edge {}
-/* Ruled content: used only for notes, activity descriptions and timelines. */
+/* Ruled content: notes and the session timeline only. */
 .ruled { background-image: repeating-linear-gradient(to bottom, transparent 0, transparent 27px, var(--line) 27px, var(--line) 28px); background-position: 0 6px; }
 
-/* motion */
-@keyframes ls-fade-up { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
-.fade-up { animation: ls-fade-up 200ms var(--ease) both; }
-.stagger > * { animation: ls-fade-up 220ms var(--ease) both; }
-.stagger > *:nth-child(2) { animation-delay: 40ms; } .stagger > *:nth-child(3) { animation-delay: 80ms; }
-.stagger > *:nth-child(4) { animation-delay: 120ms; } .stagger > *:nth-child(5) { animation-delay: 160ms; }
-.stagger > *:nth-child(n+6) { animation-delay: 200ms; }
-.lift { transition: transform 180ms var(--ease), box-shadow 180ms var(--ease); }
-.lift:hover { transform: translateY(-2px); box-shadow: var(--shadow-lift); }
-@keyframes ls-settle { 0% { opacity: 0; transform: translateY(-6px) scale(.7); } 70% { transform: translateY(1px) scale(1.06); } 100% { opacity: 1; transform: none; } }
-.dot-settle { animation: ls-settle 380ms var(--ease) both; }
-@keyframes ls-arc { from { opacity: .15; } to { opacity: 1; } }
-.arc-light { animation: ls-arc 300ms var(--ease) both; }
+/* motion: 150-220ms fades and presses only */
+@keyframes ls-fade { from { opacity: 0; } to { opacity: 1; } }
+.fade-up { animation: ls-fade 200ms var(--ease) both; }
+.stagger > * { animation: ls-fade 200ms var(--ease) both; }
+.stagger > *:nth-child(2) { animation-delay: 30ms; } .stagger > *:nth-child(3) { animation-delay: 60ms; }
+.stagger > *:nth-child(n+4) { animation-delay: 90ms; }
+.lift { transition: box-shadow 180ms var(--ease), border-color 180ms var(--ease); }
+.lift:hover { border-color: var(--line-strong); }
+.dot-settle { animation: ls-fade 200ms var(--ease) both; }
 @keyframes ls-shimmer { 0% { background-position: -400px 0; } 100% { background-position: 400px 0; } }
-.ls-skeleton { border-radius: 10px; background: linear-gradient(90deg, var(--surface-2) 0%, var(--line) 50%, var(--surface-2) 100%); background-size: 800px 100%; animation: ls-shimmer 1.4s linear infinite; }
+.ls-skeleton { border-radius: 12px; background: linear-gradient(90deg, var(--inset) 0%, var(--line) 50%, var(--inset) 100%); background-size: 800px 100%; animation: ls-shimmer 1.4s linear infinite; }
 @keyframes ls-draw { from { stroke-dashoffset: var(--len); } }
 .ring-draw { animation: ls-draw 600ms var(--ease) both; }
-@keyframes ls-pulse-ring { 0% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--tangerine) 55%, transparent); } 100% { box-shadow: 0 0 0 10px transparent; } }
-.pulse-ring { animation: ls-pulse-ring 1.6s var(--ease) infinite; }
-.pulse-once { animation: ls-pulse-ring 1.6s var(--ease) 2; }
+.pulse-ring, .pulse-once {}
 
 /* LogoLoader: tiles pop in sequence, then the dot drops onto the top step. */
 @keyframes ls-tile { 0%, 15% { opacity: 0; transform: scale(.6); } 35%, 85% { opacity: 1; transform: none; } 100% { opacity: 0; } }
 @keyframes ls-dot { 0%, 45% { opacity: 0; transform: translateY(-18px); } 60%, 85% { opacity: 1; transform: none; } 100% { opacity: 0; } }
 .logo-loader rect { transform-box: fill-box; transform-origin: center; animation: ls-tile 1.6s var(--ease) infinite both; }
 .logo-loader circle { transform-box: fill-box; animation: ls-dot 1.6s var(--ease) infinite both; }
-/* Signal arcs light one after another (loading / AI working). */
-@keyframes ls-arc-seq { 0%, 100% { opacity: .25; } 40% { opacity: 1; } }
-.arc-seq > * { animation: ls-arc-seq 1.2s var(--ease) infinite; }
-.arc-seq > *:nth-child(2) { animation-delay: 150ms; } .arc-seq > *:nth-child(3) { animation-delay: 300ms; }
+/* Confidence tiles / "AI working": tiles light one after another. */
+@keyframes ls-seq { 0%, 100% { opacity: .3; } 40% { opacity: 1; } }
+.tile-seq > * { animation: ls-seq 1.2s var(--ease) infinite; }
+.tile-seq > *:nth-child(2) { animation-delay: 150ms; } .tile-seq > *:nth-child(3) { animation-delay: 300ms; }
 
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; } }
 
-.fade-x { mask-image: linear-gradient(90deg, transparent 0, #000 12px, #000 calc(100% - 12px), transparent 100%); }
 .no-scrollbar::-webkit-scrollbar { display: none; }
 .no-scrollbar { scrollbar-width: none; }
 
-dialog::backdrop { background: rgb(19 23 43 / 0.40); backdrop-filter: blur(4px); }
+dialog::backdrop { background: rgb(26 22 53 / 0.40); }
 
 @media print {
   .no-print { display: none !important; }
   html, body { background: white !important; }
   .print-break { break-inside: avoid; }
+  .print-only { display: block !important; }
 }
+.print-only { display: none; }

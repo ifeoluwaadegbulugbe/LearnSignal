@@ -1,7 +1,8 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  /* config options here */
+  // Hide the Next.js dev badge so it never covers the phone bottom bar in previews.
+  devIndicators: false,
 };
 
 export default nextConfig;

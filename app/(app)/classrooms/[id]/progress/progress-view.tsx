@@ -5,7 +5,8 @@ import { usePathname, useRouter } from 'next/navigation';
 import { ArrowUpRight, Minus, RotateCcw, Download, Printer } from 'lucide-react';
 import { SegmentedTabs } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
-import { IndexCard, Select, SectionHeader } from '@/components/ui/primitives';
+import { IndexCard, Select, SectionHeader, SummaryTiles } from '@/components/ui/primitives';
+import { StateBar } from '@/components/ui/viz';
 import { Avatar } from '@/components/ui/avatar';
 import { CodeChip } from '@/components/ui/code-chip';
 import { ClassLadder, type LadderLearner } from '@/components/learner/class-ladder';
@@ -16,11 +17,14 @@ import { cn } from '@/lib/utils';
 export type ChangeRow = { id: string; name: string; code: string; up: string[]; retest: string[]; working: { literacy: string | null; numeracy: string | null }; change: 'up' | 'held' | 'retest' };
 type Strand = 'literacy' | 'numeracy';
 
-export function ProgressView({ ladders, slope, bars, changes, range, classroomName, isDemo }: {
+type Counts = { not_yet: number; developing: number; consistent: number; insufficient: number };
+
+export function ProgressView({ ladders, slope, bars, changes, range, classroomName, isDemo, distribution, classroomId }: {
   ladders: { first: LadderLearner[]; latest: LadderLearner[] };
   slope: { id: string; name: string; strand: string; before: number | null; after: number | null; learners: number }[];
   bars: { name: string; skill: string; done: number; total: number }[];
   changes: ChangeRow[]; range: string; classroomName: string; isDemo: boolean;
+  distribution: { strand: Strand; counts: Counts }[]; classroomId: string;
 }) {
   const [strand, setStrand] = useState<Strand>('numeracy');
   const [which, setWhich] = useState<'first' | 'latest'>('latest');
@@ -43,12 +47,32 @@ export function ProgressView({ ladders, slope, bars, changes, range, classroomNa
       <div className="flex flex-wrap items-center gap-3 no-print">
         <SegmentedTabs label="Strand" value={strand} onChange={(v) => { setStrand(v as Strand); setSkill(''); }} items={[{ id: 'numeracy', label: 'Numeracy' }, { id: 'literacy', label: 'Literacy' }]} />
         <Select aria-label="Date range" className="w-44" value={range} onChange={(e) => router.push(e.target.value === 'all' ? path : `${path}?range=${e.target.value}`)}>
-          <option value="all">All time</option><option value="30">Last 30 days</option>
+          <option value="all">All time</option><option value="7">Last 7 days</option><option value="30">Last 30 days</option><option value="90">Last 90 days</option>
         </Select>
         <span className="flex-1" />
         <Button variant="secondary" size="sm" onClick={exportCsv}><Download className="size-4" aria-hidden /> Export CSV</Button>
         <Button variant="secondary" size="sm" onClick={() => window.print()}><Printer className="size-4" aria-hidden /> Print</Button>
       </div>
+
+      <SummaryTiles items={[
+        { label: 'Moved up on a skill', value: changes.filter((c) => c.change === 'up').length, tone: 'aqua', glyph: 'star', hint: 'demonstrated more than at their first check' },
+        { label: 'Held steady', value: changes.filter((c) => c.change === 'held').length, tone: 'violet', glyph: 'dots', hint: 'same state as their first check' },
+        { label: 'Re-check suggested', value: changes.filter((c) => c.change === 'retest').length, tone: 'tangerine', glyph: 'eye', hint: 'latest session differs from earlier ones' },
+      ]} />
+
+      <section aria-labelledby="dist">
+        <SectionHeader id="dist" title="Skill distribution" info="Every skill result now, by state. Click a state to list those learners." />
+        <IndexCard>
+          <ul className="grid gap-6 md:grid-cols-2">
+            {distribution.map((d) => (
+              <li key={d.strand}>
+                <div className="mb-2 text-[15px] font-semibold capitalize">{d.strand}</div>
+                <StateBar counts={d.counts} label={`${d.strand} skill results`} hrefFor={(st) => `/classrooms/${classroomId}/learners?strand=${d.strand}&state=${st}`} />
+              </li>
+            ))}
+          </ul>
+        </IndexCard>
+      </section>
 
       <section aria-labelledby="move">
         <SectionHeader id="move" title="How the dots moved" action={

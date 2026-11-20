@@ -55,7 +55,7 @@ export function ProfileTabs(p: Props) {
 function NotChecked({ learnerId }: { learnerId: string }) {
   return (
     <div className="relative">
-      <div className="grid gap-6 opacity-40 md:grid-cols-2" aria-hidden>
+      <div className="grid grid-cols-[minmax(0,1fr)] gap-6 opacity-40 md:grid-cols-2" aria-hidden>
         <IndexCard><SkillLadder strand="literacy" states={[]} /></IndexCard>
         <IndexCard><SkillLadder strand="numeracy" states={[]} /></IndexCard>
       </div>
@@ -90,7 +90,7 @@ function Overview({ states, evidence, oral, recs, learner }: Props) {
 
   return (
     <div className="space-y-10">
-      <div className="grid gap-6 md:grid-cols-2">
+      <div className="grid grid-cols-[minmax(0,1fr)] gap-6 md:grid-cols-2">
         {(['literacy', 'numeracy'] as const).map((s) => {
           const rec = suggested.find((r) => SKILL_BY_ID[r.skill_id].strand === s);
           return (
@@ -159,7 +159,7 @@ function Overview({ states, evidence, oral, recs, learner }: Props) {
 function History({ sessions, chart, chartSkills }: Props) {
   const done = sessions.filter((s) => s.completed_at || s.started_at);
   return (
-    <div className="grid gap-6 lg:grid-cols-[360px_minmax(0,1fr)]">
+    <div className="grid grid-cols-[minmax(0,1fr)] gap-6 lg:grid-cols-[360px_minmax(0,1fr)]">
       <IndexCard tab="Sessions" ruled>
         <Timeline empty="No sessions yet." items={done.map((s) => ({
           id: s.id, tone: s.kind === 'baseline' ? 'teal' : 'sun',
@@ -185,7 +185,7 @@ function Practice({ assignments, learner }: Props) {
       trailing={<Badge tone={a.status === 'completed' ? 'mint' : 'sun'}>{a.status === 'completed' ? 'Completed' : 'To do'}</Badge>} />
   ));
   return (
-    <div className="grid gap-6 lg:grid-cols-2">
+    <div className="grid grid-cols-[minmax(0,1fr)] gap-6 lg:grid-cols-2">
       <section><h2 className="mb-3 font-heading text-[18px] font-semibold">To do ({open.length})</h2>{open.length ? <WorkList>{rows(open)}</WorkList> : <p className="text-[14px] text-ink-2">Nothing waiting.</p>}
         {open.length > 0 && <ButtonLink href={`/learn/${learner.id}`} variant="secondary" className="mt-3">Open learner mode</ButtonLink>}</section>
       <section><h2 className="mb-3 font-heading text-[18px] font-semibold">Completed ({doneA.length})</h2>{doneA.length ? <WorkList>{rows(doneA)}</WorkList> : <p className="text-[14px] text-ink-2">None yet.</p>}</section>
@@ -200,7 +200,7 @@ function Notes({ notes, learner }: Props) {
   const router = useRouter();
   const toast = useToast();
   return (
-    <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_380px]">
+    <div className="grid grid-cols-[minmax(0,1fr)] gap-6 lg:grid-cols-[minmax(0,1fr)_380px]">
       <div className="space-y-5">
         {notes.length === 0 && <p className="text-[14px] text-ink-2">No notes yet.</p>}
         {notes.map((n) => (

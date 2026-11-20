@@ -5,10 +5,13 @@ export type IllustrationName = 'empty-learners' | 'empty-groups' | 'empty-practi
 
 const TEAL = 'var(--teal)', TEAL_S = 'var(--teal-soft)', SUN = 'var(--sun)', SUN_S = 'var(--sun-soft)', CLAY = 'var(--clay)', CLAY_S = 'var(--clay-soft)', SKY_S = 'var(--sky-soft)', LINE = 'var(--line-strong)', CARD = 'var(--card)';
 
-function Arcs({ x, y, s = 1, color = TEAL, o = 1 }: { x: number; y: number; s?: number; color?: string; o?: number }) {
+/** Three small stepped tiles with the learner dot (the logo motif). Replaces the retired arcs. */
+function StepGlyph({ x, y, s = 1, color = TEAL, o = 1 }: { x: number; y: number; s?: number; color?: string; o?: number }) {
   return (
-    <g transform={`translate(${x} ${y}) scale(${s})`} opacity={o} fill="none" stroke={color} strokeWidth="3" strokeLinecap="round">
-      <path d="M-6 0a8 8 0 0 1 12 0" /><path d="M-12 -6a17 17 0 0 1 24 0" /><path d="M-18 -12a26 26 0 0 1 36 0" />
+    <g transform={`translate(${x} ${y}) scale(${s})`} opacity={o} fill={color}>
+      <rect x="-16" y="-6" width="9" height="9" rx="3" opacity=".45" /><rect x="-5" y="-6" width="9" height="9" rx="3" opacity=".7" />
+      <rect x="6" y="-6" width="9" height="9" rx="3" /><rect x="6" y="-17" width="9" height="9" rx="3" />
+      <circle cx="10.5" cy="-23" r="4" fill="var(--tangerine)" />
     </g>
   );
 }
@@ -35,7 +38,7 @@ export function Illustration({ name, className, title }: { name: IllustrationNam
           <ellipse cx="54" cy="96" rx="24" ry="10" fill={TEAL_S} stroke={TEAL} strokeWidth="2" />
           <ellipse cx="102" cy="80" rx="24" ry="10" fill={SUN_S} stroke={SUN} strokeWidth="2" />
           <ellipse cx="150" cy="64" rx="24" ry="10" fill={CLAY_S} stroke={CLAY} strokeWidth="2" />
-          <Arcs x={150} y={44} s={0.7} />
+          <StepGlyph x={150} y={44} s={0.7} />
         </svg>
       );
     case 'empty-practice':
@@ -86,10 +89,10 @@ export function Illustration({ name, className, title }: { name: IllustrationNam
       );
     case 'landing':
     case 'landing-hero':
-    case 'skill-steps': // large ladder + signal arcs
+    case 'skill-steps': // large ladder + stepped tiles
       return (
         <svg {...common} viewBox="0 0 220 180">
-          <Arcs x={150} y={60} s={2.2} color={TEAL} o={0.12} />
+          <StepGlyph x={150} y={60} s={2.2} color={TEAL} o={0.12} />
           <rect x="60" y="14" width="7" height="160" rx="3.5" fill={TEAL} /><rect x="130" y="14" width="7" height="160" rx="3.5" fill={TEAL} />
           {[30, 58, 86, 114, 142].map((y, i) => <rect key={y} x="64" y={y} width="70" height="6" rx="3" fill={i === 2 ? SUN : TEAL_S} stroke={TEAL} strokeWidth="1.5" />)}
           {[[82, 140, CLAY_S], [100, 140, SKY_S], [90, 82, SUN_S], [112, 82, TEAL_S]].map(([x, y, c], i) => <circle key={i} cx={x as number} cy={(y as number) - 8} r="8" fill={c as string} stroke={LINE} strokeWidth="1.5" />)}

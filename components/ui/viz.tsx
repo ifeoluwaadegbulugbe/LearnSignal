@@ -46,20 +46,25 @@ export function SegmentedRing({ parts, size = 120, stroke = 12, label, children 
 }
 
 /** StateBar: slim stacked bar with rounded ends and an inline legend with counts. */
-export function StateBar({ counts, label, legend = true }: { counts: { not_yet: number; developing: number; consistent: number; insufficient: number }; label: string; legend?: boolean }) {
+export function StateBar({ counts, label, legend = true, hrefFor }: { counts: { not_yet: number; developing: number; consistent: number; insufficient: number }; label: string; legend?: boolean; hrefFor?: (state: 'not_yet' | 'developing' | 'consistent' | 'insufficient') => string }) {
   const order = ['consistent', 'developing', 'not_yet', 'insufficient'] as const;
   const total = order.reduce((n, k) => n + counts[k], 0);
   return (
     <div>
-      <div className="flex h-2.5 w-full gap-0.5 overflow-hidden rounded-full bg-paper-2" role="img"
-        aria-label={`${label}: ${order.map((k) => `${counts[k]} ${STATUS[k].short.toLowerCase()}`).join(', ')}`}>
-        {total > 0 && order.map((k) => counts[k] > 0 && <span key={k} className="h-full first:rounded-l-full last:rounded-r-full" style={{ width: `${(counts[k] / total) * 100}%`, background: STATUS[k].fill }} />)}
+      <div className="flex h-2.5 w-full gap-0.5 overflow-hidden rounded-full bg-paper-2"
+        {...(hrefFor ? { 'aria-hidden': true } : { role: 'img', 'aria-label': `${label}: ${order.map((k) => `${counts[k]} ${STATUS[k].short.toLowerCase()}`).join(', ')}` })}>
+        {total > 0 && order.map((k) => counts[k] > 0 && (hrefFor
+          ? <a key={k} href={hrefFor(k)} tabIndex={-1} className="h-full transition-opacity first:rounded-l-full last:rounded-r-full hover:opacity-80" style={{ width: `${(counts[k] / total) * 100}%`, background: STATUS[k].fill }} />
+          : <span key={k} className="h-full first:rounded-l-full last:rounded-r-full" style={{ width: `${(counts[k] / total) * 100}%`, background: STATUS[k].fill }} />))}
       </div>
       {legend && (
-        <ul className="mt-2 flex flex-wrap gap-x-3 gap-y-1" aria-hidden>
-          {order.filter((k) => counts[k] > 0).map((k) => (
-            <li key={k} className="flex items-center gap-1 text-[12px] text-ink-2"><span className="size-2 rounded-full" style={{ background: STATUS[k].fill }} />{STATUS[k].short} <b className="tabular text-ink">{counts[k]}</b></li>
-          ))}
+        <ul className="mt-2 flex flex-wrap gap-x-3 gap-y-1" {...(hrefFor ? { 'aria-label': label } : { 'aria-hidden': true })}>
+          {order.filter((k) => counts[k] > 0).map((k) => {
+            const inner = <><span className="size-2 rounded-full" style={{ background: STATUS[k].fill }} aria-hidden />{STATUS[k].short} <b className="tabular text-ink">{counts[k]}</b></>;
+            return hrefFor
+              ? <li key={k}><a href={hrefFor(k)} className="flex min-h-7 items-center gap-1 rounded-full px-1.5 -mx-1.5 text-[12px] text-ink-2 hover:bg-surface-2 hover:text-ink">{inner}</a></li>
+              : <li key={k} className="flex items-center gap-1 text-[12px] text-ink-2">{inner}</li>;
+          })}
         </ul>
       )}
     </div>

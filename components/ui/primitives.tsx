@@ -7,8 +7,8 @@ import { IconTile, type Hue } from './icon-tile';
 const TINT = { plain: 'bg-surface', teal: 'bg-violet-soft', violet: 'bg-violet-soft', sun: 'bg-tangerine-soft', tangerine: 'bg-tangerine-soft', sky: 'bg-sky-soft', clay: 'bg-rose-soft', leaf: 'bg-aqua-soft', aqua: 'bg-aqua-soft' } as const;
 export type CardTint = keyof typeof TINT;
 const LABEL_TONE = {
-  teal: 'bg-violet-soft text-violet-deep dark:text-violet', sun: 'bg-tangerine-soft text-tangerine-ink', sky: 'bg-sky-soft text-sky-ink',
-  clay: 'bg-rose-soft text-ink-2', stone: 'bg-surface-2 text-ink-2', violet: 'bg-violet-soft text-violet-deep dark:text-violet', tangerine: 'bg-tangerine-soft text-tangerine-ink', aqua: 'bg-aqua-soft text-aqua-ink',
+  teal: 'bg-violet-soft text-violet-deep', sun: 'bg-tangerine-soft text-tangerine-ink', sky: 'bg-sky-soft text-sky-ink',
+  clay: 'bg-rose-soft text-ink-2', stone: 'bg-surface-2 text-ink-2', violet: 'bg-violet-soft text-violet-deep', tangerine: 'bg-tangerine-soft text-tangerine-ink', aqua: 'bg-aqua-soft text-aqua-ink',
 } as const;
 
 /**
@@ -75,7 +75,7 @@ const GLYPHS: Record<Glyph, React.ReactNode> = {
   star: <g fill="currentColor"><rect x="1" y="11" width="6" height="6" rx="2" /><rect x="6" y="6" width="6" height="6" rx="2" opacity=".7" /><circle cx="14" cy="4" r="3" /></g>,
 };
 export function SummaryTiles({ items }: { items: { label: string; value: React.ReactNode; tone: Tone; glyph?: Glyph; hint?: React.ReactNode }[] }) {
-  const tone: Record<Tone, string> = { violet: 'bg-violet-soft text-violet-deep dark:text-violet', aqua: 'bg-aqua-soft text-aqua-ink', tangerine: 'bg-tangerine-soft text-tangerine-ink', sky: 'bg-sky-soft text-sky-ink' };
+  const tone: Record<Tone, string> = { violet: 'bg-violet-soft text-violet-deep', aqua: 'bg-aqua-soft text-aqua-ink', tangerine: 'bg-tangerine-soft text-tangerine-ink', sky: 'bg-sky-soft text-sky-ink' };
   return (
     <div className={cn('grid gap-3', items.length >= 4 ? 'grid-cols-2 lg:grid-cols-4' : 'grid-cols-2 sm:grid-cols-3')}>
       {items.map((it, i) => (
@@ -94,13 +94,35 @@ export function SummaryTiles({ items }: { items: { label: string; value: React.R
   );
 }
 
-export function PageHeader({ title, subtitle, actions, eyebrow, display }: { title: React.ReactNode; subtitle?: React.ReactNode; actions?: React.ReactNode; eyebrow?: React.ReactNode; display?: boolean }) {
+/** StatStrip: one card, up to four figures separated by hairlines; each has a number, a line and a thin violet bar. */
+export function StatStrip({ items }: { items: { label: string; value: React.ReactNode; sub?: React.ReactNode; pct?: number }[] }) {
   return (
-    <div className="mb-7 flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+    <div className="@container/strip overflow-hidden rounded-[16px] border border-line bg-surface shadow-card">
+      <dl className="grid grid-cols-2 gap-px bg-line @min-[880px]/strip:grid-cols-4">
+        {items.map((it) => (
+          <div key={it.label} className="bg-surface p-5 @min-[500px]/strip:p-6">
+            <dt className="text-[15px] text-muted">{it.label}</dt>
+            <dd className="mt-1 font-heading text-[28px] font-bold leading-tight tabular @min-[500px]/strip:text-[32px]">{it.value}</dd>
+            {it.sub && <dd className="mt-1 text-[14px] text-muted">{it.sub}</dd>}
+            {it.pct !== undefined && (
+              <dd className="mt-4 h-1.5 overflow-hidden rounded-full bg-violet-100" aria-hidden>
+                <span className="block h-full rounded-full bg-violet-500" style={{ width: `${Math.max(0, Math.min(100, it.pct))}%` }} />
+              </dd>
+            )}
+          </div>
+        ))}
+      </dl>
+    </div>
+  );
+}
+
+export function PageHeader({ title, subtitle, actions, eyebrow }: { title: React.ReactNode; subtitle?: React.ReactNode; actions?: React.ReactNode; eyebrow?: React.ReactNode; display?: boolean }) {
+  return (
+    <div className="mb-8 flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
       <div className="min-w-0">
-        {eyebrow && <div className="mb-1.5 text-[13px] font-medium text-ink-2">{eyebrow}</div>}
-        <h1 className={cn('font-heading font-bold text-ink tracking-[-0.02em]', display ? 'text-[30px] leading-[38px] tracking-[-0.03em] sm:text-[42px] sm:leading-[50px]' : 'text-[24px] leading-8 sm:text-[30px] sm:leading-[38px]')}>{title}</h1>
-        {subtitle && <p className="mt-1.5 text-[15px] text-ink-2">{subtitle}</p>}
+        {eyebrow && <div className="mb-2 text-[14px] font-medium text-muted">{eyebrow}</div>}
+        <h1 className="text-[28px] font-bold text-ink sm:text-[36px]">{title}</h1>
+        {subtitle && <p className="mt-2 text-[16px] text-muted">{subtitle}</p>}
       </div>
       {actions && <div className="flex shrink-0 flex-wrap gap-2 no-print">{actions}</div>}
     </div>
@@ -124,12 +146,12 @@ export function Breadcrumb({ items }: { items: { label: string; href?: string }[
 
 export function SectionHeader({ title, info, href, linkLabel = 'See all', action, id }: { title: string; info?: string; href?: string; linkLabel?: string; action?: React.ReactNode; id?: string }) {
   return (
-    <div className="mb-3 flex items-center justify-between gap-3">
-      <h2 id={id} className="flex items-center gap-1.5 font-heading text-[20px] font-semibold leading-7">
+    <div className="mb-4 flex items-center justify-between gap-3">
+      <h2 id={id} className="flex items-center gap-1.5 text-[20px] font-bold">
         {title}
         {info && <Tooltip text={info}><Info className="size-4 text-ink-3" aria-label={info} /></Tooltip>}
       </h2>
-      {href ? <Link href={href} className="text-[13px] font-semibold text-violet-deep underline-offset-4 hover:underline dark:text-violet">{linkLabel}</Link> : action}
+      {href ? <Link href={href} className="text-[15px] font-medium text-violet-700 underline underline-offset-4 hover:no-underline">{linkLabel}</Link> : action}
     </div>
   );
 }
@@ -171,7 +193,7 @@ export const Select = forwardRef<HTMLSelectElement, React.SelectHTMLAttributes<H
 
 export function Badge({ className, children, tone = 'neutral' }: { className?: string; children: React.ReactNode; tone?: 'neutral' | 'primary' | 'accent' | 'sky' | 'mint' | 'dark' | 'sun' | 'teal' | 'sunshine' }) {
   const tones = {
-    neutral: 'bg-paper-2 text-ink-2 border border-line', primary: 'bg-violet-soft text-violet-deep dark:text-violet', teal: 'bg-violet-soft text-violet-deep dark:text-violet',
+    neutral: 'bg-paper-2 text-ink-2 border border-line', primary: 'bg-violet-soft text-violet-deep', teal: 'bg-violet-soft text-violet-deep',
     accent: 'bg-st-notyet-soft text-st-notyet', sky: 'bg-sky-soft text-sky-ink', mint: 'bg-leaf-soft text-st-consistent', dark: 'bg-ink text-paper', sun: 'bg-tangerine-soft text-tangerine-ink', sunshine: 'bg-sunshine-soft text-sunshine-ink',
   };
   return <span className={cn('inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-[12px] font-semibold leading-5', tones[tone], className)}>{children}</span>;
@@ -207,7 +229,7 @@ export function Stat({ label, value, sub, icon, hue = 'stone' }: { label: string
 export function SampleDataBadge({ className }: { className?: string }) {
   return (
     <Tooltip text="These are synthetic learners created for the demo, not real children.">
-      <span className={cn('inline-flex items-center gap-1.5 rounded-full bg-sunshine-soft px-2.5 py-1 text-[12px] font-semibold text-sunshine-ink', className)}>
+      <span className={cn('inline-flex items-center gap-1.5 rounded-full bg-violet-50 px-2.5 py-1 text-[13px] font-medium text-violet-700', className)}>
         <FlaskConical className="size-3.5" aria-hidden /> Illustrative sample data
       </span>
     </Tooltip>

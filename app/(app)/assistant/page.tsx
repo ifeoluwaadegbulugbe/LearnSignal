@@ -17,7 +17,7 @@ export default async function AskPage({ searchParams }: { searchParams: Promise<
   ]);
   return (
     <div className="mx-auto max-w-3xl">
-      <PageHeader title="Ask about your class" subtitle="Answers come only from your class data and refer to learners by code. Nothing is guessed." />
+      <PageHeader title="Ask LearnSignal" subtitle="Answers come only from your class data and refer to learners by code. Nothing is guessed." />
       {ctx.classrooms.length === 0 ? (
         <EmptyState illustration="empty-learners" title="No classes yet" body="Create a class and check a few learners first." action={<ButtonLink href="/onboarding">Set up a class</ButtonLink>} />
       ) : (

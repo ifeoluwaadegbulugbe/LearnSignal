@@ -4,30 +4,32 @@ import Link from 'next/link';
 import { ChevronRight, Sparkles, ShieldCheck } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
-/** NextStepCard: one rules-based next action. Used instead of banners. Dismiss is remembered per id. */
-export function NextStepCard({ id, sentence, detail, action, tone = 'sun' }: { id: string; sentence: React.ReactNode; detail?: React.ReactNode; action: React.ReactNode; tone?: 'sun' | 'teal' }) {
+/**
+ * NextStepCard (banner): one rules-based next action. Tangerine tint, a small NEXT STEP tab,
+ * one headline, one sentence, one violet button and a quiet "Not now". The logo tiles sit on
+ * the right as a 140px illustration (hidden on phones). Dismiss is remembered per id for the session.
+ */
+export function NextStepCard({ id, sentence, detail, action }: { id: string; sentence: React.ReactNode; detail?: React.ReactNode; action: React.ReactNode; tone?: 'sun' | 'teal' }) {
   const key = `ls-next-${id}`;
   const [hidden, setHidden] = useState(false);
   useEffect(() => { try { if (sessionStorage.getItem(key) === '1') setHidden(true); } catch {} }, [key]);
   if (hidden) return null;
   return (
-    <section aria-label="Next step" className={cn('fade-up relative overflow-hidden rounded-[18px] border p-5 sm:p-6',
-      tone === 'sun' ? 'border-tangerine/30 bg-tangerine-soft/60' : 'border-line bg-surface shadow-card')}>
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <div className="flex gap-4">
-          <span aria-hidden className={cn('hidden size-11 shrink-0 items-center justify-center rounded-[12px] sm:flex', tone === 'sun' ? 'bg-tangerine text-[#2A1300]' : 'bg-violet-soft text-violet')}>
-            <svg viewBox="0 0 20 20" className="size-5"><path d="M4 10h10m-4-5 5 5-5 5" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" /></svg>
-          </span>
-          <div>
-            <p className="inline-flex rounded-full bg-surface px-2 py-0.5 text-[11px] font-semibold uppercase tracking-[.06em] text-tangerine-ink">Next step</p>
-            <p className="mt-1.5 font-heading text-[19px] font-bold leading-7 sm:text-[20px]">{sentence}</p>
-            {detail && <p className="mt-1 text-[14px] text-ink-2">{detail}</p>}
+    <section aria-label="Next step" className="fade-up @container/next rounded-[16px] border border-tangerine-line bg-tangerine-tint p-6 @tab:p-8">
+      <div className="flex items-center gap-8">
+        <div className="min-w-0 flex-1">
+          <span className="inline-flex rounded-[8px] bg-tangerine px-2.5 py-1 text-[13px] font-bold uppercase tracking-[.06em] text-on-tangerine">Next step</span>
+          <h2 className="mt-4 max-w-[640px] text-[24px] font-bold @min-[600px]/next:text-[30px]">{sentence}</h2>
+          {detail && <p className="mt-3 max-w-[600px] text-[16px] text-muted">{detail}</p>}
+          <div className="mt-6 flex flex-wrap items-center gap-x-6 gap-y-3">
+            {action}
+            <button onClick={() => { setHidden(true); try { sessionStorage.setItem(key, '1'); } catch {} }} className="min-h-11 text-[16px] font-medium text-ink underline underline-offset-4 hover:no-underline">Not now</button>
           </div>
         </div>
-        <div className="flex shrink-0 items-center gap-3">
-          {action}
-          <button onClick={() => { setHidden(true); try { sessionStorage.setItem(key, '1'); } catch {} }} className="min-h-11 px-1 text-[13px] font-medium text-ink-2 underline-offset-4 hover:text-ink hover:underline">Not now</button>
-        </div>
+        <svg viewBox="0 0 100 100" className="hidden size-[140px] shrink-0 @min-[640px]/next:block" aria-hidden>
+          {([[6, 66, '#B9A8FF'], [36, 66, '#8B73F5'], [66, 66, '#5B3FE0'], [36, 36, '#8B73F5'], [66, 36, '#5B3FE0']] as const).map(([x, y, c], i) => <rect key={i} x={x} y={y} width="28" height="28" rx="9" fill={c} />)}
+          <circle cx="80" cy="20" r="14" fill="#FF7A2F" />
+        </svg>
       </div>
     </section>
   );

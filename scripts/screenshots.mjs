@@ -6,7 +6,7 @@ import { readFileSync, mkdirSync } from 'node:fs';
 
 const BASE = process.env.BASE_URL ?? 'http://localhost:3000';
 const env = Object.fromEntries(readFileSync(new URL('../.env.test.local', import.meta.url), 'utf8').split(/\r?\n/).map((l) => l.match(/^([A-Z_]+)=(.*)$/)).filter(Boolean).map((m) => [m[1], m[2]]));
-const WIDTHS = [[390, 844], [768, 1024], [1440, 900]];
+const WIDTHS = [[390, 844], [820, 1180], [1440, 900]];
 const out = new URL('../docs/screenshots/', import.meta.url);
 mkdirSync(out, { recursive: true });
 

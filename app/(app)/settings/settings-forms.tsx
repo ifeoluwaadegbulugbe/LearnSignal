@@ -2,7 +2,7 @@
 import { useState, useTransition } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { Download, Trash2, RotateCcw, Plus, User, GraduationCap, Languages, ShieldCheck, Palette, Database } from 'lucide-react';
+import { Download, Trash2, RotateCcw, Plus, User, GraduationCap, Languages, ShieldCheck, Palette, Database, School } from 'lucide-react';
 import { Button, ButtonLink } from '@/components/ui/button';
 import { Badge, Field, IndexCard, Input, Select } from '@/components/ui/primitives';
 import { Switch } from '@/components/ui/tabs';
@@ -39,7 +39,7 @@ function ChangePassword() {
 
 type L = { id: string; code: string; name: string; classroomId: string; archived: boolean; states: { skill_id: string; state: string }[] };
 const SECTIONS = [
-  { id: 'profile', label: 'Profile', icon: User }, { id: 'class', label: 'Classes', icon: GraduationCap }, { id: 'language', label: 'Language', icon: Languages },
+  { id: 'profile', label: 'Profile', icon: User }, { id: 'class', label: 'Classes', icon: GraduationCap }, { id: 'school', label: 'School', icon: School }, { id: 'language', label: 'Language', icon: Languages },
   { id: 'ai', label: 'AI and privacy', icon: ShieldCheck }, { id: 'appearance', label: 'Appearance', icon: Palette }, { id: 'data', label: 'Data', icon: Database },
 ];
 
@@ -65,12 +65,12 @@ export function SettingsForms({ fullName, email, aiEnabled, aiServer, schools, c
   const go = (id: string) => { setSection(id); document.getElementById(`s-${id}`)?.scrollIntoView({ behavior: 'smooth', block: 'start' }); };
 
   return (
-    <div className="grid gap-8 lg:grid-cols-[220px_minmax(0,1fr)]">
-      <nav aria-label="Settings sections" className="lg:sticky lg:top-24 lg:self-start">
+    <div className="grid grid-cols-[minmax(0,1fr)] gap-8 lg:grid-cols-[220px_minmax(0,1fr)]">
+      <nav aria-label="Settings sections" className="min-w-0 lg:sticky lg:top-24 lg:self-start">
         <ul className="no-scrollbar -mx-1 flex gap-1 overflow-x-auto px-1 lg:flex-col">
           {SECTIONS.map((s) => (
             <li key={s.id}><button onClick={() => go(s.id)} aria-current={section === s.id ? 'true' : undefined}
-              className={cn('flex min-h-11 w-full shrink-0 items-center gap-2 rounded-[12px] px-3 text-[14px] font-semibold whitespace-nowrap', section === s.id ? 'bg-teal-soft text-teal-ink dark:text-teal' : 'text-ink-2 hover:bg-paper-2 hover:text-ink')}>
+              className={cn('flex min-h-11 w-full shrink-0 items-center gap-2 rounded-[12px] px-3 text-[14px] font-semibold whitespace-nowrap', section === s.id ? 'bg-teal-soft text-teal-ink' : 'text-ink-2 hover:bg-paper-2 hover:text-ink')}>
               <s.icon className="size-4" aria-hidden />{s.label}</button></li>
           ))}
         </ul>
@@ -114,6 +114,21 @@ export function SettingsForms({ fullName, email, aiEnabled, aiServer, schools, c
             ))}
           </ul>
           <p className="mt-4 text-[13px] text-ink-2">Renaming a class and inviting co-teachers are not available in this version.</p>
+        </IndexCard>
+
+        <IndexCard tab="School" id="s-school">
+          <ul className="divide-y divide-line rounded-[12px] border border-line">
+            {schools.map((s) => {
+              const cls = classrooms.filter((c) => c.school_id === s.id);
+              return (
+                <li key={s.id} className="flex min-h-14 flex-wrap items-center justify-between gap-2 px-4 py-2">
+                  <span className="text-[15px] font-semibold">{s.name}</span>
+                  <span className="flex items-center gap-2 text-[13px] text-ink-2">{cls.length} class{cls.length === 1 ? '' : 'es'} · <Badge>{s.role === 'admin' ? 'Administrator' : 'Teacher'}</Badge></span>
+                </li>
+              );
+            })}
+          </ul>
+          <p className="mt-4 text-[13px] text-ink-2">Administrators see school-wide totals on <Link href="/school" className="font-semibold text-teal underline">School insights</Link>; counts under 3 are hidden to protect privacy. Inviting staff is not available in this version.</p>
         </IndexCard>
 
         <IndexCard tab="Language" id="s-language">

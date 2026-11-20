@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { UserPlus, ListPlus, Archive, ArchiveRestore, Pencil, ClipboardCheck, Search, MoreHorizontal, Check, Copy, ArrowUpDown, ChevronLeft, ChevronRight } from 'lucide-react';
 import { Button, ButtonLink } from '@/components/ui/button';
-import { Field, IndexCard, Input, SummaryTiles, Textarea } from '@/components/ui/primitives';
+import { Field, IndexCard, Input, Select, Textarea } from '@/components/ui/primitives';
 import { SegmentedTabs, Segmented } from '@/components/ui/tabs';
 import { Dialog } from '@/components/ui/dialog';
 import { EmptyState } from '@/components/ui/states';
@@ -13,7 +13,7 @@ import { CodeChip } from '@/components/ui/code-chip';
 import { StatusPill } from '@/components/ui/status';
 import { useToast } from '@/components/ui/toast';
 import { addLearner, addLearnersBulk, archiveLearner, updateLearner } from '@/lib/actions/learners';
-import { SKILL_BY_ID } from '@/lib/content/skills';
+import { SKILL_BY_ID, SKILLS } from '@/lib/content/skills';
 import { cn, fmtDate } from '@/lib/utils';
 import type { LearnerRow } from '@/lib/server/classroom';
 
@@ -21,13 +21,16 @@ const AGE = ['5-6', '7-8', '9-10', '11+'].map((a) => ({ id: a, label: a }));
 const looksLikeFullName = (n: string) => n.trim().split(/\s+/).length >= 2;
 type SortKey = 'name' | 'last';
 
-export function LearnersManager({ classroomId, learners, initialTab, openAdd }: { classroomId: string; learners: LearnerRow[]; initialTab: string; openAdd: boolean }) {
+export function LearnersManager({ classroomId, learners, initialTab, openAdd, stateFilter: initialStateFilter }: { classroomId: string; learners: LearnerRow[]; initialTab: string; openAdd: boolean; stateFilter?: { strand: 'literacy' | 'numeracy'; state: LearnerRow['states'][number]['state'] } }) {
   const router = useRouter();
   const toast = useToast();
   const [pending, start] = useTransition();
   const [tab, setTab] = useState(initialTab);
   const [query, setQuery] = useState('');
   const [sort, setSort] = useState<SortKey>('name');
+  const [level, setLevel] = useState('');
+  const [stateFilter, setStateFilter] = useState(initialStateFilter);
+  const [when, setWhen] = useState('');
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [mode, setMode] = useState<null | 'add' | 'bulk' | { edit: LearnerRow }>(openAdd ? 'add' : null);
 
@@ -42,12 +45,21 @@ export function LearnersManager({ classroomId, learners, initialTab, openAdd }: 
   };
   const visible = useMemo(() => learners.filter(filters[tab] ?? filters.all)
     .filter((l) => !query || l.display_name.toLowerCase().includes(query.toLowerCase()) || l.code.includes(query.toUpperCase()))
+    .filter((l) => !level || l.working.literacy === level || l.working.numeracy === level)
+    .filter((l) => !stateFilter || l.states.some((s) => s.state === stateFilter.state && SKILL_BY_ID[s.skill_id].strand === stateFilter.strand))
+    .filter((l) => {
+      if (!when) return true;
+      if (when === 'never') return !l.lastAssessed;
+      if (!l.lastAssessed) return false;
+      const days = (Date.now() - new Date(l.lastAssessed).getTime()) / 864e5;
+      return when === '7' ? days <= 7 : when === '30' ? days <= 30 : days > 30;
+    })
     .sort((a, b) => (sort === 'name' ? a.display_name.localeCompare(b.display_name) : (b.lastAssessed ?? '').localeCompare(a.lastAssessed ?? ''))),
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  [learners, tab, query, sort]);
+  [learners, tab, query, sort, level, when, stateFilter]);
   const PAGE = 20;
   const [page, setPage] = useState(0);
-  useEffect(() => { setSelected(new Set()); setPage(0); }, [tab, query]);
+  useEffect(() => { setSelected(new Set()); setPage(0); }, [tab, query, level, when]);
   const pages = Math.max(1, Math.ceil(visible.length / PAGE));
   const shown = visible.slice(page * PAGE, page * PAGE + PAGE);
 
@@ -62,14 +74,6 @@ export function LearnersManager({ classroomId, learners, initialTab, openAdd }: 
 
   return (
     <>
-      <div className="mb-6">
-        <SummaryTiles items={[
-          { label: 'Learners', value: count('all'), tone: 'violet', glyph: 'dots' },
-          { label: 'Checked', value: count('all') - count('na'), tone: 'violet', glyph: 'check' },
-          { label: 'Not checked', value: count('na'), tone: 'sky', glyph: 'eye' },
-          { label: 'Re-check suggested', value: count('review'), tone: 'tangerine', glyph: 'star' },
-        ]} />
-      </div>
       <div className="mb-5 flex flex-col-reverse gap-3">
         <div className="no-scrollbar -mx-4 overflow-x-auto px-4 sm:mx-0 sm:px-0">
           <SegmentedTabs label="Filter learners" value={tab} onChange={setTab} items={[
@@ -79,15 +83,32 @@ export function LearnersManager({ classroomId, learners, initialTab, openAdd }: 
           ]} />
         </div>
         <div className="flex flex-wrap items-center gap-2">
-          <div className="relative min-w-0 flex-1 sm:max-w-xs">
+          <div className="relative min-w-0 basis-full sm:max-w-xs sm:flex-1 sm:basis-auto">
             <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-ink-3" aria-hidden />
             <Input aria-label="Search learners" placeholder="Name or code" className="pl-9" value={query} onChange={(e) => setQuery(e.target.value)} />
           </div>
-          <span className="hidden flex-1 sm:block" />
+          <Select aria-label="Filter by working skill" className="min-w-0 basis-[calc(50%-4px)] sm:w-44 sm:basis-auto" value={level} onChange={(e) => setLevel(e.target.value)}>
+            <option value="">Any level</option>{SKILLS.map((k) => <option key={k.id} value={k.id}>Working on {k.id}</option>)}
+          </Select>
+          <Select aria-label="Filter by last checked" className="min-w-0 basis-[calc(50%-4px)] sm:w-44 sm:basis-auto" value={when} onChange={(e) => setWhen(e.target.value)}>
+            <option value="">Any check date</option><option value="7">Checked in last 7 days</option><option value="30">Checked in last 30 days</option><option value="old">Checked over 30 days ago</option><option value="never">Never checked</option>
+          </Select>
+          <span className="hidden flex-1 lg:block" />
           <Button onClick={() => setMode('add')}><UserPlus className="size-4" aria-hidden /> Add learner</Button>
-          <Button variant="secondary" onClick={() => setMode('bulk')}><ListPlus className="size-4" aria-hidden /> Paste several</Button>
+          <Button variant="secondary" onClick={() => setMode('bulk')}><ListPlus className="size-4" aria-hidden /> Import</Button>
         </div>
       </div>
+
+      {stateFilter && (
+        <div className="mb-4 flex flex-wrap items-center gap-2 text-[14px]">
+          <span className="text-ink-2">Showing learners with</span>
+          <span className="inline-flex items-center gap-2 rounded-full bg-violet-soft py-1 pl-3 pr-1 font-semibold text-violet-deep">
+            <span className="capitalize">{stateFilter.strand}</span> · <StatusPill state={stateFilter.state} size="sm" short />
+            <button onClick={() => setStateFilter(undefined)} className="flex size-7 items-center justify-center rounded-full hover:bg-surface" aria-label="Clear this filter">×</button>
+          </span>
+          <span className="text-ink-2">on at least one skill</span>
+        </div>
+      )}
 
       {selected.size > 0 && (
         <div className="sticky top-20 z-20 mb-4 flex flex-wrap items-center gap-3 rounded-[14px] border border-teal/30 bg-teal-soft px-4 py-2.5 fade-up" role="region" aria-label="Bulk actions">
@@ -122,7 +143,7 @@ export function LearnersManager({ classroomId, learners, initialTab, openAdd }: 
                   <dl className="mt-3 grid grid-cols-2 gap-2">
                     {(['literacy', 'numeracy'] as const).map((k) => <div key={k}><dt className="text-[12px] font-medium capitalize text-ink-2">{k}</dt><dd className="mt-0.5"><StrandCell l={l} strand={k} /></dd></div>)}
                   </dl>
-                  {!l.archived_at && <ButtonLink href={`/learners/${l.id}/assess`} className="mt-4 w-full"><ClipboardCheck className="size-4" aria-hidden /> Start check</ButtonLink>}
+                  {!l.archived_at && <div className="mt-4 grid grid-cols-2 gap-2"><ButtonLink href={`/learners/${l.id}`} variant="secondary" size="sm">View</ButtonLink><ButtonLink href={`/learners/${l.id}/assess`} variant="secondary" size="sm"><ClipboardCheck className="size-4" aria-hidden /> Start check</ButtonLink></div>}
                 </IndexCard>
               </li>
             ))}
@@ -256,7 +277,7 @@ function AddLearnerDialog({ open, onClose, classroomId }: { open: boolean; onClo
     <Dialog open={open} onClose={close} title={saved ? 'Learner added' : 'Add a learner'}>
       {saved ? (
         <div className="space-y-4">
-          <IndexCard tab="Code" tabTone="sun" tint="sun" className="border-transparent text-center">
+          <IndexCard tab="Code" tabTone="violet" tint="violet" className="border-transparent text-center">
             <p className="text-[14px] text-ink-2">{saved.name}&apos;s code</p>
             <p className="my-1 font-mono text-[32px] font-medium tracking-wider">{saved.code}</p>
             <p className="text-[13px] text-ink-2">Write this on their folder. AI sees this code, never the name.</p>

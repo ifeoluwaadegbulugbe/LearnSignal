@@ -60,7 +60,7 @@ export function OnboardingFlow({ schools, firstName }: { schools: { id: string; 
           <li key={s} className="flex flex-1 items-center last:flex-none" aria-current={i === step ? 'step' : undefined}>
             <span className={cn('flex items-center gap-2 text-[14px] font-semibold', i <= step ? 'text-ink' : 'text-ink-3')}>
               <span className={cn('flex h-9 w-12 items-center justify-center rounded-[50%] border-2 text-[13px]',
-                i < step ? 'border-teal bg-teal text-white' : i === step ? 'border-sun bg-sun-soft text-sun-ink' : 'border-line-strong bg-card')}>
+                i < step ? 'border-teal bg-teal text-white' : i === step ? 'border-violet-500 bg-violet-100 text-violet-700' : 'border-line-strong bg-card')}>
                 {i < step ? <Check className="size-4" aria-hidden /> : i + 1}
               </span>{s}
             </span>

@@ -25,7 +25,7 @@ _(Edit this table before submitting.)_
 | Validation | Zod 4 |
 | Charts | Recharts |
 | Icons | lucide-react |
-| Fonts | Bricolage Grotesque, Inter, Nunito, JetBrains Mono (Google Fonts via `next/font`) |
+| Fonts | Sora and DM Sans (Google Fonts via `next/font`) |
 | Tests | Vitest (unit + RLS integration), Playwright (screenshots and AI smoke runs) |
 | Hosting | Vercel |
 

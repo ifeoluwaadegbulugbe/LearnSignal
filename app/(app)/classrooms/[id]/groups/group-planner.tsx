@@ -4,7 +4,6 @@ import { useRouter } from 'next/navigation';
 import { Check, Sparkles, Send, Trash2, Merge, GripVertical, Users, Loader2 } from 'lucide-react';
 import { Button, ButtonLink } from '@/components/ui/button';
 import { IndexCard, Field, Select } from '@/components/ui/primitives';
-import { SkillArt } from '@/components/ui/skill-art';
 import { SegmentedTabs } from '@/components/ui/tabs';
 import { Dialog } from '@/components/ui/dialog';
 import { ErrorPanel } from '@/components/ui/states';
@@ -94,47 +93,51 @@ export function GroupPlanner({ classroomId, suggested, accepted, approvedExercis
 
       <section aria-label="Suggested groups">
         {boards.length === 0 ? <p className="text-[15px] text-ink-2">No {strand} gaps flagged among learners checked so far.</p> : (
-          <div className="no-scrollbar -mx-4 flex snap-x gap-6 overflow-x-auto px-4 pb-4 pt-3">
+          <div className="grid grid-cols-[minmax(0,1fr)] items-start gap-6 sm:grid-cols-2 xl:grid-cols-3">
             {boards.map((g) => {
               const t = INTERVENTIONS[g.targetSkillId];
               return (
-                <div key={g.key} className="w-[min(320px,85vw)] shrink-0 snap-start space-y-5">
-                  <IndexCard tab={g.targetSkillId} tabTone="violet" art={<SkillArt skill={g.targetSkillId} />}
-                    className={cn('transition-shadow', over === g.key && 'ring-2 ring-teal')}
-                    onDragOver={(e) => { e.preventDefault(); setOver(g.key); }} onDragLeave={() => setOver(null)}
-                    onDrop={(e) => { e.preventDefault(); if (dragging) move(dragging.learnerId, dragging.from, g.key); setDragging(null); setOver(null); }}>
-                    <h3 className="font-heading text-[16px] font-semibold leading-6">{SKILL_BY_ID[g.targetSkillId].name}</h3>
-                    <p className="text-[13px] text-ink-2">{g.learners.length} learner{g.learners.length === 1 ? '' : 's'}</p>
-                    <ul className="mt-3 min-h-14 space-y-2" aria-label={`Learners in ${g.targetSkillId}`}>
-                      {g.learners.map((l) => {
-                        const st = states[l.learnerId]?.[g.targetSkillId];
-                        return (
-                          <li key={l.learnerId} draggable onDragStart={() => setDragging({ learnerId: l.learnerId, from: g.key })} onDragEnd={() => setDragging(null)}
-                            className={cn('flex cursor-grab items-center gap-2 rounded-[12px] border border-line bg-card px-2 py-2 active:cursor-grabbing', dragging?.learnerId === l.learnerId && 'opacity-50')}>
-                            <GripVertical className="size-4 shrink-0 text-ink-3" aria-hidden />
-                            <Avatar name={l.displayName} seed={l.code} size={32} />
-                            <span className="min-w-0 flex-1">
-                              <span className="block truncate text-[14px] font-semibold">{l.displayName}</span>
-                              <span className="mt-0.5 flex flex-wrap items-center gap-1.5"><span className="font-mono text-[11px] text-ink-2">{l.code}</span>{st && <StatusPill state={st} size="sm" short noTip />}</span>
-                            </span>
-                            {boards.length > 1 && (
-                              <button onClick={() => setMover({ learnerId: l.learnerId, name: l.displayName, from: g.key })} onKeyDown={(e) => { if (e.key === ' ') { e.preventDefault(); setMover({ learnerId: l.learnerId, name: l.displayName, from: g.key }); } }}
-                                className="rounded-[8px] px-1.5 py-1 text-[12px] font-semibold text-teal hover:bg-teal-soft" aria-label={`Move ${l.displayName} to another group`}>Move</button>
-                            )}
-                          </li>
-                        );
-                      })}
-                      {g.learners.length === 0 && <li className="rounded-[12px] border border-dashed border-line-strong p-3 text-center text-[13px] text-ink-3">Drop a learner here</li>}
-                    </ul>
-                    <Button className="mt-4 w-full" disabled={pending || !g.learners.length} onClick={() => accept(g)}><Check className="size-4" aria-hidden /> Accept group</Button>
-                  </IndexCard>
-                  <IndexCard tab="15-minute activity" tabTone="aqua" tint="aqua" className="text-[14px] leading-7">
-                    <p>{t.activity}</p>
-                    <p className="text-ink-2"><b className="font-semibold text-ink">Materials:</b> {t.materials}</p>
-                    <p className="text-ink-2"><b className="font-semibold text-ink">Success check:</b> {t.successCheck}</p>
-                    <ButtonLink href={`/exercises?skill=${g.targetSkillId}&generate=1`} size="sm" className="mt-3"><Sparkles className="size-4" aria-hidden /> Generate practice</ButtonLink>
-                  </IndexCard>
-                </div>
+                <section key={g.key} aria-label={`${g.targetSkillId} group`}
+                  className={cn('flex flex-col rounded-[16px] border border-line border-t-4 border-t-violet-500 bg-surface p-6 shadow-card transition-shadow', over === g.key && 'ring-2 ring-violet-500')}
+                  onDragOver={(e) => { e.preventDefault(); setOver(g.key); }} onDragLeave={() => setOver(null)}
+                  onDrop={(e) => { e.preventDefault(); if (dragging) move(dragging.learnerId, dragging.from, g.key); setDragging(null); setOver(null); }}>
+                  <span className="text-[15px] font-bold text-violet-700">{g.targetSkillId}</span>
+                  <h3 className="mt-1 text-[18px] font-bold">{SKILL_BY_ID[g.targetSkillId].name}</h3>
+                  <p className="text-[14px] text-muted">{g.learners.length} learner{g.learners.length === 1 ? '' : 's'}</p>
+                  <ul className="mt-4 min-h-14 space-y-2" aria-label={`Learners in ${g.targetSkillId}`}>
+                    {g.learners.map((l) => {
+                      const st = states[l.learnerId]?.[g.targetSkillId];
+                      return (
+                        <li key={l.learnerId} draggable onDragStart={() => setDragging({ learnerId: l.learnerId, from: g.key })} onDragEnd={() => setDragging(null)}
+                          className={cn('flex cursor-grab items-center gap-2 rounded-[12px] border border-line bg-surface px-2 py-2 active:cursor-grabbing', dragging?.learnerId === l.learnerId && 'opacity-50')}>
+                          <GripVertical className="size-4 shrink-0 text-muted" aria-hidden />
+                          <Avatar name={l.displayName} seed={l.code} size={32} />
+                          <span className="min-w-0 flex-1">
+                            <span className="block truncate text-[15px] font-semibold">{l.displayName}</span>
+                            <span className="mt-0.5 flex flex-wrap items-center gap-1.5"><span className="text-[13px] tabular text-muted">{l.code}</span>{st && <StatusPill state={st} size="sm" short noTip />}</span>
+                          </span>
+                          {boards.length > 1 && (
+                            <button onClick={() => setMover({ learnerId: l.learnerId, name: l.displayName, from: g.key })} onKeyDown={(e) => { if (e.key === ' ') { e.preventDefault(); setMover({ learnerId: l.learnerId, name: l.displayName, from: g.key }); } }}
+                              className="min-h-11 rounded-[10px] px-2.5 text-[14px] font-semibold text-violet-700 hover:bg-violet-50" aria-label={`Move ${l.displayName} to another group`}>Move</button>
+                          )}
+                        </li>
+                      );
+                    })}
+                    {g.learners.length === 0 && <li className="rounded-[12px] border border-dashed border-line-strong p-3 text-center text-[14px] text-muted">Drop a learner here</li>}
+                  </ul>
+                  <details className="group/act mt-4 rounded-[12px] border border-line bg-inset">
+                    <summary className="flex min-h-11 cursor-pointer list-none items-center justify-between gap-2 px-4 text-[15px] font-semibold">
+                      15 minute activity <span aria-hidden className="text-muted transition-transform group-open/act:rotate-180">⌄</span>
+                    </summary>
+                    <div className="space-y-2 px-4 pb-4 text-[15px]">
+                      <p>{t.activity}</p>
+                      <p className="text-muted"><b className="font-semibold text-ink">Materials:</b> {t.materials}</p>
+                      <p className="text-muted"><b className="font-semibold text-ink">Success check:</b> {t.successCheck}</p>
+                      <ButtonLink href={`/exercises?skill=${g.targetSkillId}&generate=1`} variant="link"><Sparkles className="size-4" aria-hidden /> Draft practice for this group</ButtonLink>
+                    </div>
+                  </details>
+                  <Button variant="secondary" className="mt-4 w-full" disabled={pending || !g.learners.length} onClick={() => accept(g)}><Check className="size-4" aria-hidden /> Accept group</Button>
+                </section>
               );
             })}
           </div>

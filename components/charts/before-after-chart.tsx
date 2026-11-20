@@ -3,7 +3,8 @@ import { useState } from 'react';
 import { Area, AreaChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
 
 export interface BeforeAfterPoint { label: string; [skill: string]: number | string }
-const COLORS = ['#5B3FE0', '#12B3A8', '#3D9BFF', '#FF7A2F', '#F06A9B', '#6A7391'];
+// One hue family: violet shades and ink, told apart by the legend and labels.
+const COLORS = ['var(--violet-500)', 'var(--ink)', 'var(--violet-700)', 'var(--muted)', 'var(--line-strong)', 'var(--violet-100)'];
 
 /** BeforeAfterLine: soft area under each line, tooltip, text summary and table toggle. */
 export function BeforeAfterChart({ data, skills, title }: { data: BeforeAfterPoint[]; skills: { id: string; name: string }[]; title: string }) {

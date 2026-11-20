@@ -32,8 +32,8 @@ export function Wordmark({ light, className }: { light?: boolean; className?: st
   );
 }
 
-export function Logo({ href = '/', compact, asSpan, className, light }: { href?: string; compact?: boolean; asSpan?: boolean; className?: string; dark?: boolean; light?: boolean }) {
-  const inner = <><LogoMark mono={light} className={light ? 'text-white' : undefined} />{!compact && <Wordmark light={light} />}</>;
+export function Logo({ href = '/', compact, asSpan, className, light, mono }: { href?: string; compact?: boolean; asSpan?: boolean; className?: string; dark?: boolean; light?: boolean; mono?: boolean }) {
+  const inner = <><LogoMark mono={light || mono} className={light ? 'text-white' : undefined} />{!compact && (mono ? <span className="font-brand text-[20px] font-bold tracking-[-0.03em]">LearnSignal</span> : <Wordmark light={light} />)}</>;
   if (asSpan) return <span className={cn('inline-flex items-center gap-2', className)}>{inner}</span>;
   return <Link href={href} className={cn('inline-flex items-center gap-2 rounded-lg', className)} aria-label="LearnSignal home">{inner}</Link>;
 }

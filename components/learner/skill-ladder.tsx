@@ -4,14 +4,15 @@ import Link from 'next/link';
 import { RotateCcw } from 'lucide-react';
 import { skillsForStrand, SKILL_BY_ID } from '@/lib/content/skills';
 import { workingSkill, type SkillStateName } from '@/lib/scoring/skillState';
-import { STATUS, StatusPill, ConfidenceDots } from '@/components/ui/status';
+import { STATUS, StatusPill } from '@/components/ui/status';
+import { ConfidenceTiles } from '@/components/ui/signal';
 import { Dialog } from '@/components/ui/dialog';
 import { cn, fmtDate } from '@/lib/utils';
 
 export type LadderState = { skill_id: string; state: SkillStateName; p: number; n_eff: number; sessions: number; confidence: 'low' | 'medium' | 'high'; provisional: boolean; retest_suggested: boolean };
 export type LadderEvidence = Record<string, { sessions: { id: string; kind: string; at: string; correct: number; total: number; skipped: number; source: 'assessment' | 'exercise' }[] }>;
 
-/** Horizontal 6-step ladder per strand. Click a node to open the evidence drawer. */
+/** One learner, one strand: six steps, widest at the top. Click a step to open the evidence drawer. */
 export function SkillLadder({ strand, states, evidence = {}, oral = [], compact }: {
   strand: 'literacy' | 'numeracy'; states: LadderState[]; evidence?: LadderEvidence; oral?: { wcpm: number; accuracy: number }[]; compact?: boolean;
 }) {
@@ -30,37 +31,34 @@ export function SkillLadder({ strand, states, evidence = {}, oral = [], compact 
 
   return (
     <div>
-      <h3 className="font-heading text-[18px] font-semibold capitalize">{strand}</h3>
-      <p className="mb-4 mt-0.5 text-[14px] text-ink-2">{summary}</p>
-      {/* Mobile: horizontal snap-scroll. md+: vertical ladder, top = highest skill. */}
-      <ol className={cn('no-scrollbar -mx-1 flex snap-x overflow-x-auto px-1 pb-2 md:mx-0 md:flex-col-reverse md:overflow-visible md:px-0 md:pb-0', compact && 'md:flex-row md:overflow-x-auto')} aria-label={`${strand} skill ladder`}>
+      <h3 className="text-[20px] font-bold capitalize">{strand}</h3>
+      <p className="mb-5 mt-1 text-[15px] text-muted">{summary}</p>
+      {/* Staircase turned on its side: the top step (6) is the widest; each row is one step. */}
+      <ol className="flex flex-col-reverse gap-2" aria-label={`${strand} skill ladder`}>
         {skills.map((sk, i) => {
           const st = states.find((x) => x.skill_id === sk.id);
-          const ui = st ? STATUS[st.state] : null;
-          const Icon = ui?.icon;
           const working = i === workingIdx;
-          const reached = workingIdx === -1 ? !!st : i < workingIdx;
           return (
-            <li key={sk.id} className="relative flex min-w-[96px] flex-1 snap-start flex-col items-center text-center md:min-w-0 md:flex-row md:items-center md:gap-3 md:py-1.5 md:text-left">
-              {/* connector: horizontal on mobile, vertical on md+ */}
-              {i > 0 && <span aria-hidden className={cn('absolute right-1/2 top-[22px] h-1 w-full -translate-y-1/2 rounded-full md:bottom-[-14px] md:left-[20px] md:right-auto md:top-auto md:h-[calc(100%-16px)] md:w-1 md:translate-y-0', reached || working ? 'bg-violet' : 'bg-line')} style={{}} />}
+            <li key={sk.id} style={{ width: `${compact ? 100 : 64 + i * 7.2}%` }} className="min-w-[min(100%,300px)]">
               <button
                 onClick={() => st && setOpen(sk.id)} disabled={!st}
-                aria-label={`${sk.id} ${sk.name}: ${st ? STATUS[st.state].label : 'not checked yet'}${working ? ', working skill' : ''}`}
-                className={cn('relative z-10 flex size-11 shrink-0 items-center justify-center rounded-full border-2 font-mono text-[12px] transition-transform enabled:hover:scale-105',
-                  st ? cn(ui!.cls, ui!.ring) : 'border-dashed border-line-strong bg-card text-ink-3',
-                  working && 'pulse-ring border-tangerine')}>
-                {Icon ? <Icon className="size-4" aria-hidden /> : sk.id}
+                className={cn('flex w-full items-center gap-3 rounded-[12px] border px-4 py-3 text-left transition-colors',
+                  working ? 'border-violet-500 bg-violet-500 text-on-primary'
+                    : st ? 'border-line bg-violet-50 enabled:hover:bg-violet-100' : 'border-dashed border-line-strong bg-surface text-muted',
+                  st?.retest_suggested && !working && 'border-2 border-dashed border-tangerine')}>
+                <span className="w-8 shrink-0 text-[15px] font-bold">{sk.id}</span>
+                <span className="min-w-0 flex-1">
+                  <span className="block truncate text-[15px] font-medium">{sk.shortName}</span><span className="sr-only">{sk.name}. {st ? STATUS[st.state].label : ''}</span>
+                  {working && <span className="mt-1 inline-flex whitespace-nowrap rounded-full bg-tangerine px-2.5 py-0.5 text-[13px] font-semibold text-on-tangerine">Working here</span>}
+                </span>
+                {st ? (
+                  <span className="flex shrink-0 items-center gap-2">
+                    {st.retest_suggested && <span className={cn('hidden items-center gap-1 text-[13px] font-semibold sm:inline-flex', working ? '' : 'text-tangerine-ink')}><RotateCcw className="size-3.5" aria-hidden />Re-check</span>}
+                    <StatusPill state={st.state} size="sm" short />
+                    <span className={cn('hidden sm:inline', working && '[&_svg_rect]:!fill-[var(--on-primary)]')}><ConfidenceTiles confidence={st.confidence} provisional={st.provisional} showLabel={false} /></span>
+                  </span>
+                ) : <span className="shrink-0 text-[14px]">Not checked yet</span>}
               </button>
-              <span className="mt-2 flex min-w-0 flex-col items-center md:mt-0 md:flex-1 md:items-start">
-                <span className="font-mono text-[11px] text-ink-2">{sk.id}</span>
-                <span className="line-clamp-2 px-1 text-[13px] font-medium leading-4 md:px-0">{sk.shortName}</span>
-              </span>
-              <span className="mt-1.5 flex flex-col items-center gap-1 md:mt-0 md:flex-row md:gap-2">
-                {working && <span className="rounded-full bg-tangerine px-2.5 py-0.5 text-[11px] font-semibold text-[#2A1300]">Working here</span>}
-                {st?.retest_suggested && <span className="inline-flex items-center gap-0.5 text-[11px] font-semibold text-st-notyet"><RotateCcw className="size-3" aria-hidden />retest</span>}
-                {st && <span className="hidden md:inline"><ConfidenceDots confidence={st.confidence} provisional={st.provisional} showLabel={false} /></span>}
-              </span>
             </li>
           );
         })}
@@ -78,16 +76,16 @@ export function EvidenceBody({ s, evidence, oral }: { s: LadderState; evidence: 
   const pc = Math.round(Number(s.p) * 100);
   const ev = evidence[s.skill_id]?.sessions ?? [];
   return (
-    <div className="space-y-5 text-[14px]">
-      <div className="flex flex-wrap items-center gap-3"><StatusPill state={s.state} /><ConfidenceDots confidence={s.confidence} provisional={s.provisional} /></div>
+    <div className="space-y-5 text-[15px]">
+      <div className="flex flex-wrap items-center gap-3"><StatusPill state={s.state} /><ConfidenceTiles confidence={s.confidence} provisional={s.provisional} /></div>
       <p>{sentence(s, pc)}</p>
       {s.retest_suggested && (
-        <p className="flex items-start gap-2 rounded-[14px] bg-amber-bg p-3 text-amber-ink"><RotateCcw className="mt-0.5 size-4 shrink-0" aria-hidden />
+        <p className="flex items-start gap-2 rounded-[12px] border border-tangerine-line bg-tangerine-tint p-3 text-tangerine-ink"><RotateCcw className="mt-0.5 size-4 shrink-0" aria-hidden />
           Retest suggested: the latest session differs from earlier evidence, so we have not changed the overall picture from one session.</p>
       )}
       <div className="grid grid-cols-3 gap-2">
         {[['Weighted score', `${pc}%`], ['Evidence', `${Number(s.n_eff).toFixed(1)} items`], ['Sessions', String(s.sessions)]].map(([k, v]) => (
-          <div key={k} className="rounded-[14px] bg-surface-2 p-3"><div className="text-[12px] text-ink-3">{k}</div><div className="text-[16px] font-bold tabular">{v}</div></div>
+          <div key={k} className="rounded-[12px] bg-inset p-3"><div className="text-[13px] text-muted">{k}</div><div className="text-[16px] font-bold tabular">{v}</div></div>
         ))}
       </div>
       <div>
@@ -95,7 +93,7 @@ export function EvidenceBody({ s, evidence, oral }: { s: LadderState; evidence: 
         <ol className="relative space-y-3 border-l-2 border-line pl-4">
           {ev.map((e) => (
             <li key={e.id} className="relative">
-              <span className="absolute -left-[23px] top-1.5 size-3 rounded-full border-2 border-surface bg-primary" aria-hidden />
+              <span className="absolute -left-[23px] top-1.5 size-3 rounded-full border-2 border-surface bg-violet-500" aria-hidden />
               <div className="flex items-center justify-between gap-2">
                 <span><span className="font-semibold capitalize">{e.kind === 'reassessment' ? 're-check' : e.kind}</span> <span className="text-ink-2">· {fmtDate(e.at)}</span></span>
                 <span className="font-semibold tabular">{e.correct}/{e.total}</span>
@@ -107,12 +105,12 @@ export function EvidenceBody({ s, evidence, oral }: { s: LadderState; evidence: 
         </ol>
       </div>
       {s.skill_id === 'L4' && oral.length > 0 && (
-        <p className="rounded-[14px] bg-surface-2 p-3">Latest oral reading: <b>{Math.round(oral[oral.length - 1].accuracy * 100)}% accuracy</b>, <b className="tabular">{oral[oral.length - 1].wcpm}</b> words correct per minute.</p>
+        <p className="rounded-[12px] bg-inset p-3">Latest oral reading: <b>{Math.round(oral[oral.length - 1].accuracy * 100)}% accuracy</b>, <b className="tabular">{oral[oral.length - 1].wcpm}</b> words correct per minute.</p>
       )}
       <div>
-        <button className="text-[13px] font-semibold text-primary underline underline-offset-4" onClick={() => setExplain((x) => !x)} aria-expanded={explain}>How is this calculated?</button>
+        <button className="min-h-11 text-[15px] font-semibold text-violet-700 underline underline-offset-4" onClick={() => setExplain((x) => !x)} aria-expanded={explain}>How is this calculated?</button>
         {explain && (
-          <p className="mt-2 text-[13px] text-ink-2">Each answer is evidence. Recent sessions count more (each older session counts 70% as much) and practice counts half. “Demonstrated consistently” needs at least 80% across two or more sessions. A strong single session is shown as developing and marked provisional. <Link href="/how-scoring-works" className="underline">Full explanation</Link></p>
+          <p className="mt-2 text-[15px] text-muted">Each answer is evidence. Recent sessions count more (each older session counts 70% as much) and practice counts half. “Demonstrated consistently” needs at least 80% across two or more sessions. A strong single session is shown as developing and marked provisional. <Link href="/how-scoring-works" className="underline">Full explanation</Link></p>
         )}
       </div>
     </div>

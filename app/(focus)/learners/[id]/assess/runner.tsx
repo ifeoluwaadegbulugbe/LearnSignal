@@ -5,10 +5,8 @@ import { useRouter } from 'next/navigation';
 import { BookOpen, Calculator, Layers, Volume2, SkipForward, Pause, Play, X, Timer, Eye, EyeOff, Check, CircleSlash, Repeat2, Undo2, Delete, ArrowLeft } from 'lucide-react';
 import { Button, ButtonLink } from '@/components/ui/button';
 import { IndexCard, NotADiagnosis, SampleDataBadge } from '@/components/ui/primitives';
-import { SkillArt } from '@/components/ui/skill-art';
 import { ErrorPanel } from '@/components/ui/states';
 import { StatusPill } from '@/components/ui/status';
-import { IconTile } from '@/components/ui/icon-tile';
 import { Dialog } from '@/components/ui/dialog';
 import { Illustration } from '@/components/ui/illustration';
 import { CodeChip } from '@/components/ui/code-chip';
@@ -27,12 +25,12 @@ type Phase = { kind: 'select' } | { kind: 'running'; strand: Strand; sessionId: 
 type Mark = 'correct' | 'omitted' | 'substituted' | 'self_corrected';
 const MARKS: Mark[] = ['correct', 'omitted', 'substituted', 'self_corrected'];
 const MARK_UI: Record<Mark, { label: string; icon: typeof Check; cls: string }> = {
-  correct: { label: 'Correct', icon: Check, cls: 'border-[var(--leaf)] bg-leaf-soft' },
+  correct: { label: 'Correct', icon: Check, cls: 'border-st-consistent bg-st-consistent-soft' },
   omitted: { label: 'Omitted', icon: CircleSlash, cls: 'border-stone bg-stone-soft text-ink-2 line-through' },
-  substituted: { label: 'Substituted', icon: Repeat2, cls: 'border-sun bg-sun-soft' },
-  self_corrected: { label: 'Self-corrected', icon: Undo2, cls: 'border-sky bg-sky-soft' },
+  substituted: { label: 'Substituted', icon: Repeat2, cls: 'border-st-notyet bg-st-notyet-soft' },
+  self_corrected: { label: 'Self-corrected', icon: Undo2, cls: 'border-st-developing bg-st-developing-soft' },
 };
-const TILES = ['bg-violet-soft', 'bg-aqua-soft', 'bg-tangerine-soft', 'bg-sky-soft'];
+const TILES = ['bg-violet-50', 'bg-violet-50', 'bg-violet-50', 'bg-violet-50'];
 type Stone = 'answered' | 'skipped';
 
 export function AssessmentRunner({ learner, isDemo, lastChecked }: { learner: { id: string; code: string; name: string; classroomId: string }; isDemo: boolean; lastChecked: Record<Strand, string | null> }) {
@@ -150,31 +148,34 @@ export function AssessmentRunner({ learner, isDemo, lastChecked }: { learner: { 
       <div className="mx-auto max-w-4xl px-4 py-6 sm:px-6 sm:py-10">
         <Link href={`/learners/${learner.id}`} className="mb-4 inline-flex items-center gap-1 text-[14px] font-medium text-ink-2 hover:text-ink"><ArrowLeft className="size-4" aria-hidden /> {learner.name}</Link>
         {isDemo && <div className="mb-3"><SampleDataBadge /></div>}
-        <h1 className="font-heading text-[30px] font-bold leading-9 sm:text-[40px] sm:leading-[46px]">Check {learner.name}</h1>
-        <p className="mt-2 text-ink-2">You hold the device, read each question aloud (or tap the speaker) and tap the child&apos;s answer. There is no time limit.</p>
+        <h1 className="text-[28px] font-bold sm:text-[36px]">Check {learner.name}</h1>
+        <p className="mt-2 text-[16px] text-muted">You hold the device, read each question aloud (or tap the speaker) and tap the child&apos;s answer. There is no time limit.</p>
         {error && <ErrorPanel message={error} className="mt-5" />}
         <div role="radiogroup" aria-label="What to check" className="mt-8 grid gap-6 md:grid-cols-3">
           {opts.map((o) => {
             const on = choice === o.id;
             return (
-              <button key={o.id} role="radio" aria-checked={on} onClick={() => setChoice(o.id)} className="text-left">
-                <IndexCard tab={o.last ? 'Re-check' : 'Baseline'} tabTone={o.last ? 'tangerine' : 'violet'} interactive art={<SkillArt skill={o.id} />} className={cn('h-full', on && 'ring-2 ring-violet')}>
-                  <div className="flex items-center justify-between"><IconTile icon={o.icon} hue={o.hue} size={48} />{on && <span className="flex size-6 items-center justify-center rounded-full bg-teal text-white"><Check className="size-4" aria-hidden /></span>}</div>
-                  <h2 className="mt-4 font-heading text-[20px] font-semibold">{o.label}</h2>
-                  <p className="text-[13px] font-semibold text-ink-2">About {o.mins}</p>
-                  <p className="mt-2 text-[14px] text-ink-2">{o.covers}</p>
-                  <p className="mt-3 text-[12px] text-ink-2">{o.last ? `Last checked ${fmtDate(o.last)}` : 'Not checked yet'}</p>
-                </IndexCard>
+              <button key={o.id} role="radio" aria-checked={on} onClick={() => setChoice(o.id)}
+                className={cn('flex h-full flex-col rounded-[16px] bg-surface p-6 text-left shadow-card transition-colors', on ? 'border-2 border-ink' : 'border-2 border-line hover:border-line-strong')}>
+                <div className="flex items-start justify-between gap-3">
+                  <span className={cn('rounded-full px-2.5 py-0.5 text-[13px] font-medium', o.last ? 'border border-tangerine-line bg-tangerine-tint text-tangerine-ink' : 'bg-violet-100 text-violet-700')}>{o.last ? 'Re-check' : 'Baseline'}</span>
+                  <span aria-hidden className={cn('flex size-7 items-center justify-center rounded-full border-2', on ? 'border-ink bg-ink text-surface' : 'border-line-strong')}>{on && <Check className="size-4" />}</span>
+                </div>
+                <h2 className="mt-5 text-[20px] font-bold">{o.label}</h2>
+                <p className="text-[15px] font-medium text-muted">About {o.mins}</p>
+                <p className="mt-3 text-[15px] text-muted">{o.covers}</p>
+                <p className="mt-4 text-[14px] text-muted">{o.last ? `Last checked ${fmtDate(o.last)}` : 'Not checked yet'}</p>
               </button>
             );
           })}
         </div>
-        <IndexCard tab="Before you start" tabTone="sun" tint="sun" className="mt-8 border-transparent">
-          <ul className="space-y-1.5 text-[15px]">
-            {['Find a quiet corner.', 'Make sure the child is comfortable and at ease.', 'You can pause or stop at any time. Answers so far are kept.'].map((t) => <li key={t} className="flex items-center gap-2"><Check className="size-4 text-teal" aria-hidden />{t}</li>)}
+        <section aria-labelledby="before" className="mt-8 rounded-[16px] border border-line bg-inset p-6">
+          <h2 id="before" className="text-[16px] font-bold">Before you start</h2>
+          <ul className="mt-3 space-y-2 text-[16px]">
+            {['Find a quiet corner.', 'Make sure the child is comfortable and at ease.', 'You can pause or stop at any time. Answers so far are kept.'].map((t) => <li key={t} className="flex items-center gap-2"><Check className="size-4 shrink-0 text-violet-700" aria-hidden />{t}</li>)}
           </ul>
-        </IndexCard>
-        <div className="sticky bottom-0 -mx-4 mt-6 bg-paper/95 px-4 py-3 backdrop-blur sm:static sm:mx-0 sm:bg-transparent sm:p-0">
+        </section>
+        <div className="sticky bottom-0 -mx-4 mt-6 border-t border-line bg-surface px-4 py-3 pb-[calc(12px+env(safe-area-inset-bottom))] sm:static sm:mx-0 sm:border-0 sm:bg-transparent sm:p-0">
           <Button size="lg" onClick={begin} loading={busy} className="w-full sm:w-auto">Start {choice === 'both' ? 'both checks' : `${choice} check`}</Button>
         </div>
       </div>
@@ -217,7 +218,7 @@ export function AssessmentRunner({ learner, isDemo, lastChecked }: { learner: { 
                 ))}
               </div>
               {states.some((s) => s.provisional) && (
-                <IndexCard tab="Note" tabTone="sun" tint="sun" className="border-transparent"><p className="text-[15px]">Based on one session. A re-check in 1–2 weeks makes this more reliable.</p></IndexCard>
+                <IndexCard tab="Note" tabTone="stone" className="bg-inset"><p className="text-[15px]">Based on one session. A re-check in 1–2 weeks makes this more reliable.</p></IndexCard>
               )}
               {working && (
                 <IndexCard tab="Recommended" tabTone="tangerine">

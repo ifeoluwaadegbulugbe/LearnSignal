@@ -7,7 +7,7 @@ export type Hue = 'teal' | 'sun' | 'sky' | 'clay' | 'leaf' | 'stone' | 'amber'
 
 const BASE = {
   teal: 'bg-teal-soft text-teal',
-  sun: 'bg-sun-soft text-sun-ink dark:text-sun',
+  sun: 'bg-sun-soft text-sun-ink',
   sky: 'bg-sky-soft text-sky',
   clay: 'bg-clay-soft text-clay',
   leaf: 'bg-leaf-soft text-st-consistent',

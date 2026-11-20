@@ -4,7 +4,6 @@ import { useRouter } from 'next/navigation';
 import { Sparkles, Check, X, Send, Pencil, Eye, Volume2, ShieldCheck, Circle, Loader2, AlertTriangle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge, Field, IndexCard, Input, Select } from '@/components/ui/primitives';
-import { SkillArt } from '@/components/ui/skill-art';
 import { SegmentedTabs, Segmented } from '@/components/ui/tabs';
 import { Dialog } from '@/components/ui/dialog';
 import { EmptyState, ErrorPanel } from '@/components/ui/states';
@@ -29,6 +28,16 @@ const STATUS_TONE = { pending: 'sun', approved: 'teal', rejected: 'neutral' } as
 const STATUS_LABEL = { pending: 'Pending review', approved: 'Approved', rejected: 'Rejected' };
 const title = (e: { skill_id: string; difficulty: number }) => `${SKILL_BY_ID[e.skill_id]?.name} · level ${e.difficulty}`;
 
+/** Practice library views (v5 filters). */
+const VIEWS: Record<string, (e: ExerciseRow) => boolean> = {
+  all: () => true,
+  literacy: (e) => SKILL_BY_ID[e.skill_id]?.strand === 'literacy',
+  numeracy: (e) => SKILL_BY_ID[e.skill_id]?.strand === 'numeracy',
+  drafts: (e) => e.source === 'ai' && e.review_status !== 'approved',
+  validated: (e) => e.review_status === 'approved',
+  review: (e) => e.review_status === 'pending',
+};
+
 export function ExerciseLibrary({ exercises, loadError, userId, aiReady, learners, groups, classrooms, initialSkill, openGenerator }: {
   exercises: ExerciseRow[]; loadError: string | null; userId: string; aiReady: boolean;
   learners: { id: string; display_name: string; code: string; classroom_id: string }[]; groups: Group[]; classrooms: { id: string; name: string }[];
@@ -38,6 +47,7 @@ export function ExerciseLibrary({ exercises, loadError, userId, aiReady, learner
   const toast = useToast();
   const [pending, start] = useTransition();
   const [skill, setSkill] = useState(initialSkill);
+  const [view, setView] = useState('all');
   const [filters, setFilters] = useState({ difficulty: '', source: '', status: '' });
   const [genOpen, setGenOpen] = useState(openGenerator);
   const [preview, setPreview] = useState<ExerciseRow | null>(null);
@@ -45,9 +55,9 @@ export function ExerciseLibrary({ exercises, loadError, userId, aiReady, learner
   const [edit, setEdit] = useState<{ ex: ExerciseRow; index: number; stem: string; hint: string; error?: string } | null>(null);
   const [lastFallback, setLastFallback] = useState<string | null>(null);
 
-  const list = useMemo(() => exercises.filter((e) =>
+  const list = useMemo(() => exercises.filter((e) => (VIEWS[view] ?? VIEWS.all)(e) &&
     (skill === 'all' || e.skill_id === skill) && (!filters.difficulty || String(e.difficulty) === filters.difficulty) &&
-    (!filters.source || e.source === filters.source) && (!filters.status || e.review_status === filters.status)), [exercises, skill, filters]);
+    (!filters.source || e.source === filters.source) && (!filters.status || e.review_status === filters.status)), [exercises, skill, filters, view]);
 
   const review = (ex: ExerciseRow, status: 'approved' | 'rejected') => start(async () => {
     const r = await reviewExercise({ exerciseId: ex.id, status });
@@ -71,10 +81,17 @@ export function ExerciseLibrary({ exercises, loadError, userId, aiReady, learner
       )}
 
       <div className="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
-        <SegmentedTabs label="Skill" value={skill} onChange={setSkill} items={[{ id: 'all', label: 'All', count: exercises.length }, ...SKILLS.map((s) => ({ id: s.id, label: s.id }))]} />
-        <Button variant="sun" onClick={() => setGenOpen(true)}><Sparkles className="size-4" aria-hidden /> Generate practice</Button>
+        <div className="no-scrollbar -mx-4 overflow-x-auto px-4 sm:mx-0 sm:px-0">
+          <SegmentedTabs label="Show" value={view} onChange={setView} items={[
+            { id: 'all', label: 'All', count: exercises.length }, { id: 'literacy', label: 'Literacy', count: exercises.filter(VIEWS.literacy).length },
+            { id: 'numeracy', label: 'Numeracy', count: exercises.filter(VIEWS.numeracy).length }, { id: 'drafts', label: 'Drafts', count: exercises.filter(VIEWS.drafts).length },
+            { id: 'validated', label: 'Validated', count: exercises.filter(VIEWS.validated).length }, { id: 'review', label: 'Needs review', count: exercises.filter(VIEWS.review).length },
+          ]} />
+        </div>
+        <Button onClick={() => setGenOpen(true)}><Sparkles className="size-4" aria-hidden /> Generate practice</Button>
       </div>
-      <div className="grid gap-3 sm:grid-cols-3">
+      <div className="grid gap-3 sm:grid-cols-4">
+        <Select aria-label="Filter by skill" value={skill} onChange={(e) => setSkill(e.target.value)}><option value="all">Any skill</option>{SKILLS.map((s) => <option key={s.id} value={s.id}>{s.id} · {s.shortName}</option>)}</Select>
         <Select aria-label="Filter by level" value={filters.difficulty} onChange={(e) => setFilters({ ...filters, difficulty: e.target.value })}><option value="">Any level</option>{[1, 2, 3].map((d) => <option key={d} value={d}>Level {d}</option>)}</Select>
         <Select aria-label="Filter by source" value={filters.source} onChange={(e) => setFilters({ ...filters, source: e.target.value })}><option value="">Any source</option><option value="seed">Built-in</option><option value="ai">AI-drafted</option></Select>
         <Select aria-label="Filter by review status" value={filters.status} onChange={(e) => setFilters({ ...filters, status: e.target.value })}><option value="">Any status</option><option value="pending">Pending review</option><option value="approved">Approved</option><option value="rejected">Rejected</option></Select>
@@ -88,8 +105,12 @@ export function ExerciseLibrary({ exercises, loadError, userId, aiReady, learner
             const mine = ex.created_by === userId;
             return (
               <li key={ex.id}>
-                <IndexCard interactive className="h-full" art={<SkillArt skill={ex.skill_id} />}>
+                <IndexCard interactive className="h-full">
                   <div className="flex h-full flex-col">
+                    <div className="mb-3 flex items-center gap-2.5">
+                      <span className="flex size-9 items-center justify-center rounded-[10px] bg-violet-100 font-mono text-[13px] font-semibold text-aqua-ink">{ex.skill_id}</span>
+                      <span className="text-[12px] font-medium capitalize text-ink-2">{SKILL_BY_ID[ex.skill_id]?.strand} · level {ex.difficulty}</span>
+                    </div>
                     <div className="flex flex-wrap gap-1.5">
                       {ex.source === 'ai' ? <><AiBadge /><ValidatedBadge /></> : <Badge>Built-in</Badge>}
                       <Badge tone={STATUS_TONE[ex.review_status]}>{STATUS_LABEL[ex.review_status]}</Badge>
@@ -231,12 +252,23 @@ function GenerateSheet({ open, onClose, initialSkill, aiReady, groups, onDone }:
         <Button onClick={run} disabled={step >= 0 && step < 2} className="w-full"><Sparkles className="size-4" aria-hidden /> Generate</Button>
 
         {step >= 0 && (
-          <ol className="flex flex-wrap items-center gap-2 text-[13px]" aria-live="polite">
-            {STEPS.map((s, i) => (
-              <li key={s} className={cn('inline-flex items-center gap-1.5 rounded-full px-2.5 py-1', i < step || (i === 2 && step === 2) ? 'bg-leaf-soft text-st-consistent' : i === step ? 'bg-sun-soft text-sun-ink' : 'bg-paper-2 text-ink-3')}>
-                {i < step || (i === 2 && step === 2) ? <Check className="size-3.5" aria-hidden /> : i === step ? <Loader2 className="size-3.5 animate-spin" aria-hidden /> : <Circle className="size-3" aria-hidden />}{s}
-              </li>
-            ))}
+          <ol className="flex items-start" aria-live="polite" aria-label="Progress">
+            {STEPS.map((s, i) => {
+              const done = i < step || (i === 2 && step === 2);
+              const now = i === step && !done;
+              return (
+                <li key={s} className="flex flex-1 flex-col items-center text-center">
+                  <span className="flex w-full items-center">
+                    <span className={cn('h-0.5 flex-1', i === 0 ? 'bg-transparent' : i <= step ? 'bg-violet-500' : 'bg-line')} aria-hidden />
+                    <span className={cn('flex size-8 shrink-0 items-center justify-center rounded-full border-2', done ? 'border-violet-500 bg-violet-500 text-on-primary' : now ? 'border-violet-500 bg-surface text-violet-700' : 'border-line-strong bg-surface text-muted')} aria-hidden>
+                      {done ? <Check className="size-4" /> : now ? <Loader2 className="size-4 animate-spin" /> : <Circle className="size-2.5" />}
+                    </span>
+                    <span className={cn('h-0.5 flex-1', i === STEPS.length - 1 ? 'bg-transparent' : i < step ? 'bg-violet-500' : 'bg-line')} aria-hidden />
+                  </span>
+                  <span className={cn('mt-2 text-[14px]', done || now ? 'font-semibold text-ink' : 'text-muted')}>{s}<span className="sr-only">{done ? ', done' : now ? ', in progress' : ', waiting'}</span></span>
+                </li>
+              );
+            })}
           </ol>
         )}
         {error && <ErrorPanel message={error} retry={run} />}

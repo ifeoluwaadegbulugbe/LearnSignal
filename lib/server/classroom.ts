@@ -7,6 +7,8 @@ import { workingSkill, type SkillStateName } from '@/lib/scoring/skillState';
 export interface LearnerRow {
   id: string; code: string; display_name: string; age_band: string | null; archived_at: string | null; created_at: string;
   lastAssessed: string | null;
+  /** completed_at of every finished check, oldest first. */
+  checksDone: string[];
   states: { skill_id: string; state: SkillStateName; p: number; confidence: 'low' | 'medium' | 'high'; provisional: boolean; retest_suggested: boolean }[];
   working: { literacy: string | null; numeracy: string | null };
 }
@@ -31,7 +33,7 @@ export async function getClassroom(id: string, opts: { includeArchived?: boolean
       .map((s) => ({ skillId: s.skill_id, sequence: SKILL_BY_ID[s.skill_id].sequence, state: s.state, p: Number(s.p), provisional: s.provisional })))?.skillId ?? null;
     return {
       id: r.id, code: r.code, display_name: r.display_name, age_band: r.age_band, archived_at: r.archived_at, created_at: r.created_at,
-      lastAssessed: done.sort().at(-1) ?? null, states, working: { literacy: ws('literacy'), numeracy: ws('numeracy') },
+      lastAssessed: done.sort().at(-1) ?? null, checksDone: done, states, working: { literacy: ws('literacy'), numeracy: ws('numeracy') },
     };
   });
   return { ctx, classroom, learners };

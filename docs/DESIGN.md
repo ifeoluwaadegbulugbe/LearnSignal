@@ -1,198 +1,103 @@
-# LearnSignal design (redesign v5)
+# LearnSignal design (redesign v6)
 
 **Promise:** understand every learner, identify what matters, and know what to teach next.
 
-The look is a calm, structured SaaS workspace with a violet-led identity. **Violet** is the brand. **Tangerine** marks the one next step. **Aqua** means practice and completion, and **sky** means AI and information. **Sunshine** and **rose** appear only in illustrations. Most surfaces stay neutral, so these colours carry meaning when they appear.
+**One hue family plus one accent, both taken from the logo.**
+- **Violet** carries the brand and every primary action.
+- **Tangerine** appears only where the teacher's attention is needed: the Next Step tab, "Working here", re-check rings and tags, and the logo dot. It is never a button colour.
+- The four skill-state colours appear only inside status pills and progress bars.
+- Everything else is neutral: ground, white cards and lines.
 
-It should feel intelligent, approachable and actionable. It is not a school management system, an analytics console or a game.
-
-You can see every component and state at `/dev/ui` (with width and Night switches). Every screen is captured at 390, 768 and 1440px in [`screenshots/`](screenshots/). The logo rules are in [`BRAND.md`](BRAND.md) and the audit results in [`ACCESSIBILITY.md`](ACCESSIBILITY.md).
+Every component and state is shown at `/dev/ui` (with width and Night switches). Every screen is captured at 390, 820 and 1440px in [`screenshots/`](screenshots/). The logo rules are in [`BRAND.md`](BRAND.md) and the audit results in [`ACCESSIBILITY.md`](ACCESSIBILITY.md).
 
 ---
 
-## 1. Principles
+## 1. Rules
+1. **One dominant primary action per screen, always violet.** Other buttons are outlined, ghost or links.
+2. **60-30-10.** Neutral surfaces 60, white cards 30, violet and tangerine accents 10.
+3. **Status is never colour alone.** Every state has an icon and a word.
+4. **Never dark text on mid-tone violet.** Surfaces are either light tints with dark text, or solid violet with white text.
+5. **Remove anything that does not help the teacher decide or act.**
+6. **Copy:** short plain sentences, no em dashes, no "unlock" or "seamless".
 
-1. **One clear idea per page.** Today leads with the next step and the Class Ladder; a profile leads with the two skill ladders; a check leads with the prompt.
-2. **Status by icon, words and colour together.** Never by colour alone.
-3. **Tangerine once or twice per page.** It marks the recommended next action, "Working here" and re-checks.
-4. **Explain, don't judge.** Words describe evidence, never the child.
-5. **Honest UI.** AI items are labelled, sample data is labelled, and nothing is a dead button.
-6. **Designed empty, loading and error states,** each with one clear action.
+## 2. Tokens (`app/globals.css`, CSS variables plus the Tailwind theme)
+No component uses a hard-coded hex. The only exception is the logo artwork, whose colours are fixed by [`BRAND.md`](BRAND.md).
 
-## 2. Colour
-
-### Brand (six colours, fixed)
-| Colour | Hex | Soft tint | Role |
-|---|---|---|---|
-| Violet | `#5B3FE0` | `#ECE8FF` | Primary buttons, active nav, focus rings, ladder rails, links |
-| Tangerine | `#FF7A2F` | `#FFEBDD` | Next step, "Working here", re-check cues (dark text `#2A1300` on it) |
-| Aqua | `#12B3A8` | `#DDF6F3` | Practice, completion |
-| Sky | `#3D9BFF` | `#E2F1FF` | AI items, Ask, information |
-| Sunshine | `#FFC83D` | `#FFF5D6` | Illustrations (and the "sample data" flag) |
-| Rose | `#F06A9B` | `#FFE6F0` | Illustrations |
-
-### Neutrals
 | Token | Light | Night | Use |
 |---|---|---|---|
-| `--canvas` | `#F8F8FC` | `#0E0D17` | Page background |
-| `--surface` | `#FFFFFF` | `#17162A` | Cards, panels, sidebar |
-| `--surface-2` | `#F3F3F8` | `#1E1D33` | Inset areas, tracks |
-| `--ink` | `#171625` | `#F2F1FA` | Text |
-| `--ink-2` | `#626273` | `#B9B8CC` | Secondary text |
-| `--ink-3` | `#6B6B7C` | `#9C9BB2` | Metadata (kept ≥ 4.5:1) |
-| `--placeholder` | `#9292A1` | `#7D7C93` | Input placeholders only |
-| `--line` / `--line-strong` | `#E9E8F0` / `#DAD8E5` | `#2A2942` / `#393854` | Borders, dividers |
-| `--disabled` | `#B7B5C4` | `#4A4960` | Disabled controls |
+| `--ground` | `#F4F2FB` | `#14131F` | Page background |
+| `--surface` | `#FFFFFF` | `#1D1C2B` | Cards |
+| `--inset` | `#F7F5FD` | `#242336` | Inner blocks |
+| `--ink` | `#1A1635` | `#F2F0FA` | Text |
+| `--muted` | `#5F5A7A` | `#B2AFC8` | Secondary text (minimum for readable text) |
+| `--line` / `--line-strong` | `#E3DEF3` / `#D2C9F0` | `#2E2C42` / `#3D3A58` | Borders |
+| `--violet-50 / 100 / 500 / 700` | `#F1EEFF` / `#E4DCFF` / `#5B3FE0` / `#4529C4` | `#24213D` / `#2F2A55` / `#8B7DFF` / `#B7ADFF` | Tints, primary, hover and links |
+| `--tangerine` (+ tint, line, ink) | `#FF7A2F` (`#FFF6EF`, `#FFD9BF`, `#9A3D06`) | `#FF8F4F` | Next step, working here, re-check |
+| Skill states | amber `#8A5600`, blue `#1F5FA0`, green `#146B41`, grey `#5A5770` on their tints | lightened for night | Pills and bars only |
 
-The spec's muted grey `#9292A1` is below 4.5:1 on white, so it is used only for placeholders. Metadata text uses `--ink-3`.
+Primary buttons use white text in light mode and dark text on `#8B7DFF` in night mode. Aqua, sky, sunshine and rose are retired: their old class names resolve to the violet family, so nothing breaks.
 
-### Learner status (always with icon and words)
-| State | Ink / tint (light) | Icon |
-|---|---|---|
-| Not yet demonstrated | `#87540A` on `#FFEFD2` | dashed circle |
-| Developing | `#235F9C` on `#E1EEF9` | rising line |
-| Demonstrated consistently | `#176E44` on `#DDF3E8` | check |
-| Not enough evidence yet | `#59607C` on `#ECEEF6` | question mark |
+## 3. Type and shape
+- **Two families.** **Sora** for headings and the wordmark; **DM Sans** for everything else, with tabular figures for counts and learner codes. There is no mono font.
+- **Sizes.** Page title 36 (28 on phones), card heading 20, body 16, supporting 14, caption 13. Big numbers are 32 in Sora. Line height is 1.15 for headings and 1.5 for body.
+- **Radii.** 16 for cards, 12 for buttons, inputs and inner blocks, 999 for pills.
+- **Depth.** One faint card shadow, `0 4px 16px rgba(31,25,70,.05)`. A stronger shadow appears only on menus and dialogs.
+- **Buttons** are 44px high everywhere, and every touch target is at least 44px.
+- **Spacing** is on an 8 point grid. Cards are padded 24; page padding is 40, 24 or 16.
+- **Focus** is a 2px violet outline with a 2px offset.
+- **Motion** is 150 to 220ms fades and presses only, and turns off under reduced motion.
 
-The inks were darkened from the first proposal to pass 4.5:1 on their tints. Status colours are kept separate from aqua (practice), so "practice done" never reads as "skill demonstrated".
+## 4. Responsive shell (`components/layout/app-shell.tsx`, container queries on the app root)
+- **Desktop (1100px and up).**
+  - A fixed 232px sidebar: logo and live wordmark, then a class box (class, name, learner count; it switches classes).
+  - Plain icon and label nav: Today, Learners, Checks, Groups, Practice, Ask, Insights, plus School for admins.
+  - The account sits at the bottom. Its menu holds Appearance, Settings, Help and Sign out.
+  - The active item is a violet-100 tint with violet-700 text.
+  - A search pill, Ask and the bell sit top-right of the content. Content width is capped near 1160.
+- **Tablet (760 to 1099px).** A 72px icon rail with aria-labels and hover or focus tooltips. The search, Ask and bell row sits above the page. The summary strip becomes 2×2, and the plan and AI cards sit side by side below the ladder.
+- **Phone (under 760px).**
+  - Top bar: mark, class chip, search, Ask and bell.
+  - Bottom bar: Today, Learners, a raised violet **Check** button (white check-in-circle, no logo), Groups and More.
+  - Every page reserves bottom padding plus the safe-area inset, so the bar never covers content. The Ask composer sticks just above the bar.
+- **Sample data.** One slim banner at the top of the content replaces every per-page "sample data" pill.
 
-## 3. Typography
-| Role | Font | Size | Weight |
-|---|---|---|---|
-| Greeting | **Manrope** | 38/46 (phone 30/38) | 700 |
-| Page title | Manrope | 30/38 (phone 24/32) | 700 |
-| Section title | Manrope | 20/28 | 600 |
-| Card title | Inter | 16/24 | 600 |
-| Body | **Inter** | 15/24 | 400 |
-| Supporting | Inter | 13–14 | 400 |
-| Labels | Inter | 11–12 | 500 (tabs uppercase, +0.06em) |
-| Big numbers | Manrope | 30–32 | 700, tabular figures |
-| Learner codes | **JetBrains Mono** | 12 | 500 |
-| Child prompts | **Nunito** | 36–44 | 800 |
-| Wordmark only | **Sora** | 20 | 700, −0.03em |
+## 5. Signature components
+- **Class Ladder** (`components/learner/class-ladder.tsx`).
+  - A staircase of six steps. Each learner is an initials circle standing on the step they are working on.
+  - Only the busiest (working) step is solid violet with white text, under a tangerine "Working here" chip. The other steps are violet-50 with dark text.
+  - A dashed tangerine ring means re-check suggested.
+  - Click a step or learner to open the Focus panel: names, codes, status, confidence, Start check and View profile.
+  - When the card is narrower than 520px it switches to stacked rows, N6 down to N1, with the working row in solid violet.
+- **Skill Ladder** (`components/learner/skill-ladder.tsx`).
+  - The same staircase turned on its side: six steps that widen from 1 to 6.
+  - Each step shows code, name, status pill and confidence tiles. The working step is solid violet with "Working here".
+  - Selecting a step opens the evidence drawer: status, confidence, weighted score, evidence, sessions and a plain "How is this calculated?".
+- **NextStepCard** (`components/ui/cards.tsx`): a tangerine-tint banner with a NEXT STEP tab, one headline, one sentence, one violet button, a quiet "Not now" link and the logo tiles as a 140px illustration (hidden on phones).
+- **StatStrip** (`components/ui/primitives.tsx`): one card with four figures separated by hairlines, each with a number, a line and a thin violet bar.
+- **ConfidenceTiles / StepTiles** (`components/ui/signal.tsx`): three small stepped tiles, with one, two or three filled. A dashed outline means provisional. The same tiles light in sequence for "AI working". The three-arc glyph is retired everywhere.
+- **Kept and restyled:** Avatar (a white circle with a violet hairline, no colour coding), StatusPill, Segmented and Text tabs, Dialog (side panel, or bottom sheet on phones), EmptyState, Skeleton, Toast, ErrorPanel and LogoLoader.
 
-Text is in sentence case throughout.
-
-## 4. Space, shape and depth
-- **Spacing:** a 4px grid with steps 4, 8, 12, 16, 20, 24, 32, 40 and 48.
-- **Page padding:** 16px on phones, 24px on tablets, 40px on desktop. Content max width is 1280px inside the shell.
-- **Radii:**
-  - controls 8–10px
-  - inputs 12px
-  - small cards 12px
-  - cards 16px
-  - major panels 18–20px
-  - pills fully round
-  - child mode 24–28px
-- **Depth:** borders do the separating. Cards get `0 4px 16px rgba(31,25,70,.05)`. Menus, dialogs and drawers get a stronger pop shadow.
-- **Gradients:** two only, both quiet: a faint violet wash behind the Today greeting and the violet auth and landing panels. Gradients never stand in for hierarchy.
-
-## 5. Signature elements
-1. **Class Ladder.**
-   - Six rungs per strand between two violet rails.
-   - Learner markers are initials dots on the rung each learner is working on. A dashed amber outline means "re-check suggested".
-   - Above the rungs is a row for "No gap flagged"; below them is a row for "Not checked yet".
-   - Clicking a rung or a dot opens the Focus Panel: names, codes, state, confidence, Start check, View profile.
-   - On phones the rungs stack and each row of dots scrolls (and is keyboard-focusable).
-2. **Signal Arcs.**
-   - Three arcs over a dot. As **ConfidenceSignal**, one, two or three arcs are lit, and the outline is dashed when evidence is provisional.
-   - The same motif marks "AI working" in Ask and the phone Check action.
-   - It is no longer the logo.
-3. **Index-card tabs.** Small uppercase labels at the top of a card (GROUP, NEXT STEP, NOTE, SET, AI-DRAFTED, a skill code).
-   - Violet: general
-   - Tangerine: next step
-   - Aqua: practice
-   - Sky: AI
-   - Neutral: supporting
-4. **Stepping stones.** Used for sequences: onboarding, question progress in a check, and child-mode progress.
-5. **Chalk underline.** One hand-drawn violet stroke under one word per screen, such as the teacher's name in the greeting. It draws in once.
-6. **Ruled areas.** Faint 28px lines, only on notes and the session timeline.
-7. **The logo.** Steps with a learner at the top (see [`BRAND.md`](BRAND.md)). `LogoLoader` replays it for page loading.
-
-## 6. App shell
-- **Desktop (≥1024px).** A 240px white sidebar.
-  - Top: logo and live wordmark, then a small class context card (name, learner count, sample flag).
-  - Main nav: Today, Learners, Checks, Groups, Practice, Ask, Insights, plus School for admins.
-  - Below a divider: Settings and Help.
-  - Bottom: the Appearance toggle and an account button (avatar, name, role) that opens the account menu.
-  - The active item has a violet-soft background with violet text. It is a quiet highlight, not a large pill.
-- **Tablet (768–1023px).** A 76px icon sidebar with hover and focus tooltips and screen-reader labels.
-- **Context bar** (68px, sticky):
-  - the class selector (name plus learner count)
-  - command search ("Find a learner, skill or practice set", Ctrl K)
-  - **Ask**, a sky-tinted button that opens the assistant drawer
-  - notifications, with a tangerine dot only when something needs action
-- **Phone.**
-  - Top bar: mark, class selector, search, Ask, notifications and avatar.
-  - Bottom bar: Today, Learners, a raised violet **Check** button with the arcs, Groups and More.
-  - Check starts a check for the last learner viewed, or opens a learner picker.
-  - More lists the remaining screens, Help, Appearance and Sign out.
-
-## 7. Screens
-| Screen | What v5 changed |
+## 6. Screens
+| Screen | Layout |
 |---|---|
-| **Today** | Date, greeting with chalk underline and supporting line. Four white metric cards: Learners, Learners checked, Skills demonstrated, Need attention, each with a small tinted icon and a hint. One tangerine **Next step** card. The **Class Ladder** beside **Learning progress**, which shows Literacy and Numeracy state bars from real skill results (click through to Insights) with **Recent activity** below. **Practice in progress** rows (set, strand, items, done/total, Continue or Review). **New practice sets** as small art cards. **Groups** as index cards. |
-| **Learners** | Summary row: Learners, Checked, Not checked, Re-check suggested. Filters: All, Literacy not yet, Numeracy not yet, Needs review, Not checked, Archived. Search. A table with sortable Learner and Last checked, plus Code, **Literacy status**, **Numeracy status**, and actions (Check, menu). Bulk selection and 20-per-page pagination. Phones get cards with both strand statuses. |
-| **Learner profile** | A header card with code, age band, class, last checked, Start check and Assign practice. Tabs: Overview, History, Practice, Notes. Two vertical skill ladders with violet connectors and a tangerine "Working here". Gap cards with evidence and "Why?". |
-| **Checks** | Choose Literacy, Numeracy or Both (Baseline or Re-check). A "Before you start" card. A distraction-free runner with question stones, a large Nunito prompt, audio, soft tiles, a keypad, and oral reading word chips (Correct, Omitted, Substituted, Self-corrected). Results end with the not-a-diagnosis line. |
-| **Groups** | A board per rung with a skill art band, draggable chips with a keyboard Move menu and Undo, and an activity card per group. |
-| **Practice** | Set cards with skill art, AI-drafted (sky) and Validated badges, and review status. A Generate sheet with Drafting, Checking answers and Ready to review steps. A teacher preview with answers. |
-| **Child mode** | Nunito, soft colour blocks, big tiles, stepping-stone progress, kind feedback, no scores or timers, teacher-controlled exit. |
-| **Insights** | Class ladders at first and latest check, a before/after chart with a table view, practice completion, and a change table. CSV and print. |
-| **Ask** | A sky-accented assistant. Answers are labelled and grounded in class data, general guidance is kept separate, and learner codes become name chips locally. |
-| **School** | Summary, school ladder as stacked bars, common gaps, and classroom comparison. Counts under 3 show "—". |
-| **Settings** | Profile, Classes, Language, AI and privacy, Appearance, Data. Destructive actions need type-to-confirm. |
-| **Auth and landing** | Violet story panel with the mono mark. The landing page keeps its live ladder hero and loop cards and closes on a violet band. |
+| **Today** | Greeting with one chalk underline under the teacher's name. Next Step banner from the real re-check logic (then first checks, then grouping). Summary strip: Learners (assessed), Numeracy and Literacy (share of skill results demonstrated consistently), Practice done (sets active). Class ladder card with Practice in progress under it. A side column with **Today's plan**, a numbered list of real next actions with one tag each (no clock times: the app stores no schedule), and the **AI card** (violet-100 tint, suggested question, input that opens Ask). |
+| **Learners** | Header with count, Add learner and Import. Filter pills: All, Literacy not yet, Numeracy not yet, Needs review, Not checked, Archived. Search, plus level and check-date filters. A sortable table with avatar, code, Literacy and Numeracy status, last checked and row actions (Check, menu), 20 per page. Phones get cards with both statuses plus View and Start check. |
+| **Learner profile** | Header card with name, code, date added, age band, class, last checked, Start check and Assign practice, and a one-line learning summary. Tabs: Overview, History, Practice, Notes. Two skill ladders. |
+| **Checks** | Three large radio cards (Literacy, Numeracy, Both) with a 2px ink border and a check mark when selected. A calm neutral "Before you start" panel. Start is full width and sticky on phones. |
+| **Groups** | A grid of three columns on desktop, two on tablet and one on phones, with no sideways scrolling. Each card has a 4px violet top rule, rung code, skill, learners with Move (drag or keyboard), the 15 minute activity as a collapsible section, and Accept group. Regroup and merge suggestions are outlined actions. |
+| **Practice** | Library cards with a skill chip, strand and level, an "AI drafted" tag, validation and review status. Views: All, Literacy, Numeracy, Drafts, Validated, Needs review, plus filters. Generate shows stepping-stone progress (Drafting, Checking answers, Ready to review). |
+| **Ask** | The first message is a plain bubble. Grouped suggestion chips (Gaps, Progress, Planning) sit directly above the composer, which is anchored to the bottom (sticky above the bar on phones). The counter is 14px muted inside the input. |
+| **Insights** | Movement figures, skill distribution, first-check and latest ladders, a before/after chart (violet shades and ink) with a table view, and a change table. CSV and print. |
+| **School** | Classrooms, learners, coverage, school ladder bars, common gaps and classroom comparison. Counts under 3 show "—". |
+| **Settings** | Left sub-navigation on desktop and a scrolling row on phones. Destructive actions need type-to-confirm. |
+| **Child mode** | Max width 640. "Hi, Learner A", the logo tiles as the one illustration, large white practice cards, five day dots with letters, big answer tiles and kind feedback. No scores, timers or rankings. Teacher exit sits top left with a lock. |
+| **Landing** | Alternating light and white bands: a hero with a real crop of the Today screen (`public/brand/today-hero.png`, made by `scripts/landing-hero.mjs`), a five-step timeline, one worked example, four classroom benefits, a privacy band, an accessible FAQ (buttons with aria-expanded) and a violet closing call to action with the mono mark. |
+| **How scoring works** | A 680px reading column with numbered sections, the two ladders in columns, the app's status pills, and "One bad day cannot define a child" as a pulled statement. |
+| **Auth** | Split panel. The violet side has the mono mark, a live white wordmark and a quiet tile watermark. |
 
-## 8. Components (all in `components/ui/`, shown at `/dev/ui`)
-- **Button:** primary (violet), secondary, ghost, tangerine (next step), quiet-warn, link. Sizes 36, 44 and 52px, plus 64px for children. Default, hover, focus, active, disabled and loading states.
-- **SummaryTiles (MetricCard):** white card, label, big tabular number, tinted icon chip, optional hint.
-- **IndexCard:** the base card, with optional uppercase tab, tint, art band and ruled body. **Card** is the plain version.
-- **NextStepCard:** tangerine-soft panel with an arrow chip, a "Next step" label, one action and "Not now".
-- **StatusPill, SignalMark / ConfidenceSignal, ClassLadder, SkillLadder, EvidenceDrawer.**
-- **MeterRing, SegmentedRing, StateBar, LinearProgress** and stepping stones.
-- **SegmentedTabs, TextTabs, Breadcrumb, Avatar** (initials only), **CodeChip, Dialog** (centred, side drawer or bottom sheet).
-- **Toast, Skeleton, EmptyState, ErrorPanel, LogoLoader.**
-- **SkillArt:** deterministic geometric art for each skill and loop step. There are no stock images or photos anywhere.
-
-## 9. Motion
-Most motion runs 160–220ms with a gentle ease:
-- cards lift 2px
-- content fades up in a short stagger
-- learner dots settle onto rungs
-- arcs light one after another
-- rings and the chalk underline draw once
-- the logo loader steps in
-
-Everything turns off under `prefers-reduced-motion`.
-
-## 10. Night theme
-- Blue-black canvas (`#0E0D17`) with slightly lighter surfaces.
-- Soft neutral text.
-- A lighter violet (`#9C8BFF`), and every brand and status colour re-tuned for contrast.
-- Set before paint, so there is no flash. It follows the device by default.
-- Switch it from the sidebar, the account menu, the phone More sheet or Settings.
-
-## 11. Accessibility
-axe reports zero WCAG A/AA violations on 16 screens in both themes, and Lighthouse scores 100 for accessibility on the public pages (see [`ACCESSIBILITY.md`](ACCESSIBILITY.md)). There is:
-- a skip link
-- a visible violet focus ring
-- labelled icon buttons
-- a keyboard alternative to dragging
-- table views for every chart
-- live regions for feedback
-- 44px targets (88px child tiles)
-- no horizontal page scroll at 360px
-
-## 12. Words
-Only these state words are used: *not yet demonstrated, developing, demonstrated consistently, not enough evidence yet*. Never "weak", "failing", "behind" or "slow". Every result page ends with: "This shows which skills a child has demonstrated so far. It is not a diagnosis."
-
-## 13. Not built in v5 (would need new data or features)
-- **Deadlines on practice:** assignments have no due date in the schema.
-- **Date added on the profile, and date filters on Learners:** not shown yet.
-- **Previous question in the check runner:** answers are scored as they are given.
-- **Comparing chosen assessment periods in Insights:** Insights compares first and latest only.
-- **A separate help centre:** Help opens "How scoring works".
-
-## 14. Originality
-The reference dashboard was used for **quality only**: hierarchy, density and polish. LearnSignal does not copy its layout, navigation, colours, type or cards. The identity rests on its own elements: the step logo, the Class Ladder, Signal Arcs, index-card tabs, stepping stones and the violet/tangerine signal.
+## 7. Not changed, and why
+- **Today's plan has no clock times.** The app stores no schedule, and invented times would be fabricated data.
+- **The Learners filters read "Literacy not yet" and "Numeracy not yet"** rather than a bare "Literacy" or "Numeracy", because the filter shows learners with a gap in that strand.
+- **The Archived filter stays**, because archiving is a working feature.
+- **The notifications bell stays beside Ask.** It lists real re-checks and sets to approve.
+- **Deadlines on practice and a Previous button in the check runner** need data or rule changes and stay out of scope.

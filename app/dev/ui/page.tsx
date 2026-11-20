@@ -3,10 +3,9 @@ import { useState } from 'react';
 import { BookOpen, Users, Plus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { IconTile, type Hue } from '@/components/ui/icon-tile';
-import { Badge, ChalkUnderline, Field, IndexCard, Input, Kbd, LinearProgress, MetaRow, PageHeader, SampleDataBadge, SectionHeader, Select, SummaryTiles, Textarea, Breadcrumb } from '@/components/ui/primitives';
-import { SkillArt } from '@/components/ui/skill-art';
+import { Badge, ChalkUnderline, Field, IndexCard, Input, Kbd, LinearProgress, PageHeader, SampleDataBadge, SectionHeader, Select, StatStrip, Textarea, Breadcrumb } from '@/components/ui/primitives';
 import { StatusPill } from '@/components/ui/status';
-import { SignalMark, ConfidenceSignal } from '@/components/ui/signal';
+import { SignalMark, ConfidenceSignal, ConfidenceTiles, StepTiles } from '@/components/ui/signal';
 import { MeterRing, SegmentedRing, StateBar } from '@/components/ui/viz';
 import { Avatar, AvatarStack } from '@/components/ui/avatar';
 import { SegmentedTabs, TextTabs, Segmented, Switch } from '@/components/ui/tabs';
@@ -89,34 +88,24 @@ export default function DevUI() {
             <IndexCard tab="Note" tabTone="clay" ruled margin><p className="text-[14px] leading-7">Ruled paper with a margin line for notes and activities.</p></IndexCard>
             <IndexCard tab="Answer" tabTone="sky" tint="sky"><p className="text-[14px]">Tinted variant.</p></IndexCard>
           </div>
-          <div className="mt-6"><NextStepCard id="dev" sentence="Re-check 3 learners on L4" detail="Their latest session differs from earlier evidence." action={<Button variant="sun">Start re-check</Button>} /></div>
-        </S>
-
-        <S title="SkillArt (one per skill, strand and loop stage)">
-          <div className="grid grid-cols-2 gap-3 sm:grid-cols-4 lg:grid-cols-6">
-            {['L1', 'L2', 'L3', 'L4', 'L5', 'L6', 'N1', 'N2', 'N3', 'N4', 'N5', 'N6', 'literacy', 'numeracy', 'both', 'assess', 'identify', 'group', 'intervene', 'reassess'].map((k) => (
-              <figure key={k}><SkillArt skill={k} rounded="all" /><figcaption className="mt-1 text-center font-mono text-[11px] text-ink-2">{k}</figcaption></figure>
-            ))}
-          </div>
+          <div className="mt-6"><NextStepCard id="dev" sentence="Re-check 3 learners on L4" detail="Their latest session differs from earlier evidence." action={<Button>Review the 3 learners</Button>} /></div>
         </S>
 
         <S title="Brand: mark, mono mark, wordmark, loader, chalk underline">
           <div className="flex flex-wrap items-center gap-8">
             <span className="flex items-center gap-2.5"><LogoMark size={40} /><Wordmark /></span>
-            <span className="flex items-center gap-3 rounded-[16px] bg-grad-violet px-4 py-3"><LogoMark size={32} mono className="text-white" /><Wordmark light /></span>
+            <span className="flex items-center gap-3 rounded-[16px] bg-grad-violet px-4 py-3 text-white"><LogoMark size={32} mono className="text-white" /><Wordmark light /></span>
             <span className="flex items-end gap-3">{[16, 24, 32, 48].map((n) => <LogoMark key={n} size={n} />)}</span>
             <LogoLoader size={48} />
             <span className="font-heading text-[28px] font-bold">Good morning, <ChalkUnderline>Ada</ChalkUnderline>.</span>
           </div>
         </S>
 
-        <S title="Summary tiles, meta row, art card">
-          <div className="grid gap-6 lg:grid-cols-2">
-            <SummaryTiles items={[{ label: 'Learners', value: 12, tone: 'violet', glyph: 'dots' }, { label: 'Checked', value: '92%', tone: 'aqua', glyph: 'check' }, { label: 'Need attention', value: 4, tone: 'tangerine', glyph: 'eye' }, { label: 'Skills shown', value: 38, tone: 'sky', glyph: 'star' }]} />
-            <IndexCard interactive art={<SkillArt skill="N4" />}>
-              <h3 className="text-[16px] font-semibold">Subtraction group</h3>
-              <MetaRow className="mt-2" items={[{ label: 'Learners', value: 5 }, { label: 'Skill', value: 'N4' }, { label: 'Practice', value: '60%' }]} />
-            </IndexCard>
+        <S title="Stat strip, confidence tiles, step tiles">
+          <StatStrip items={[{ label: 'Learners', value: 12, sub: '11 assessed', pct: 92 }, { label: 'Numeracy', value: '30%', sub: '20 of 66 skills shown', pct: 30 }, { label: 'Literacy', value: '27%', sub: '18 of 66 skills shown', pct: 27 }, { label: 'Practice done', value: '64%', sub: '2 sets active', pct: 64 }]} />
+          <div className="mt-6 flex flex-wrap items-center gap-6">
+            <ConfidenceTiles confidence="low" /><ConfidenceTiles confidence="medium" /><ConfidenceTiles confidence="high" /><ConfidenceTiles confidence="medium" provisional />
+            <StepTiles level={3} size={28} animate title="AI working" />
           </div>
         </S>
 

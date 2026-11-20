@@ -1,6 +1,6 @@
 import { getTeacherContext } from '@/lib/server/context';
 import { SKILLS, skillsForStrand } from '@/lib/content/skills';
-import { IndexCard, PageHeader, SectionHeader, SummaryStrip, Tooltip } from '@/components/ui/primitives';
+import { IndexCard, PageHeader, SectionHeader, SummaryTiles, Tooltip } from '@/components/ui/primitives';
 import { EmptyState, ErrorPanel } from '@/components/ui/states';
 import { STATUS } from '@/components/ui/status';
 import { pct } from '@/lib/utils';
@@ -43,18 +43,19 @@ export default async function SchoolPage({ searchParams }: { searchParams: Promi
         actions={<SchoolActions csv={csv} schools={adminSchools.map((s) => ({ id: s.id, name: s.name }))} current={school.id} />} />
       {totalLearners === 0 ? <EmptyState illustration="empty-results" title="No data yet" body="Insights appear once teachers add and check learners." /> : (
         <div className="space-y-10">
-          <SummaryStrip items={[
-            { label: 'Registered learners', value: totalLearners },
-            { label: 'Checks completed', value: `${pct(totalAssessed, totalLearners)}%` },
-            { label: 'Not-yet results', value: gapsFlagged },
+          <SummaryTiles items={[
+            { label: 'Classrooms', value: ov.length, tone: 'violet', glyph: 'star' },
+            { label: 'Registered learners', value: totalLearners, tone: 'violet', glyph: 'dots' },
+            { label: 'Assessment coverage', value: `${pct(totalAssessed, totalLearners)}%`, tone: 'aqua', glyph: 'check', hint: 'learners with at least one check' },
+            { label: 'Not-yet results', value: gapsFlagged, tone: 'tangerine', glyph: 'eye' },
           ]} />
           <p className="-mt-6 text-[13px] text-ink-2">Practice completion is kept within each teacher&apos;s class and is not shared with admins.</p>
 
           <section aria-labelledby="ladder">
             <SectionHeader id="ladder" title="School ladder" info="For each rung, how many learners are at each state. Aggregate counts only." />
-            <div className="grid gap-6 lg:grid-cols-2">
+            <div className="grid grid-cols-[minmax(0,1fr)] gap-6 lg:grid-cols-2">
               {(['literacy', 'numeracy'] as const).map((strand) => (
-                <IndexCard key={strand} tab={strand} tabTone={strand === 'literacy' ? 'sky' : 'sun'} className="print-break">
+                <IndexCard key={strand} tab={strand} tabTone="violet" className="print-break">
                   <ol className="space-y-3">
                     {[...skillsForStrand(strand)].reverse().map((sk) => {
                       const c = Object.fromEntries(ORDER.map((k) => [k, count(sk.id, k)])) as Record<(typeof ORDER)[number], number>;
@@ -77,14 +78,14 @@ export default async function SchoolPage({ searchParams }: { searchParams: Promi
             </div>
           </section>
 
-          <div className="grid gap-8 lg:grid-cols-2">
+          <div className="grid grid-cols-[minmax(0,1fr)] gap-8 lg:grid-cols-2">
             <section aria-labelledby="gaps">
               <SectionHeader id="gaps" title="Most common gaps" />
               <IndexCard className="print-break">
                 {gaps.length === 0 ? <p className="text-[14px] text-ink-2">No skill has 3 or more learners flagged.</p> : (
                   <ol className="space-y-3">{gaps.map((g) => (
                     <li key={g.s.id}>
-                      <div className="mb-1 flex justify-between text-[14px]"><span><span className="font-mono text-[12px] text-ink-2">{g.s.id}</span> {g.s.name}</span><b className="tabular">{g.n}</b></div>
+                      <div className="mb-1 flex justify-between gap-3 text-[14px]"><span className="min-w-0"><span className="font-mono text-[12px] text-ink-2">{g.s.id}</span> {g.s.name}</span><b className="tabular">{g.n}</b></div>
                       <div className="h-2.5 overflow-hidden rounded-full bg-paper-2"><div className="h-full rounded-full bg-teal" style={{ width: `${(g.n / maxGap) * 100}%` }} /></div>
                     </li>
                   ))}</ol>

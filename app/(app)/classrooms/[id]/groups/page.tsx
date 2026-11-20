@@ -1,6 +1,6 @@
 import { getClassroom, getGroups } from '@/lib/server/classroom';
 import { formGroups } from '@/lib/actions/intervention';
-import { Breadcrumb, PageHeader, SampleDataBadge } from '@/components/ui/primitives';
+import { Breadcrumb, PageHeader } from '@/components/ui/primitives';
 import { EmptyState } from '@/components/ui/states';
 import { ButtonLink } from '@/components/ui/button';
 import { GroupPlanner } from './group-planner';
@@ -17,7 +17,6 @@ export default async function GroupsPage({ params }: { params: Promise<{ id: str
   return (
     <>
       <Breadcrumb items={[{ label: classroom.name, href: `/classrooms/${id}` }, { label: 'Groups' }]} />
-      {classroom.is_demo && <div className="mb-3"><SampleDataBadge /></div>}
       <PageHeader title="Groups" subtitle="Suggested by skill level. You decide." actions={assessed ? <ButtonLink href={`/classrooms/${id}/groups`} variant="secondary">Regroup from latest results</ButtonLink> : undefined} />
       {!assessed ? (
         <EmptyState illustration="empty-groups" title="Check learners to form groups" body="Once a few children have been checked, suggested groups appear here." action={<ButtonLink href={`/classrooms/${id}/learners?tab=na`}>Go to learners</ButtonLink>} />

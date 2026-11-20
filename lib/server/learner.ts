@@ -10,7 +10,7 @@ export interface SkillEvidence {
 export async function getLearner(id: string) {
   const { supabase } = await getTeacherContext();
   const { data: learner } = await supabase.from('learners')
-    .select('id, code, display_name, age_band, archived_at, classroom_id, classrooms(name, is_demo)').eq('id', id).maybeSingle();
+    .select('id, code, display_name, age_band, archived_at, created_at, classroom_id, classrooms(name, is_demo)').eq('id', id).maybeSingle();
   if (!learner) notFound();
 
   const [states, history, sessions, responses, attempts, notes, assignments, recs] = await Promise.all([

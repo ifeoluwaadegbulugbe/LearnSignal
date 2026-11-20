@@ -18,7 +18,7 @@ Generated files (re-run `node scripts/brand-assets.mjs` after changing the SVGs)
 
 ## Wordmark
 
-"LearnSignal" as one word in **Sora 700**, letter-spacing −0.03em. "Learn" is in `--ink` and "Signal" in `--violet`. On dark or violet surfaces, "Learn" is white and "Signal" is `#C9BEFF`. Sora is used only for the wordmark; headings use Manrope.
+"LearnSignal" as one word in **Sora 700**, letter-spacing −0.03em. "Learn" is in `--ink` and "Signal" in `--violet`. On dark or violet surfaces, "Learn" is white and "Signal" is `#C9BEFF`. Headings also use Sora; body text uses DM Sans.
 
 ## Colours
 
@@ -33,7 +33,7 @@ Generated files (re-run `node scripts/brand-assets.mjs` after changing the SVGs)
 
 - **Clear space:** at least one tile's width (28 of the 100-unit grid) on every side.
 - **Minimum size:** the mark at 16px tall; the lockup at 96px wide. Below 24px, prefer the mono mark or the app icon.
-- **In the app:** sidebar uses a 28px mark plus a 20px wordmark; the phone top bar uses the mark only (28px); the auth panel uses the mono mark in white.
+- **In the app:** sidebar uses a 30px mark plus a 20px wordmark (mark only on the tablet rail); the phone top bar uses the mark only (28px); the auth panel uses the mono mark in white.
 
 ## Backgrounds
 
@@ -48,10 +48,13 @@ Generated files (re-run `node scripts/brand-assets.mjs` after changing the SVGs)
 - Animate the tiles apart, except in `LogoLoader`, where tiles pop in 90ms apart and the dot drops onto the top step. Under reduced motion it shows the static mark.
 - Use a book, graduation cap, light bulb or Wi-Fi-style arcs as the logo.
 
-## The arcs
+## The arcs are retired
 
-The three-arc signal glyph is no longer the logo. It remains only as:
+The three-arc glyph is no longer used anywhere: not as the logo, the favicon, a loader, the Check button or a confidence mark.
+- **Confidence** is shown as three small stepped tiles (`ConfidenceTiles` in `components/ui/signal.tsx`): one, two or three filled, with a dashed outline when provisional.
+- **"AI working"** lights the same tiles in sequence.
+- **The phone Check button** is a violet circle with a white check-in-circle icon, with no logo inside.
 
-- the **ConfidenceSignal** (one to three arcs for low, medium and high; dashed when provisional)
-- the "AI working" indicator in Ask
-- the phone **Check** action, which redesign v5 asks to carry the Signal Arcs motif. Where the logo brief and v5 disagree, v5 is the later instruction.
+## Wordmark and fonts in the app
+
+The live wordmark uses Sora 700. Sora is also the heading font; everything else is DM Sans. Sizes: sidebar mark 30px with wordmark (mark only on the tablet rail), phone top bar mark 28px, footer lockup in mono ink.

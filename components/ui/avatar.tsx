@@ -1,13 +1,7 @@
 import { cn } from '@/lib/utils';
 
-const HUES = [
-  'bg-violet-soft text-violet-deep dark:text-violet',
-  'bg-aqua-soft text-aqua-ink',
-  'bg-tangerine-soft text-tangerine-ink',
-  'bg-sky-soft text-sky-ink',
-  'bg-sunshine-soft text-sunshine-ink',
-  'bg-rose-soft text-[#8A1F4A] dark:text-rose',
-];
+/** One quiet style for every learner dot: white circle, violet hairline, ink initials. No colour coding. */
+const HUES = ['bg-surface text-ink border border-line-strong'];
 const hash = (s: string) => [...s].reduce((h, ch) => (h * 31 + ch.charCodeAt(0)) >>> 0, 7);
 export const hueFor = (seed: string) => HUES[hash(seed) % HUES.length];
 export const initials = (name: string) => name.trim().split(/\s+/).map((w) => w[0]).join('').slice(0, 2).toUpperCase() || '?';

@@ -1,13 +1,11 @@
 'use client';
 import { useMemo, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Volume2, LogOut, ArrowRight, Lightbulb, Check, X, BookOpen, Calculator, Hash, Plus, Minus, Search, Shapes, Type } from 'lucide-react';
+import { Volume2, Lock, ArrowRight, Lightbulb, Check, X, BookOpen, Calculator, Hash, Plus, Minus, Search, Shapes, Type } from 'lucide-react';
 import { Dialog } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Field, Input } from '@/components/ui/primitives';
-import { Illustration } from '@/components/ui/illustration';
 import { Counters } from '@/components/child/counters';
-import { SkillArt } from '@/components/ui/skill-art';
 import { speak } from '@/components/child/speak';
 import { checkPracticeAnswer, getAssignmentForChild, submitAttempt, verifyTeacherExit, type ChildItem } from '@/lib/actions/intervention';
 import { cn } from '@/lib/utils';
@@ -19,7 +17,7 @@ const ACTIVITY: Record<string, { name: string; icon: typeof BookOpen }> = {
   N1: { name: 'Finding numbers', icon: Hash }, N2: { name: 'Counting', icon: Shapes }, N3: { name: 'Adding numbers', icon: Plus },
   N4: { name: 'Taking away numbers', icon: Minus }, N5: { name: 'Tens and ones', icon: Calculator }, N6: { name: 'Number stories', icon: BookOpen },
 };
-const TILE_TINT = ['bg-violet-soft', 'bg-aqua-soft', 'bg-tangerine-soft', 'bg-sky-soft'];
+const TILE_TINT = ['bg-violet-50', 'bg-violet-50', 'bg-violet-50', 'bg-violet-50'];
 const YES = ['Nice!', 'You got it!', 'Good thinking!', 'Well done!'];
 const AGAIN = ["Let's try again!", 'Have another go!', 'Nearly. Try again!'];
 
@@ -29,7 +27,7 @@ type Rec = { index: number; firstValue: string | number; tries: number };
 /** Big pill with a 4px "press edge" that compresses on tap. */
 function ChildButton({ children, className, ...p }: React.ButtonHTMLAttributes<HTMLButtonElement>) {
   return (
-    <button {...p} className={cn('inline-flex min-h-16 items-center justify-center gap-2 rounded-full bg-teal px-8 text-[24px] font-extrabold text-white shadow-[0_4px_0_var(--violet-deep)] transition-[transform,box-shadow] active:translate-y-1 active:shadow-none disabled:opacity-50 dark:text-[#06222A]', className)}>{children}</button>
+    <button {...p} className={cn('inline-flex min-h-16 items-center justify-center gap-2 rounded-[24px] bg-violet-500 px-8 text-[24px] font-bold text-on-primary transition-transform duration-150 active:scale-[.97] disabled:opacity-50', className)}>{children}</button>
   );
 }
 
@@ -38,9 +36,31 @@ function Stones({ total, filled, current, label }: { total: number; filled: numb
   return (
     <ol className="flex flex-wrap items-center gap-2" aria-label={label}>
       {Array.from({ length: total }).map((_, i) => (
-        <li key={i} aria-hidden className={cn('h-4 w-7 rounded-[50%] border-2 transition-colors', i < filled ? 'border-violet bg-violet' : i === current ? 'border-tangerine bg-tangerine-soft' : 'border-line-strong bg-surface-2')} />
+        <li key={i} aria-hidden className={cn('h-4 w-7 rounded-full border-2 transition-colors', i < filled ? 'border-violet-500 bg-violet-500' : i === current ? 'border-violet-500 bg-surface' : 'border-line-strong bg-surface')} />
       ))}
     </ol>
+  );
+}
+
+/** Five day dots (Mon to Fri) with letters; a filled dot means a practice set was finished. */
+function DayDots({ done }: { done: number }) {
+  const days = ['M', 'T', 'W', 'T', 'F'];
+  return (
+    <ol className="flex gap-3" aria-label={`${done} practice set${done === 1 ? '' : 's'} finished this week`}>
+      {days.map((d, i) => (
+        <li key={i} aria-hidden className={cn('flex size-12 items-center justify-center rounded-full border-2 text-[20px] font-bold', i < done ? 'border-violet-500 bg-violet-500 text-on-primary' : 'border-line-strong bg-surface text-muted')}>{d}</li>
+      ))}
+    </ol>
+  );
+}
+
+/** The logo tiles as a friendly illustration. */
+function Tiles({ size = 120 }: { size?: number }) {
+  return (
+    <svg viewBox="0 0 100 100" width={size} height={size} aria-hidden className="shrink-0">
+      {([[6, 66, '#B9A8FF'], [36, 66, '#8B73F5'], [66, 66, '#5B3FE0'], [36, 36, '#8B73F5'], [66, 36, '#5B3FE0']] as const).map(([x, y, c], i) => <rect key={i} x={x} y={y} width="28" height="28" rx="9" fill={c} />)}
+      <circle cx="80" cy="20" r="14" fill="#FF7A2F" />
+    </svg>
   );
 }
 
@@ -104,36 +124,37 @@ export function ChildMode({ learner, cards, doneThisWeek, isDemo }: { learner: {
   const remaining = cards; // the finished set drops out after refresh
 
   return (
-    <div className="relative min-h-dvh overflow-hidden bg-paper font-[family-name:var(--font-child)] text-[24px] text-ink">
-      <div aria-hidden className="pointer-events-none absolute -right-40 -top-40 size-[520px] rounded-full bg-sunshine-soft opacity-90 blur-3xl" />
-      <div aria-hidden className="pointer-events-none absolute -bottom-48 -left-40 size-[480px] rounded-full bg-violet-soft opacity-80 blur-3xl" />
+    <div className="relative min-h-dvh bg-ground font-[family-name:var(--font-child)] text-[24px] text-ink">
 
       <header className="relative flex items-center justify-between px-4 py-4 sm:px-6">
-        <button onClick={() => (isDemo ? doExit() : setExit({ ...exit, open: true }))} className="inline-flex min-h-11 items-center gap-2 rounded-full border border-line bg-card px-4 font-sans text-[14px] font-semibold text-ink-2" aria-label="Teacher exit (needs the teacher's password)">
-          <LogOut className="size-4" aria-hidden /> Teacher
+        <button onClick={() => (isDemo ? doExit() : setExit({ ...exit, open: true }))} className="inline-flex min-h-11 items-center gap-2 rounded-[12px] border border-line-strong bg-surface px-4 font-sans text-[15px] font-semibold text-ink" aria-label="Teacher exit (needs the teacher's password)">
+          <Lock className="size-4" aria-hidden /> Teacher
         </button>
-        <p className="text-[24px] font-extrabold sm:text-[28px]">Hi, {learner.name}</p>
+        <p className="text-[24px] font-bold sm:text-[28px]">Hi, {learner.name}</p>
       </header>
 
-      <main className="relative mx-auto flex w-full max-w-[720px] flex-1 flex-col px-4 pb-12">
+      <main className="relative mx-auto flex w-full max-w-[640px] flex-1 flex-col px-4 pb-12">
         {view.kind === 'home' && (
           <>
             {cards.length === 0 ? (
-              <div className="mt-10 rounded-[28px] bg-card p-8 text-center shadow-card">
-                <div className="mx-auto w-48"><Illustration name="celebrate" /></div>
-                <p className="mt-4 text-[32px] font-extrabold leading-10">All done for today. Well done.</p>
+              <div className="mt-10 rounded-[24px] border border-line bg-surface p-8 text-center shadow-card">
+                <div className="mx-auto w-fit"><Tiles size={140} /></div>
+                <p className="mt-4 text-[32px] font-bold leading-10">All done for today. Well done.</p>
               </div>
             ) : (
               <>
-                <h1 className="mt-6 text-[36px] font-extrabold leading-[44px]">Today&apos;s practice</h1>
+                <div className="mt-6 flex items-center gap-5">
+                  <Tiles size={96} />
+                  <h1 className="font-heading text-[36px] font-bold">Today&apos;s practice</h1>
+                </div>
                 <div className="mt-6 space-y-5">
                   {cards.map((c) => {
                     const a = ACTIVITY[c.skillId] ?? { name: 'Practice', icon: BookOpen };
                     return (
-                      <div key={c.id} className="overflow-hidden rounded-[28px] border border-line bg-surface shadow-card">
-                        <SkillArt skill={c.skillId} className="h-28 rounded-none" rounded="none" />
-                        <div className="flex flex-col gap-5 p-6 sm:flex-row sm:items-center">
-                          <div className="flex-1"><p className="text-[30px] font-extrabold leading-9">{a.name}</p><p className="text-[22px] text-ink-2">{c.count} questions</p></div>
+                      <div key={c.id} className="rounded-[24px] border border-line bg-surface p-6 shadow-card">
+                        <div className="flex flex-col gap-5 sm:flex-row sm:items-center">
+                          <span className="flex size-16 shrink-0 items-center justify-center rounded-[16px] bg-violet-100 text-violet-700"><a.icon className="size-8" aria-hidden /></span>
+                          <div className="flex-1"><p className="text-[28px] font-bold leading-tight">{a.name}</p><p className="text-[22px] text-muted">{c.count} questions</p></div>
                           <ChildButton onClick={() => open(c.id, c.skillId)}>Let&apos;s go <ArrowRight className="size-7" aria-hidden /></ChildButton>
                         </div>
                       </div>
@@ -143,8 +164,8 @@ export function ChildMode({ learner, cards, doneThisWeek, isDemo }: { learner: {
               </>
             )}
             <div className="mt-10">
-              <p className="mb-2 text-[20px] font-bold text-ink-2">This week</p>
-              <Stones total={Math.max(5, doneThisWeek + cards.length)} filled={doneThisWeek} current={doneThisWeek} label={`${doneThisWeek} practice sets finished this week`} />
+              <p className="mb-3 text-[22px] font-bold">This week</p>
+              <DayDots done={Math.min(5, doneThisWeek)} />
             </div>
           </>
         )}
@@ -152,8 +173,8 @@ export function ChildMode({ learner, cards, doneThisWeek, isDemo }: { learner: {
         {view.kind === 'loading' && <p className="mt-24 text-center text-[28px] font-bold" role="status">Getting ready…</p>}
 
         {view.kind === 'error' && (
-          <div className="mt-16 rounded-[28px] bg-card p-8 text-center shadow-card">
-            <p className="text-[30px] font-extrabold">Let&apos;s ask your teacher.</p>
+          <div className="mt-16 rounded-[24px] border border-line bg-surface p-8 text-center shadow-card">
+            <p className="text-[30px] font-bold">Let&apos;s ask your teacher.</p>
             <p className="mt-2 text-[22px] text-ink-2">Something got stuck. Your work is safe.</p>
             <ChildButton className="mt-6" onClick={() => setView({ kind: 'home' })}>Back</ChildButton>
           </div>
@@ -165,11 +186,11 @@ export function ChildMode({ learner, cards, doneThisWeek, isDemo }: { learner: {
               <button onClick={() => setView({ kind: 'home' })} aria-label="Close and go back" className="flex size-12 items-center justify-center rounded-full bg-card text-ink-2 shadow-card"><X className="size-6" /></button>
               <Stones total={view.items.length} filled={view.index} current={view.index} label={`Question ${view.index + 1} of ${view.items.length}`} />
             </div>
-            <div className="rounded-[28px] bg-card p-6 shadow-card sm:p-8">
+            <div className="rounded-[24px] border border-line bg-surface p-6 shadow-card sm:p-8">
               {pic && <Counters picture={pic} className="mb-5" />}
               <div className="flex items-start justify-between gap-4">
-                <h1 className="break-words text-[36px] font-extrabold leading-[46px] sm:text-[44px] sm:leading-[54px]">{item.type === 'listen_choose' ? 'Listen and tap.' : stemText}</h1>
-                <button onClick={() => speak(item.audioText ?? item.stem)} aria-label="Hear it" className="flex size-16 shrink-0 items-center justify-center rounded-full bg-violet text-white shadow-[0_4px_0_var(--violet-deep)] active:translate-y-1 active:shadow-none"><Volume2 className="size-8" aria-hidden /></button>
+                <h1 className="break-words text-[36px] font-bold leading-[46px] sm:text-[44px] sm:leading-[54px]">{item.type === 'listen_choose' ? 'Listen and tap.' : stemText}</h1>
+                <button onClick={() => speak(item.audioText ?? item.stem)} aria-label="Hear it" className="flex size-16 shrink-0 items-center justify-center rounded-full bg-violet-500 text-on-primary active:scale-95"><Volume2 className="size-8" aria-hidden /></button>
               </div>
 
               {item.options ? (
@@ -179,7 +200,7 @@ export function ChildMode({ learner, cards, doneThisWeek, isDemo }: { learner: {
                     const faded = sel && feedback && !feedback.good;
                     return (
                       <button key={o} disabled={busy || canMoveOn} onClick={() => check(o)}
-                        className={cn('relative min-h-24 rounded-[24px] border-[3px] border-white px-4 text-[30px] font-extrabold shadow-[0_0_0_1px_var(--line)] transition-[opacity,transform] active:scale-[.98] dark:border-card',
+                        className={cn('relative min-h-24 rounded-[24px] border-[3px] border-white px-4 text-[30px] font-bold shadow-[0_0_0_1px_var(--line)] transition-[opacity,transform] active:scale-[.98] dark:border-card',
                           TILE_TINT[i % 4], sel && feedback?.good && 'ring-4 ring-teal', faded && 'opacity-40')}>
                         {sel && feedback?.good && <span className="absolute right-3 top-3 flex size-7 items-center justify-center rounded-full bg-teal text-white"><Check className="size-5" aria-hidden /></span>}
                         {o}
@@ -190,12 +211,12 @@ export function ChildMode({ learner, cards, doneThisWeek, isDemo }: { learner: {
               ) : (
                 <form className="mx-auto mt-7 max-w-sm" onSubmit={(e) => { e.preventDefault(); if (answer !== '') check(Number(answer)); }}>
                   <label htmlFor="ans" className="sr-only">Your answer</label>
-                  <output id="ans" className="mb-3 flex h-20 items-center justify-center rounded-[20px] border-2 border-line-strong bg-paper text-[44px] font-extrabold">{answer || <span className="text-ink-3">?</span>}</output>
+                  <output id="ans" className="mb-3 flex h-20 items-center justify-center rounded-[20px] border-2 border-line-strong bg-paper text-[44px] font-bold">{answer || <span className="text-ink-3">?</span>}</output>
                   <div className="grid grid-cols-3 gap-3">
                     {['1', '2', '3', '4', '5', '6', '7', '8', '9', 'del', '0', 'ok'].map((k) => (
                       <button key={k} type={k === 'ok' ? 'submit' : 'button'} disabled={busy || canMoveOn || (k === 'ok' && answer === '')} aria-label={k === 'del' ? 'Delete' : k === 'ok' ? 'Check' : k}
                         onClick={k === 'ok' ? undefined : () => setAnswer((a) => (k === 'del' ? a.slice(0, -1) : (a + k).slice(0, 2)))}
-                        className={cn('min-h-16 rounded-[20px] text-[30px] font-extrabold disabled:opacity-40', k === 'ok' ? 'bg-teal text-[22px] text-white dark:text-[#06222A]' : 'border-2 border-line bg-card')}>
+                        className={cn('min-h-16 rounded-[20px] text-[30px] font-bold disabled:opacity-40', k === 'ok' ? 'bg-teal text-[22px] text-white dark:text-[#06222A]' : 'border-2 border-line bg-card')}>
                         {k === 'del' ? '⌫' : k === 'ok' ? 'Check' : k}
                       </button>
                     ))}
@@ -205,7 +226,7 @@ export function ChildMode({ learner, cards, doneThisWeek, isDemo }: { learner: {
 
               <div aria-live="polite" className="mt-6 min-h-16">
                 {feedback && (
-                  <p className={cn('flex items-center gap-3 rounded-[20px] px-5 py-3 text-[26px] font-extrabold', feedback.good ? 'bg-leaf-soft text-st-consistent' : 'bg-sky-soft text-sky')}>
+                  <p className={cn('flex items-center gap-3 rounded-[20px] px-5 py-3 text-[26px] font-bold', feedback.good ? 'bg-leaf-soft text-st-consistent' : 'bg-sky-soft text-sky')}>
                     {feedback.good ? <Check className="size-7 shrink-0" aria-hidden /> : <ArrowRight className="size-7 shrink-0" aria-hidden />}{feedback.text}
                   </p>
                 )}
@@ -217,9 +238,9 @@ export function ChildMode({ learner, cards, doneThisWeek, isDemo }: { learner: {
         )}
 
         {view.kind === 'done' && (
-          <div className="mt-8 rounded-[28px] bg-card p-8 text-center shadow-card">
-            <div className="mx-auto w-52"><Illustration name="celebrate" /></div>
-            <h1 className="mt-4 text-[40px] font-extrabold leading-[48px]">You tried {view.tried} questions</h1>
+          <div className="mt-8 rounded-[24px] border border-line bg-surface p-8 text-center shadow-card">
+            <div className="mx-auto w-fit"><Tiles size={140} /></div>
+            <h1 className="mt-4 text-[40px] font-bold leading-[48px]">You tried {view.tried} questions</h1>
             <div className="mt-4 flex justify-center"><Stones total={3} filled={3} label="Three effort stones" /></div>
             <p className="mt-4 text-[24px] text-ink-2">You&apos;re getting stronger at {(ACTIVITY[view.skillId]?.name ?? 'this').toLowerCase()}.</p>
             <div className="mt-8 flex flex-wrap justify-center gap-4">

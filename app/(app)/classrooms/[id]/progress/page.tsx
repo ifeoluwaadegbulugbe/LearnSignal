@@ -1,7 +1,7 @@
 import { getClassroom, getGroups } from '@/lib/server/classroom';
 import { SKILLS, SKILL_BY_ID } from '@/lib/content/skills';
 import { workingSkill, type SkillStateName } from '@/lib/scoring/skillState';
-import { Breadcrumb, PageHeader, SampleDataBadge } from '@/components/ui/primitives';
+import { Breadcrumb, PageHeader } from '@/components/ui/primitives';
 import { EmptyState } from '@/components/ui/states';
 import type { LadderLearner } from '@/components/learner/class-ladder';
 import { pct } from '@/lib/utils';
@@ -15,7 +15,8 @@ export default async function ProgressPage({ params, searchParams }: { params: P
   const { range = 'all' } = await searchParams;
   const [{ classroom, learners, ctx }, groups] = await Promise.all([getClassroom(id), getGroups(id)]);
   const ids = learners.map((l) => l.id);
-  const since = range === '30' ? new Date(Date.now() - 30 * 86_400_000).toISOString() : null;
+  const days = ['7', '30', '90'].includes(range) ? Number(range) : null;
+  const since = days ? new Date(Date.now() - days * 86_400_000).toISOString() : null;
   const [{ data: history }, { data: responses }, { data: sessions }, { data: assignments }] = ids.length ? await Promise.all([
     ctx.supabase.from('skill_state_history').select('learner_id, skill_id, state, p, created_at').in('learner_id', ids).order('created_at'),
     ctx.supabase.from('item_responses').select('session_id, learner_id, skill_id, correct').in('learner_id', ids).not('correct', 'is', null),
@@ -70,15 +71,20 @@ export default async function ProgressPage({ params, searchParams }: { params: P
     return { id: l.id, name: l.display_name, code: l.code, up, retest, working: l.working, change: retest.length ? 'retest' : up.length ? 'up' : 'held' };
   });
 
+  const distribution = (['literacy', 'numeracy'] as const).map((strand) => {
+    const counts = { not_yet: 0, developing: 0, consistent: 0, insufficient: 0 };
+    for (const l of learners) for (const st of l.states) if (SKILL_BY_ID[st.skill_id].strand === strand) counts[st.state]++;
+    return { strand, counts };
+  });
+
   return (
     <>
       <Breadcrumb items={[{ label: classroom.name, href: `/classrooms/${id}` }, { label: 'Insights' }]} />
-      {classroom.is_demo && <div className="mb-3"><SampleDataBadge /></div>}
       <PageHeader title="Insights" subtitle="How learners moved between their first and latest checks." />
       {changes.length === 0 ? (
         <EmptyState illustration="empty-results" title="Re-check learners to see change" body="When a learner has been checked twice, you'll see how they moved on the ladder." />
       ) : (
-        <ProgressView ladders={ladders} slope={slope} bars={bars} changes={changes} range={range} classroomName={classroom.name} isDemo={classroom.is_demo} />
+        <ProgressView ladders={ladders} slope={slope} bars={bars} changes={changes} range={range} classroomName={classroom.name} isDemo={classroom.is_demo} distribution={distribution} classroomId={id} />
       )}
     </>
   );

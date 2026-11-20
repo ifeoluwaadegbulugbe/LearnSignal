@@ -1,6 +1,6 @@
 # Accessibility
 
-Target: WCAG 2.2 AA. Checked on 2026-11-20 against the local dev server with the demo class loaded.
+Target: WCAG 2.2 AA. Checked on 2026-11-20 against the local dev server with the demo class loaded. Re-run after redesign v6 (new tokens, shell, staircase ladders).
 
 ## Automated checks
 
@@ -9,7 +9,7 @@ Target: WCAG 2.2 AA. Checked on 2026-11-20 against the local dev server with the
 `node scripts/axe.mjs` scans 16 screens in **both light and night themes** (32 scans):
 login, signup, landing, privacy, how scoring works, Today, Learners, learner profile, check runner, Groups, Practice, Insights (progress), Ask, School, Settings and child mode.
 
-**Result: 0 violations on all 32 scans** (re-run after redesign v5 with the sidebar shell and new neutrals; two new issues found and fixed: the sidebar account button's name now contains its visible text, and scrollable ladder rows are keyboard-focusable groups).
+**Result: 0 violations on all 32 scans** after redesign v6. Fixed in the v6 pass: buttons whose aria-label did not contain their visible text (class box, learner circles, skill steps) now take their name from content plus screen-reader text, and the old `dark:text-violet` overrides (violet-500 on violet-100 at 4.08:1 in night) were removed so night text uses violet-700.
 
 Fixed during this pass:
 | Issue | Fix |
@@ -28,7 +28,7 @@ Fixed during this pass:
 
 | Page | Accessibility | Best practices | SEO |
 |---|---|---|---|
-| `/` | 100 | 100 | 91 → 100 after robots.txt |
+| `/` | 100 | 100 | 83 in dev (the description meta is set in the root layout; not yet re-measured on a production build) |
 | `/login` | 98 → 100 after skip-link target | 100 | 91 → 100 |
 | `/how-scoring-works` | 100 | 100 | 91 → 100 |
 | `/privacy` | 100 | 100 | 91 → 100 |
