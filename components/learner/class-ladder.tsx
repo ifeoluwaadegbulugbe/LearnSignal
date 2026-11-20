@@ -64,7 +64,7 @@ export function ClassLadder({ learners, strand, onSelect, interactive = true }: 
               </button>
               <div className="flex min-h-10 flex-1 items-center gap-3">
                 {here.length ? (
-                  <div className="no-scrollbar flex flex-1 flex-wrap items-center gap-y-1 overflow-x-auto">{here.map(dot)}</div>
+                  <div tabIndex={0} role="group" aria-label={`Learners working on ${sk.id}`} className="no-scrollbar flex flex-1 flex-wrap items-center gap-y-1 overflow-x-auto rounded-[8px]">{here.map(dot)}</div>
                 ) : <span className="flex-1 border-b border-dotted border-line-strong pb-1 text-[12px] text-ink-3">No one here yet</span>}
                 <span className={cn('shrink-0 rounded-full px-2.5 text-[12px] font-semibold tabular', here.length ? 'bg-violet text-white dark:text-[#0C0F1A]' : 'bg-surface-2 text-ink-3')}>{here.length}</span>
               </div>

@@ -86,7 +86,7 @@ export default function Landing() {
             <p className="mt-3 text-[17px] leading-8 text-ink-2">Clear rules, not AI, decide every level. Each answer is evidence. Recent sessions count more, and a skill is only called <b className="text-ink">demonstrated consistently</b> after strong results in two separate sessions. One bad day can&apos;t pull a child down.</p>
             <ButtonLink href="/how-scoring-works" variant="link" className="mt-3">Read the full rules</ButtonLink>
           </div>
-          <IndexCard tab="Worked example" tabTone="sun" ruled margin>
+          <IndexCard tab="Worked example" tabTone="sun">
             <p className="text-[15px] leading-7">A sample learner answers subtraction questions in two checks:</p>
             <div className="mt-4 grid grid-cols-2 gap-4">
               <div className="flex items-center gap-3"><MeterRing value={25} size={56} stroke={6} color="var(--st-not-yet)" label="First check"><b className="text-[13px]">1/4</b></MeterRing><div><p className="text-[13px] text-ink-2">First check</p><StatusPill state="not_yet" size="sm" short /></div></div>

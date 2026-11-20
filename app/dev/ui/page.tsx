@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { BookOpen, Users, Plus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { IconTile, type Hue } from '@/components/ui/icon-tile';
-import { Badge, Field, IndexCard, Input, Kbd, LinearProgress, MetaRow, PageHeader, SampleDataBadge, SectionHeader, Select, SummaryTiles, Textarea, Breadcrumb } from '@/components/ui/primitives';
+import { Badge, ChalkUnderline, Field, IndexCard, Input, Kbd, LinearProgress, MetaRow, PageHeader, SampleDataBadge, SectionHeader, Select, SummaryTiles, Textarea, Breadcrumb } from '@/components/ui/primitives';
 import { SkillArt } from '@/components/ui/skill-art';
 import { StatusPill } from '@/components/ui/status';
 import { SignalMark, ConfidenceSignal } from '@/components/ui/signal';
@@ -20,6 +20,7 @@ import { SkillLadder } from '@/components/learner/skill-ladder';
 import { ClassLadderBoard, type LadderLearner } from '@/components/learner/class-ladder';
 import { BeforeAfterChart } from '@/components/charts/before-after-chart';
 import { useTheme } from '@/components/layout/theme-toggle';
+import { LogoMark, LogoLoader, Wordmark } from '@/components/layout/logo';
 import { cn } from '@/lib/utils';
 
 // Component gallery with static UI fixtures for visual review only (no learner data from the database).
@@ -99,9 +100,19 @@ export default function DevUI() {
           </div>
         </S>
 
+        <S title="Brand: mark, mono mark, wordmark, loader, chalk underline">
+          <div className="flex flex-wrap items-center gap-8">
+            <span className="flex items-center gap-2.5"><LogoMark size={40} /><Wordmark /></span>
+            <span className="flex items-center gap-3 rounded-[16px] bg-grad-violet px-4 py-3"><LogoMark size={32} mono className="text-white" /><Wordmark light /></span>
+            <span className="flex items-end gap-3">{[16, 24, 32, 48].map((n) => <LogoMark key={n} size={n} />)}</span>
+            <LogoLoader size={48} />
+            <span className="font-heading text-[28px] font-bold">Good morning, <ChalkUnderline>Ada</ChalkUnderline>.</span>
+          </div>
+        </S>
+
         <S title="Summary tiles, meta row, art card">
           <div className="grid gap-6 lg:grid-cols-2">
-            <SummaryTiles items={[{ label: 'Learners', value: 12, tone: 'violet', glyph: 'dots' }, { label: 'Checked', value: '92%', tone: 'aqua', glyph: 'check' }, { label: 'Need a closer look', value: 4, tone: 'tangerine', glyph: 'eye' }]} />
+            <SummaryTiles items={[{ label: 'Learners', value: 12, tone: 'violet', glyph: 'dots' }, { label: 'Checked', value: '92%', tone: 'aqua', glyph: 'check' }, { label: 'Need attention', value: 4, tone: 'tangerine', glyph: 'eye' }, { label: 'Skills shown', value: 38, tone: 'sky', glyph: 'star' }]} />
             <IndexCard interactive art={<SkillArt skill="N4" />}>
               <h3 className="text-[16px] font-semibold">Subtraction group</h3>
               <MetaRow className="mt-2" items={[{ label: 'Learners', value: 5 }, { label: 'Skill', value: 'N4' }, { label: 'Practice', value: '60%' }]} />

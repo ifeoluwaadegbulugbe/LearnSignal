@@ -15,15 +15,15 @@ const LABEL_TONE = {
  * Card (Daylight). White, 20px radius, hairline + soft shadow. Optional small `tab` label (an eyebrow pill, not a folded tab),
  * optional SkillArt band via `art`, tints, and hover lift. `ruled`/`margin` are accepted for older call sites and ignored.
  */
-// eslint-disable-next-line @typescript-eslint/no-unused-vars -- ruled/margin are accepted for older call sites and ignored
-export function IndexCard({ tab, tabTone = 'teal', tint = 'plain', art, interactive, className, children, ruled: _r, margin: _m, ...p }: React.HTMLAttributes<HTMLDivElement> & {
+// eslint-disable-next-line @typescript-eslint/no-unused-vars -- margin is accepted for older call sites and ignored
+export function IndexCard({ tab, tabTone = 'teal', tint = 'plain', art, interactive, className, children, ruled, margin: _m, ...p }: React.HTMLAttributes<HTMLDivElement> & {
   tab?: string; tabTone?: keyof typeof LABEL_TONE; tint?: CardTint; ruled?: boolean; margin?: boolean; interactive?: boolean; art?: React.ReactNode;
 }) {
   return (
-    <div className={cn('relative overflow-hidden rounded-[20px] border border-line shadow-card', TINT[tint], interactive && 'lift', className)} {...p}>
+    <div className={cn('relative overflow-hidden rounded-[16px] border border-line shadow-card', TINT[tint], interactive && 'lift', className)} {...p}>
       {art}
-      <div className="relative h-full p-5 sm:p-6">
-        {tab && <span className={cn('mb-3 inline-flex h-6 items-center rounded-full px-2.5 text-[12px] font-semibold', LABEL_TONE[tabTone])}>{tab}</span>}
+      <div className={cn('relative h-full p-5 sm:p-6', ruled && 'ruled')}>
+        {tab && <span className={cn('mb-3 inline-flex h-5 items-center rounded-[6px] px-2 text-[11px] font-semibold uppercase tracking-[.06em]', LABEL_TONE[tabTone])}>{tab}</span>}
         {children}
       </div>
     </div>
@@ -31,17 +31,24 @@ export function IndexCard({ tab, tabTone = 'teal', tint = 'plain', art, interact
 }
 /** Plain card. */
 export function Card({ className, children, interactive, ...p }: React.HTMLAttributes<HTMLDivElement> & { interactive?: boolean }) {
-  return <div className={cn('rounded-[20px] border border-line bg-surface p-5 shadow-card sm:p-6', interactive && 'lift', className)} {...p}>{children}</div>;
+  return <div className={cn('rounded-[16px] border border-line bg-surface p-5 shadow-card sm:p-6', interactive && 'lift', className)} {...p}>{children}</div>;
 }
 
 /** Soft aurora wash behind a page header (full-bleed, decorative). */
 export function AuroraBackdrop({ className }: { className?: string }) {
-  return <div aria-hidden className={cn('pointer-events-none absolute left-1/2 top-0 -z-10 h-[320px] w-screen -translate-x-1/2 bg-aurora', className)} />;
+  return <div aria-hidden className={cn('pointer-events-none absolute -inset-x-4 top-0 -z-10 h-[280px] bg-aurora sm:-inset-x-6 lg:-inset-x-10', className)} />;
 }
 
-/** Retired notebook motif: renders its text plainly. */
-export function ChalkUnderline({ children }: { children: React.ReactNode }) {
-  return <>{children}</>;
+/** Signature hand-drawn underline under ONE word per screen (violet or tangerine). */
+export function ChalkUnderline({ children, tone = 'violet' }: { children: React.ReactNode; tone?: 'violet' | 'tangerine' }) {
+  return (
+    <span className="relative inline-block whitespace-nowrap">
+      {children}
+      <svg aria-hidden viewBox="0 0 120 12" preserveAspectRatio="none" className={cn('pointer-events-none absolute -bottom-1.5 left-0 h-[0.32em] w-full', tone === 'tangerine' ? 'text-tangerine' : 'text-violet')}>
+        <path d="M2 8.5C22 4.5 46 3 70 4.2c17 .8 32 2.2 48 4.3" fill="none" stroke="currentColor" strokeWidth="3.2" strokeLinecap="round" className="ring-draw" style={{ ['--len' as string]: '130', strokeDasharray: 130 }} />
+      </svg>
+    </span>
+  );
 }
 
 /** MetaRow: small label over value pairs, separated by hairlines; wraps on phones. */
@@ -58,19 +65,29 @@ export function MetaRow({ items, className }: { items: { label: string; value: R
   );
 }
 
-/** SummaryTiles: tinted metric tiles with a big Sora number, a label and a tiny corner glyph. */
-export function SummaryTiles({ items }: { items: { label: string; value: React.ReactNode; tone: 'violet' | 'aqua' | 'tangerine'; glyph?: 'dots' | 'check' | 'eye' }[] }) {
-  const tone = { violet: 'bg-violet-soft text-violet-deep dark:text-violet', aqua: 'bg-aqua-soft text-aqua-ink', tangerine: 'bg-tangerine-soft text-tangerine-ink' };
-  const G = { dots: <g fill="currentColor"><circle cx="5" cy="5" r="2.5" /><circle cx="13" cy="5" r="2.5" /><circle cx="5" cy="13" r="2.5" /><circle cx="13" cy="13" r="2.5" /></g>,
-    check: <path d="M3 9l4 4 8-9" stroke="currentColor" strokeWidth="2.5" fill="none" strokeLinecap="round" strokeLinejoin="round" />,
-    eye: <g fill="none" stroke="currentColor" strokeWidth="2"><path d="M1 9s3-6 8-6 8 6 8 6-3 6-8 6-8-6-8-6z" /><circle cx="9" cy="9" r="2.5" /></g> };
+/** SummaryTiles (MetricCards): white cards, a big tabular number, a label and a small tinted icon chip. */
+type Tone = 'violet' | 'aqua' | 'tangerine' | 'sky';
+type Glyph = 'dots' | 'check' | 'eye' | 'star';
+const GLYPHS: Record<Glyph, React.ReactNode> = {
+  dots: <g fill="currentColor"><circle cx="5" cy="5" r="2.5" /><circle cx="13" cy="5" r="2.5" /><circle cx="5" cy="13" r="2.5" /><circle cx="13" cy="13" r="2.5" /></g>,
+  check: <path d="M3 9l4 4 8-9" stroke="currentColor" strokeWidth="2.5" fill="none" strokeLinecap="round" strokeLinejoin="round" />,
+  eye: <g fill="none" stroke="currentColor" strokeWidth="2"><path d="M1 9s3-6 8-6 8 6 8 6-3 6-8 6-8-6-8-6z" /><circle cx="9" cy="9" r="2.5" /></g>,
+  star: <g fill="currentColor"><rect x="1" y="11" width="6" height="6" rx="2" /><rect x="6" y="6" width="6" height="6" rx="2" opacity=".7" /><circle cx="14" cy="4" r="3" /></g>,
+};
+export function SummaryTiles({ items }: { items: { label: string; value: React.ReactNode; tone: Tone; glyph?: Glyph; hint?: React.ReactNode }[] }) {
+  const tone: Record<Tone, string> = { violet: 'bg-violet-soft text-violet-deep dark:text-violet', aqua: 'bg-aqua-soft text-aqua-ink', tangerine: 'bg-tangerine-soft text-tangerine-ink', sky: 'bg-sky-soft text-sky-ink' };
   return (
-    <div className="no-scrollbar -mx-1 flex gap-3 overflow-x-auto px-1 pb-1">
+    <div className={cn('grid gap-3', items.length >= 4 ? 'grid-cols-2 lg:grid-cols-4' : 'grid-cols-2 sm:grid-cols-3')}>
       {items.map((it, i) => (
-        <div key={it.label} className={cn('relative min-w-[140px] flex-1 rounded-[16px] px-4 py-3', tone[it.tone])}>
-          <svg viewBox="0 0 18 18" className="absolute right-3 top-3 size-[18px] opacity-70" aria-hidden>{G[it.glyph ?? (['dots', 'check', 'eye'] as const)[i % 3]]}</svg>
-          <div className="text-[12px] font-medium opacity-90">{it.label}</div>
-          <div className="font-heading text-[32px] font-bold leading-10 tracking-[-0.02em] tabular text-ink">{it.value}</div>
+        <div key={it.label} className="rounded-[16px] border border-line bg-surface p-4 shadow-card">
+          <div className="flex items-center justify-between gap-2">
+            <span className="text-[13px] font-medium text-ink-2">{it.label}</span>
+            <span className={cn('flex size-8 shrink-0 items-center justify-center rounded-[10px]', tone[it.tone])}>
+              <svg viewBox="0 0 18 18" className="size-4" aria-hidden>{GLYPHS[it.glyph ?? (['dots', 'check', 'eye', 'star'] as const)[i % 4]]}</svg>
+            </span>
+          </div>
+          <div className="mt-1 font-heading text-[30px] font-bold leading-9 tabular sm:text-[32px]">{it.value}</div>
+          {it.hint && <div className="mt-0.5 text-[12px] text-ink-2">{it.hint}</div>}
         </div>
       ))}
     </div>

@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" role="img" aria-label="LearnSignal mark, single colour">
+  <g fill="currentColor">
+    <rect x="6"  y="66" width="28" height="28" rx="9" opacity=".4"/>
+    <rect x="36" y="66" width="28" height="28" rx="9" opacity=".7"/>
+    <rect x="66" y="66" width="28" height="28" rx="9"/>
+    <rect x="36" y="36" width="28" height="28" rx="9" opacity=".7"/>
+    <rect x="66" y="36" width="28" height="28" rx="9"/>
+    <circle cx="80" cy="20" r="14"/>
+  </g>
+</svg>

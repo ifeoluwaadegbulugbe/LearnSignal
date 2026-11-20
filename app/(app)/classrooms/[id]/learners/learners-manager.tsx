@@ -2,9 +2,9 @@
 import { useEffect, useMemo, useRef, useState, useTransition } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { UserPlus, ListPlus, Archive, ArchiveRestore, Pencil, ClipboardCheck, Search, MoreHorizontal, Check, Copy, ArrowUpDown } from 'lucide-react';
+import { UserPlus, ListPlus, Archive, ArchiveRestore, Pencil, ClipboardCheck, Search, MoreHorizontal, Check, Copy, ArrowUpDown, ChevronLeft, ChevronRight } from 'lucide-react';
 import { Button, ButtonLink } from '@/components/ui/button';
-import { Field, IndexCard, Input, Textarea } from '@/components/ui/primitives';
+import { Field, IndexCard, Input, SummaryTiles, Textarea } from '@/components/ui/primitives';
 import { SegmentedTabs, Segmented } from '@/components/ui/tabs';
 import { Dialog } from '@/components/ui/dialog';
 import { EmptyState } from '@/components/ui/states';
@@ -36,6 +36,7 @@ export function LearnersManager({ classroomId, learners, initialTab, openAdd }: 
     all: (l) => !l.archived_at,
     lit: (l) => !l.archived_at && notYet(l, 'literacy'),
     num: (l) => !l.archived_at && notYet(l, 'numeracy'),
+    review: (l) => !l.archived_at && l.states.some((s) => s.retest_suggested),
     na: (l) => !l.archived_at && l.states.length === 0,
     archived: (l) => !!l.archived_at,
   };
@@ -44,10 +45,14 @@ export function LearnersManager({ classroomId, learners, initialTab, openAdd }: 
     .sort((a, b) => (sort === 'name' ? a.display_name.localeCompare(b.display_name) : (b.lastAssessed ?? '').localeCompare(a.lastAssessed ?? ''))),
   // eslint-disable-next-line react-hooks/exhaustive-deps
   [learners, tab, query, sort]);
-  useEffect(() => setSelected(new Set()), [tab]);
+  const PAGE = 20;
+  const [page, setPage] = useState(0);
+  useEffect(() => { setSelected(new Set()); setPage(0); }, [tab, query]);
+  const pages = Math.max(1, Math.ceil(visible.length / PAGE));
+  const shown = visible.slice(page * PAGE, page * PAGE + PAGE);
 
   const toggle = (id: string) => setSelected((s) => { const n = new Set(s); if (n.has(id)) n.delete(id); else n.add(id); return n; });
-  const allOn = visible.length > 0 && visible.every((l) => selected.has(l.id));
+  const allOn = shown.length > 0 && shown.every((l) => selected.has(l.id));
   const bulkArchive = () => start(async () => {
     const arch = tab !== 'archived';
     for (const id of selected) await archiveLearner(id, arch);
@@ -57,11 +62,22 @@ export function LearnersManager({ classroomId, learners, initialTab, openAdd }: 
 
   return (
     <>
-      <div className="mb-5 flex flex-col-reverse gap-3">
-        <SegmentedTabs label="Filter learners" value={tab} onChange={setTab} items={[
-          { id: 'all', label: 'All', count: count('all') }, { id: 'lit', label: 'Literacy not yet', count: count('lit') },
-          { id: 'num', label: 'Numeracy not yet', count: count('num') }, { id: 'na', label: 'Not checked', count: count('na') }, { id: 'archived', label: 'Archived', count: count('archived') },
+      <div className="mb-6">
+        <SummaryTiles items={[
+          { label: 'Learners', value: count('all'), tone: 'violet', glyph: 'dots' },
+          { label: 'Checked', value: count('all') - count('na'), tone: 'violet', glyph: 'check' },
+          { label: 'Not checked', value: count('na'), tone: 'sky', glyph: 'eye' },
+          { label: 'Re-check suggested', value: count('review'), tone: 'tangerine', glyph: 'star' },
         ]} />
+      </div>
+      <div className="mb-5 flex flex-col-reverse gap-3">
+        <div className="no-scrollbar -mx-4 overflow-x-auto px-4 sm:mx-0 sm:px-0">
+          <SegmentedTabs label="Filter learners" value={tab} onChange={setTab} items={[
+            { id: 'all', label: 'All', count: count('all') }, { id: 'lit', label: 'Literacy not yet', count: count('lit') },
+            { id: 'num', label: 'Numeracy not yet', count: count('num') }, { id: 'review', label: 'Needs review', count: count('review') },
+            { id: 'na', label: 'Not checked', count: count('na') }, { id: 'archived', label: 'Archived', count: count('archived') },
+          ]} />
+        </div>
         <div className="flex flex-wrap items-center gap-2">
           <div className="relative min-w-0 flex-1 sm:max-w-xs">
             <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-ink-3" aria-hidden />
@@ -91,7 +107,7 @@ export function LearnersManager({ classroomId, learners, initialTab, openAdd }: 
         <>
           {/* < 768: cards */}
           <ul className="space-y-3 md:hidden">
-            {visible.map((l) => (
+            {shown.map((l) => (
               <li key={l.id}>
                 <IndexCard>
                   <div className="flex items-start gap-3">
@@ -103,7 +119,9 @@ export function LearnersManager({ classroomId, learners, initialTab, openAdd }: 
                     </div>
                     <RowMenu l={l} onEdit={() => setMode({ edit: l })} />
                   </div>
-                  <div className="mt-3"><WorkingPills l={l} /></div>
+                  <dl className="mt-3 grid grid-cols-2 gap-2">
+                    {(['literacy', 'numeracy'] as const).map((k) => <div key={k}><dt className="text-[12px] font-medium capitalize text-ink-2">{k}</dt><dd className="mt-0.5"><StrandCell l={l} strand={k} /></dd></div>)}
+                  </dl>
                   {!l.archived_at && <ButtonLink href={`/learners/${l.id}/assess`} className="mt-4 w-full"><ClipboardCheck className="size-4" aria-hidden /> Start check</ButtonLink>}
                 </IndexCard>
               </li>
@@ -117,27 +135,39 @@ export function LearnersManager({ classroomId, learners, initialTab, openAdd }: 
                   <th className="w-12 pl-4"><input type="checkbox" aria-label="Select all" className="size-4 accent-[var(--teal)]" checked={allOn} onChange={() => setSelected(allOn ? new Set() : new Set(visible.map((l) => l.id)))} /></th>
                   <th className="font-medium"><button onClick={() => setSort('name')} className="inline-flex items-center gap-1">Learner <ArrowUpDown className={cn('size-3', sort === 'name' ? 'text-teal' : 'text-ink-3')} aria-hidden /></button></th>
                   <th className="font-medium">Code</th>
-                  <th className="font-medium">Age band</th>
+                  <th className="font-medium">Literacy</th>
+                  <th className="font-medium">Numeracy</th>
                   <th className="font-medium"><button onClick={() => setSort('last')} className="inline-flex items-center gap-1">Last checked <ArrowUpDown className={cn('size-3', sort === 'last' ? 'text-teal' : 'text-ink-3')} aria-hidden /></button></th>
-                  <th className="font-medium">Working skills</th>
-                  <th className="w-14" aria-label="Actions" />
+                  <th className="w-36 pr-3 text-right font-medium">Actions</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-line">
-                {visible.map((l) => (
+                {shown.map((l) => (
                   <tr key={l.id} className={cn('h-[52px] transition-colors hover:bg-paper-2/60', selected.has(l.id) && 'bg-teal-soft/40')}>
                     <td className="pl-4"><input type="checkbox" aria-label={`Select ${l.display_name}`} className="size-4 accent-[var(--teal)]" checked={selected.has(l.id)} onChange={() => toggle(l.id)} /></td>
                     <td><Link href={`/learners/${l.id}`} className="flex items-center gap-3 py-2 font-semibold hover:underline"><Avatar name={l.display_name} seed={l.code} size={32} />{l.display_name}</Link></td>
                     <td><CodeChip code={l.code} /></td>
-                    <td className="text-ink-2">{l.age_band ?? '—'}</td>
+                    <td><StrandCell l={l} strand="literacy" /></td>
+                    <td><StrandCell l={l} strand="numeracy" /></td>
                     <td className="text-ink-2">{l.lastAssessed ? fmtDate(l.lastAssessed) : 'Not checked'}</td>
-                    <td><WorkingPills l={l} /></td>
-                    <td className="pr-3 text-right"><RowMenu l={l} onEdit={() => setMode({ edit: l })} /></td>
+                    <td className="pr-3"><span className="flex items-center justify-end gap-1">
+                      {!l.archived_at && <ButtonLink href={`/learners/${l.id}/assess`} variant="ghost" size="sm" aria-label={`Start a check for ${l.display_name}`}><ClipboardCheck className="size-4" aria-hidden />Check</ButtonLink>}
+                      <RowMenu l={l} onEdit={() => setMode({ edit: l })} />
+                    </span></td>
                   </tr>
                 ))}
               </tbody>
             </table>
           </div>
+          {pages > 1 && (
+            <nav aria-label="Pages" className="mt-4 flex items-center justify-between gap-3 text-[13px] text-ink-2">
+              <span className="tabular">{page * PAGE + 1}–{Math.min(visible.length, (page + 1) * PAGE)} of {visible.length}</span>
+              <span className="flex gap-2">
+                <Button size="sm" variant="secondary" disabled={page === 0} onClick={() => setPage((n) => n - 1)}><ChevronLeft className="size-4" aria-hidden /> Previous</Button>
+                <Button size="sm" variant="secondary" disabled={page >= pages - 1} onClick={() => setPage((n) => n + 1)}>Next <ChevronRight className="size-4" aria-hidden /></Button>
+              </span>
+            </nav>
+          )}
         </>
       )}
 
@@ -148,15 +178,18 @@ export function LearnersManager({ classroomId, learners, initialTab, openAdd }: 
   );
 }
 
-function WorkingPills({ l }: { l: LearnerRow }) {
-  if (!l.states.length) return <span className="text-[13px] text-ink-2">Not checked yet</span>;
-  const items = (['literacy', 'numeracy'] as const).map((s) => l.working[s]).filter(Boolean) as string[];
-  if (!items.length) return <span className="text-[13px] text-ink-2">No gap flagged</span>;
+/** One strand's status: the working skill and its state, or a plain-words summary. */
+function StrandCell({ l, strand }: { l: LearnerRow; strand: 'literacy' | 'numeracy' }) {
+  const mine = l.states.filter((s) => SKILL_BY_ID[s.skill_id].strand === strand);
+  if (!mine.length) return <span className="text-[13px] text-ink-2">Not checked</span>;
+  const id = l.working[strand];
+  if (!id) return <span className="text-[13px] font-medium text-st-consistent">No gap flagged</span>;
+  const st = mine.find((s) => s.skill_id === id);
   return (
-    <span className="flex flex-wrap gap-1.5">
-      {items.map((id) => { const st = l.states.find((s) => s.skill_id === id); return (
-        <span key={id} className="inline-flex items-center gap-1.5"><span className="font-mono text-[12px] text-ink-2">{id}</span>{st && <StatusPill state={st.state} size="sm" short />}</span>
-      ); })}
+    <span className="inline-flex items-center gap-1.5">
+      <span className="font-mono text-[12px] text-ink-2">{id}</span>
+      {st ? <StatusPill state={st.state} size="sm" short /> : <span className="text-[12px] text-ink-2">next to check</span>}
+      {st?.retest_suggested && <span className="text-[11px] font-semibold text-st-notyet">re-check</span>}
     </span>
   );
 }

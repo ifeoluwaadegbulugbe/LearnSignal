@@ -11,24 +11,28 @@ export function NextStepCard({ id, sentence, detail, action, tone = 'sun' }: { i
   useEffect(() => { try { if (sessionStorage.getItem(key) === '1') setHidden(true); } catch {} }, [key]);
   if (hidden) return null;
   return (
-    <section aria-label="Next step" className={cn('fade-up relative overflow-hidden rounded-[20px] border border-line bg-surface p-5 shadow-card sm:p-6',
-      'before:absolute before:inset-y-0 before:left-0 before:w-1', tone === 'sun' ? 'before:bg-tangerine' : 'before:bg-violet')}>
+    <section aria-label="Next step" className={cn('fade-up relative overflow-hidden rounded-[18px] border p-5 sm:p-6',
+      tone === 'sun' ? 'border-tangerine/30 bg-tangerine-soft/60' : 'border-line bg-surface shadow-card')}>
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <p className="text-[12px] font-semibold text-tangerine-ink">Next step</p>
-          <p className="mt-0.5 font-heading text-[20px] font-semibold leading-7">{sentence}</p>
-          {detail && <p className="mt-1 text-[14px] text-ink-2">{detail}</p>}
+        <div className="flex gap-4">
+          <span aria-hidden className={cn('hidden size-11 shrink-0 items-center justify-center rounded-[12px] sm:flex', tone === 'sun' ? 'bg-tangerine text-[#2A1300]' : 'bg-violet-soft text-violet')}>
+            <svg viewBox="0 0 20 20" className="size-5"><path d="M4 10h10m-4-5 5 5-5 5" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" /></svg>
+          </span>
+          <div>
+            <p className="inline-flex rounded-full bg-surface px-2 py-0.5 text-[11px] font-semibold uppercase tracking-[.06em] text-tangerine-ink">Next step</p>
+            <p className="mt-1.5 font-heading text-[19px] font-bold leading-7 sm:text-[20px]">{sentence}</p>
+            {detail && <p className="mt-1 text-[14px] text-ink-2">{detail}</p>}
+          </div>
         </div>
         <div className="flex shrink-0 items-center gap-3">
           {action}
-          <button onClick={() => { setHidden(true); try { sessionStorage.setItem(key, '1'); } catch {} }} className="text-[13px] font-medium text-ink-2 underline-offset-4 hover:text-ink hover:underline">Not now</button>
+          <button onClick={() => { setHidden(true); try { sessionStorage.setItem(key, '1'); } catch {} }} className="min-h-11 px-1 text-[13px] font-medium text-ink-2 underline-offset-4 hover:text-ink hover:underline">Not now</button>
         </div>
       </div>
     </section>
   );
 }
 
-/** WorkRow: compact 64px list row (learners, groups, sets). */
 export function WorkRow({ leading, title, subline, trailing, href, onClick, chevron = true }: {
   leading?: React.ReactNode; title: React.ReactNode; subline?: React.ReactNode; trailing?: React.ReactNode; href?: string; onClick?: () => void; chevron?: boolean;
 }) {
@@ -51,7 +55,7 @@ export function WorkRow({ leading, title, subline, trailing, href, onClick, chev
   );
 }
 export function WorkList({ children, label, className }: { children: React.ReactNode; label?: string; className?: string }) {
-  return <ul aria-label={label} className={cn('divide-y divide-line overflow-hidden rounded-[20px] border border-line bg-surface shadow-card', className)}>{children}</ul>;
+  return <ul aria-label={label} className={cn('divide-y divide-line overflow-hidden rounded-[16px] border border-line bg-surface shadow-card', className)}>{children}</ul>;
 }
 
 /** Timeline: vertical line with round nodes. */

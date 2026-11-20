@@ -9,7 +9,7 @@ Target: WCAG 2.2 AA. Checked on 2026-11-20 against the local dev server with the
 `node scripts/axe.mjs` scans 16 screens in **both light and night themes** (32 scans):
 login, signup, landing, privacy, how scoring works, Today, Learners, learner profile, check runner, Groups, Practice, Insights (progress), Ask, School, Settings and child mode.
 
-**Result: 0 violations on all 32 scans.**
+**Result: 0 violations on all 32 scans** (re-run after redesign v5 with the sidebar shell and new neutrals; two new issues found and fixed: the sidebar account button's name now contains its visible text, and scrollable ladder rows are keyboard-focusable groups).
 
 Fixed during this pass:
 | Issue | Fix |

@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" role="img" aria-label="LearnSignal mark: a stair of tiles with a learner at the top">
+  <rect x="6"  y="66" width="28" height="28" rx="9" fill="#B9A8FF"/>
+  <rect x="36" y="66" width="28" height="28" rx="9" fill="#8B73F5"/>
+  <rect x="66" y="66" width="28" height="28" rx="9" fill="#5B3FE0"/>
+  <rect x="36" y="36" width="28" height="28" rx="9" fill="#8B73F5"/>
+  <rect x="66" y="36" width="28" height="28" rx="9" fill="#5B3FE0"/>
+  <circle cx="80" cy="20" r="14" fill="#FF7A2F"/>
+</svg>

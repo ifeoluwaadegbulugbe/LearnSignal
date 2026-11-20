@@ -220,7 +220,7 @@ export function AssessmentRunner({ learner, isDemo, lastChecked }: { learner: { 
                 <IndexCard tab="Note" tabTone="sun" tint="sun" className="border-transparent"><p className="text-[15px]">Based on one session. A re-check in 1–2 weeks makes this more reliable.</p></IndexCard>
               )}
               {working && (
-                <IndexCard tab="Recommended" tabTone="teal" ruled margin>
+                <IndexCard tab="Recommended" tabTone="tangerine">
                   <p className="font-heading text-[16px] font-semibold">{working.skill_id} {SKILL_BY_ID[working.skill_id].name}</p>
                   <p className="mt-1 text-[15px] leading-7">{INTERVENTIONS[working.skill_id].activity}</p>
                   <p className="text-[14px] leading-7 text-ink-2">Materials: {INTERVENTIONS[working.skill_id].materials}. Success check: {INTERVENTIONS[working.skill_id].successCheck}.</p>

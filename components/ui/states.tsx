@@ -4,7 +4,7 @@ import { Copy, RotateCcw } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from './button';
 import { Illustration, type IllustrationName } from './illustration';
-import { SignalMark } from './signal';
+import { LogoLoader } from '@/components/layout/logo';
 
 export function Skeleton({ className }: { className?: string }) {
   return <div className={cn('ls-skeleton h-4', className)} aria-hidden />;
@@ -47,7 +47,7 @@ export function PageSkeleton() {
       </div>
       <Skeleton className="h-24 rounded-[18px]" />
       <div className="rounded-[18px] border border-line bg-card p-6"><LadderSkeleton /></div>
-      <div className="flex items-center gap-2 text-[13px] text-ink-2"><SignalMark level={3} size={20} animate /> Loading…</div>
+      <div className="flex items-center gap-3 text-[13px] text-ink-2"><LogoLoader size={24} /> Loading…</div>
     </div>
   );
 }

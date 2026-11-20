@@ -4,10 +4,10 @@ import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import {
   Sun as TodayIcon, Users, ClipboardCheck, Boxes, BookOpen, Sparkles, BarChart3, Settings, School, ChevronDown,
-  Search, Bell, LogOut, Shield, MoreHorizontal, Plus, X, CornerDownLeft, RotateCcw, FileCheck2, ChevronRight,
+  Search, Bell, LogOut, Shield, MoreHorizontal, Plus, X, CornerDownLeft, RotateCcw, FileCheck2, ChevronRight, HelpCircle,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { LogoMark } from './logo';
+import { LogoMark, Wordmark } from './logo';
 import { NightButton } from './theme-toggle';
 import { Avatar } from '@/components/ui/avatar';
 import { Dialog } from '@/components/ui/dialog';
@@ -72,81 +72,107 @@ export function AppShell({ data, children }: { data: ShellData; children: React.
     else setPalette('check');
   };
 
-  const dock = nav.filter((n) => !['Ask', 'Settings'].includes(n.label));
   const [firstVisit, setFirstVisit] = useState(false);
   useEffect(() => { try { if (!localStorage.getItem('ls-check-seen')) { setFirstVisit(true); localStorage.setItem('ls-check-seen', '1'); } } catch {} }, []);
+  const main = nav.filter((n) => n.label !== 'Settings');
+  const settings = nav.find((n) => n.label === 'Settings')!;
+  const help: NavItem = { href: '/how-scoring-works', label: 'Help', icon: HelpCircle };
 
   return (
     <div className="min-h-dvh bg-canvas">
-      {/* ---------- Header with pill dock ---------- */}
-      <header className="sticky top-0 z-30 border-b border-line bg-surface/95 backdrop-blur-lg no-print">
-        <div className="mx-auto flex h-14 max-w-[1280px] items-center gap-2 px-4 sm:px-6 md:h-[72px] md:gap-3 xl:px-10">
-          <Link href={cid ? `/classrooms/${cid}` : '/dashboard'} aria-label="LearnSignal, Today" className="hidden shrink-0 items-center gap-2 rounded-[10px] md:flex">
-            <LogoMark size={34} /><span className="hidden font-heading text-[18px] font-bold tracking-[-0.02em] xl:inline">LearnSignal</span>
-          </Link>
-          {current ? <ClassSwitcher current={current} count={learnerCount(cid)} classrooms={data.classrooms} countFor={learnerCount} /> : <span className="font-heading font-bold md:hidden">LearnSignal</span>}
-
-          {/* PillNav: desktop shows labels; tablet shows icons with a label on the active pill only */}
-          <nav aria-label="Main navigation" className="mx-auto hidden md:block">
-            <ul className="flex items-center gap-1 rounded-full bg-surface-2 p-1">
-              {dock.map((n) => {
-                const on = n.label === activeLabel;
-                return (
-                  <li key={n.label}>
-                    <Link href={n.href} aria-current={on ? 'page' : undefined} title={n.label}
-                      className={cn('flex h-9 items-center gap-1.5 rounded-full px-3 text-[14px] font-semibold transition-[background,color,box-shadow] duration-200',
-                        on ? 'bg-violet text-white shadow-[0_6px_16px_rgba(91,63,224,.30)] dark:text-[#0C0F1A]' : 'text-ink-2 hover:bg-surface hover:text-ink')}>
-                      <n.icon className={cn('size-4', on ? '' : 'lg:hidden')} strokeWidth={2} aria-hidden />
-                      <span className={cn(on ? 'inline' : 'sr-only lg:not-sr-only')}>{n.label}</span>
-                    </Link>
-                  </li>
-                );
-              })}
-            </ul>
-          </nav>
-
-          <div className="ml-auto flex items-center gap-1.5 md:ml-0">
-            <button onClick={() => setPalette('all')} className="hidden h-11 w-[280px] items-center gap-2 rounded-full border border-line-strong bg-surface px-4 text-left text-[14px] text-ink-3 hover:border-violet/40 2xl:flex">
-              <Search className="size-4" aria-hidden /><span className="flex-1 truncate">Find a learner, skill or practice set</span><Kbd>⌘K</Kbd>
-            </button>
-            <button onClick={() => setPalette('all')} className="flex size-10 items-center justify-center rounded-full text-ink-2 hover:bg-surface-2 2xl:hidden" aria-label="Find a learner, skill or practice set"><Search className="size-5" /></button>
-            <button onClick={() => setAskAi(true)} className="flex h-10 items-center gap-1.5 rounded-[12px] border border-line-strong bg-surface px-2.5 text-[14px] font-semibold text-ink hover:border-violet/40 sm:px-3.5" aria-label="Ask about your class">
-              <Sparkles className="size-4 text-violet" aria-hidden /><span className="hidden sm:inline">Ask</span>
-            </button>
-            <Notifications items={data.notifications} />
-            <UserMenu data={data} placement="top" />
+      {/* ---------- Sidebar: 240px with labels (desktop), 76px icons (tablet) ---------- */}
+      <aside aria-label="Sidebar" className="fixed inset-y-0 left-0 z-30 hidden w-[76px] flex-col border-r border-line bg-surface md:flex lg:w-[240px] no-print">
+        <Link href={cid ? `/classrooms/${cid}` : '/dashboard'} aria-label="LearnSignal, Today" className="mx-3 mt-5 flex h-11 items-center justify-center gap-2.5 rounded-[10px] px-2 lg:mx-4 lg:justify-start">
+          <LogoMark size={28} /><span className="hidden lg:inline"><Wordmark /></span>
+        </Link>
+        {current && (
+          <div className="mx-4 mt-4 hidden rounded-[12px] bg-surface-2 px-3 py-2 lg:block">
+            <div className="text-[11px] font-medium text-ink-3">Class</div>
+            <div className="truncate text-[13px] font-semibold">{current.name}</div>
+            <div className="text-[12px] tabular text-ink-2">{learnerCount(cid)} learners{current.is_demo ? ' · sample' : ''}</div>
           </div>
+        )}
+        <nav aria-label="Main navigation" className="mt-4 flex-1 overflow-y-auto px-3 lg:px-4">
+          <ul className="space-y-0.5">
+            {main.map((n) => <SideItem key={n.label} item={n} on={n.label === activeLabel} />)}
+          </ul>
+          <div className="my-3 border-t border-line" />
+          <ul className="space-y-0.5">
+            <SideItem item={settings} on={activeLabel === 'Settings'} />
+            <SideItem item={help} on={path === '/how-scoring-works'} />
+          </ul>
+        </nav>
+        <div className="space-y-1 border-t border-line p-3 lg:p-4">
+          <div className="flex h-11 items-center justify-center gap-2 rounded-[10px] text-[13px] font-medium text-ink-2 lg:justify-between lg:px-2">
+            <span className="hidden lg:inline">Appearance</span><NightButton className="flex size-9 items-center justify-center rounded-[10px] text-ink-2 hover:bg-surface-2" />
+          </div>
+          <UserMenu data={data} placement="side" />
         </div>
-      </header>
-      <main id="main" className="mx-auto max-w-[1280px] px-4 pb-32 pt-6 sm:px-6 md:pb-14 xl:px-10 xl:pt-8">{children}</main>
+      </aside>
 
-      {/* ---------- Phone bottom bar with raised Check button ---------- */}
+      <div className="md:pl-[76px] lg:pl-[240px]">
+        {/* ---------- Context bar ---------- */}
+        <header className="sticky top-0 z-20 border-b border-line bg-surface/90 backdrop-blur-lg no-print">
+          <div className="mx-auto flex h-14 max-w-[1280px] items-center gap-2 px-4 sm:px-6 md:h-[68px] md:gap-3 lg:px-10">
+            <Link href={cid ? `/classrooms/${cid}` : '/dashboard'} aria-label="LearnSignal, Today" className="shrink-0 rounded-[10px] md:hidden"><LogoMark size={28} /></Link>
+            {current ? <ClassSwitcher current={current} count={learnerCount(cid)} classrooms={data.classrooms} countFor={learnerCount} /> : <Wordmark className="md:hidden" />}
+            <div className="ml-auto flex items-center gap-1.5">
+              <button onClick={() => setPalette('all')} className="hidden h-10 w-[300px] items-center gap-2 rounded-[12px] border border-line bg-surface-2 px-3.5 text-left text-[14px] text-ink-3 hover:border-line-strong xl:flex">
+                <Search className="size-4" aria-hidden /><span className="flex-1 truncate">Find a learner, skill or practice set</span><Kbd>Ctrl K</Kbd>
+              </button>
+              <button onClick={() => setPalette('all')} className="flex size-10 items-center justify-center rounded-[12px] text-ink-2 hover:bg-surface-2 xl:hidden" aria-label="Find a learner, skill or practice set"><Search className="size-5" /></button>
+              <button onClick={() => setAskAi(true)} className="flex h-10 items-center gap-1.5 rounded-[12px] bg-sky-soft px-2.5 text-[14px] font-semibold text-sky-ink hover:brightness-[.97] sm:px-3.5" aria-label="Ask LearnSignal about your class">
+                <Sparkles className="size-4" aria-hidden /><span className="hidden sm:inline">Ask</span>
+              </button>
+              <Notifications items={data.notifications} />
+              <span className="md:hidden"><UserMenu data={data} placement="top" /></span>
+            </div>
+          </div>
+        </header>
+        <main id="main" className="mx-auto max-w-[1280px] px-4 pb-32 pt-6 sm:px-6 md:pb-14 lg:px-10 lg:pt-8">{children}</main>
+      </div>
+
+      {/* ---------- Phone bottom bar with the Check action ---------- */}
       <nav aria-label="Primary" className="fixed inset-x-0 bottom-0 z-40 grid h-[68px] grid-cols-5 items-end border-t border-line bg-surface/95 pb-[env(safe-area-inset-bottom)] backdrop-blur-lg md:hidden no-print">
         {[nav[0], nav[1]].map((n) => <BottomItem key={n.label} item={n} on={n.label === activeLabel} />)}
         <div className="flex justify-center">
-          <button onClick={startCheck} aria-label="Start a check" className={cn('-mt-6 mb-2 flex size-14 flex-col items-center justify-center rounded-full bg-grad-violet text-white shadow-[0_10px_24px_rgba(91,63,224,.38)] ring-4 ring-surface active:scale-95', firstVisit && 'pulse-once')}>
-            <SignalMark level={3} size={22} color="#FFFFFF" /><span className="-mt-0.5 text-[10px] font-bold">Check</span>
+          <button onClick={startCheck} aria-label="Start a check" className={cn('-mt-5 mb-2 flex size-14 flex-col items-center justify-center rounded-[18px] bg-violet text-white shadow-[0_8px_20px_rgba(91,63,224,.32)] ring-4 ring-surface active:scale-95 dark:text-[#0E0D17]', firstVisit && 'pulse-once')}>
+            <SignalMark level={3} size={22} color="currentColor" /><span className="-mt-0.5 text-[10px] font-bold">Check</span>
           </button>
         </div>
         <BottomItem item={nav[3]} on={nav[3].label === activeLabel} />
-        <button onClick={() => setMore(true)} className="flex h-full flex-col items-center justify-center gap-1 text-[11px] font-semibold text-ink-2"><MoreHorizontal className="size-5" aria-hidden />More</button>
+        <button onClick={() => setMore(true)} className="flex h-full flex-col items-center justify-center gap-1 text-[11px] font-semibold text-ink-2"><span className="flex h-7 w-12 items-center justify-center"><MoreHorizontal className="size-5" aria-hidden /></span>More</button>
       </nav>
 
       <Dialog open={more} onClose={() => setMore(false)} title="More">
         <ul className="grid grid-cols-2 gap-2">
-          {nav.filter((n) => !['Today', 'Learners', 'Groups'].includes(n.label)).map((n) => (
-            <li key={n.label}><Link href={n.href} onClick={() => setMore(false)} className="flex min-h-14 items-center gap-3 rounded-[14px] border border-line px-3 text-[14px] font-semibold hover:bg-surface-2"><n.icon className="size-5 text-violet" aria-hidden />{n.label}</Link></li>
+          {[...nav.filter((n) => !['Today', 'Learners', 'Groups'].includes(n.label)), help].map((n) => (
+            <li key={n.label}><Link href={n.href} onClick={() => setMore(false)} className="flex min-h-14 items-center gap-3 rounded-[12px] border border-line px-3 text-[14px] font-semibold hover:bg-surface-2"><n.icon className="size-5 text-violet" aria-hidden />{n.label}</Link></li>
           ))}
         </ul>
-        <div className="mt-3 flex min-h-12 items-center justify-between rounded-[14px] border border-line px-3 text-[14px] font-semibold">Appearance <NightButton /></div>
-        <form action="/auth/signout" method="post" className="mt-2"><button className="flex min-h-12 w-full items-center gap-3 rounded-[14px] border border-line px-3 text-[14px] font-semibold hover:bg-surface-2"><LogOut className="size-5 text-ink-2" aria-hidden />Sign out</button></form>
+        <div className="mt-3 flex min-h-12 items-center justify-between rounded-[12px] border border-line px-3 text-[14px] font-semibold">Appearance <NightButton /></div>
+        <form action="/auth/signout" method="post" className="mt-2"><button className="flex min-h-12 w-full items-center gap-3 rounded-[12px] border border-line px-3 text-[14px] font-semibold hover:bg-surface-2"><LogOut className="size-5 text-ink-2" aria-hidden />Sign out</button></form>
       </Dialog>
 
       <CommandPalette mode={palette} onClose={() => setPalette(false)} data={data} cid={cid} />
-      <Dialog open={askAi} onClose={() => setAskAi(false)} side title="Ask about your class" description="Answers come only from your class data.">
+      <Dialog open={askAi} onClose={() => setAskAi(false)} side title="Ask LearnSignal" description="Answers come only from your class data.">
         {askAi && <AssistantChat compact classrooms={data.classrooms} learners={data.learners} aiReady={data.aiReady} initialClassroomId={cid} />}
       </Dialog>
     </div>
+  );
+}
+
+function SideItem({ item, on }: { item: NavItem; on: boolean }) {
+  return (
+    <li className="group/side relative">
+      <Link href={item.href} aria-current={on ? 'page' : undefined}
+        className={cn('flex h-10 items-center justify-center gap-3 rounded-[10px] text-[14px] font-medium transition-colors duration-150 lg:justify-start lg:px-3',
+          on ? 'bg-violet-soft font-semibold text-violet-deep dark:text-violet' : 'text-ink-2 hover:bg-surface-2 hover:text-ink')}>
+        <item.icon className="size-[18px] shrink-0" strokeWidth={on ? 2.2 : 1.8} aria-hidden />
+        <span className="sr-only lg:not-sr-only">{item.label}</span>
+      </Link>
+      <span aria-hidden className="pointer-events-none absolute left-full top-1/2 z-50 ml-2 -translate-y-1/2 whitespace-nowrap rounded-[8px] bg-ink px-2 py-1 text-[12px] font-medium text-canvas opacity-0 transition-opacity group-hover/side:opacity-100 group-focus-within/side:opacity-100 lg:hidden">{item.label}</span>
+    </li>
   );
 }
 
@@ -176,9 +202,9 @@ function ClassSwitcher({ current, count, classrooms, countFor }: { current: Shel
   return (
     <div ref={ref} className="relative min-w-0">
       <button onClick={() => setOpen((o) => !o)} aria-expanded={open} aria-haspopup="menu"
-        className="flex h-10 min-w-0 max-w-[60vw] items-center gap-2 rounded-full border border-line-strong bg-surface pl-3.5 pr-2.5 text-[14px] font-semibold hover:border-violet/40 md:max-w-[220px]">
+        className="flex h-10 min-w-0 max-w-[56vw] items-center gap-2 rounded-[12px] border border-line bg-surface pl-3 pr-2.5 text-[14px] font-semibold hover:border-line-strong md:max-w-[300px]">
         <span className="truncate">{current.name}</span>
-        <span className="shrink-0 rounded-full bg-paper-2 px-2 text-[12px] font-medium tabular text-ink-2">{count}</span>
+        <span className="shrink-0 rounded-full bg-violet-soft px-2 text-[12px] font-semibold tabular text-violet-deep dark:text-violet">{count}<span className="hidden sm:inline"> learners</span></span>
         <ChevronDown className="size-4 shrink-0 text-ink-2" aria-hidden />
       </button>
       {open && (
@@ -224,15 +250,23 @@ function Notifications({ items }: { items: ShellData['notifications'] }) {
   );
 }
 
-function UserMenu({ data, placement }: { data: ShellData; placement: 'rail' | 'top' }) {
+function UserMenu({ data, placement }: { data: ShellData; placement: 'side' | 'top' }) {
   const { open, setOpen, ref } = usePopover();
   return (
     <div ref={ref} className="relative">
-      <button onClick={() => setOpen((o) => !o)} aria-expanded={open} aria-haspopup="menu" className="rounded-full p-0.5 hover:ring-2 hover:ring-line-strong">
-        <Avatar name={data.fullName} size={placement === 'rail' ? 40 : 32} label={`${data.fullName}, account menu`} />
-      </button>
+      {placement === 'side' ? (
+        <button onClick={() => setOpen((o) => !o)} aria-expanded={open} aria-haspopup="menu" className="flex w-full items-center justify-center gap-2.5 rounded-[10px] p-1.5 text-left hover:bg-surface-2 lg:justify-start">
+          <Avatar name={data.fullName} size={32} label="" />
+          <span className="sr-only lg:hidden">{data.fullName}</span><span className="hidden min-w-0 flex-1 lg:block"><span className="block truncate text-[13px] font-semibold">{data.fullName}</span><span className="block truncate text-[12px] text-ink-2">{data.isAdmin ? 'Administrator' : 'Teacher'}</span></span>
+          <span className="sr-only">, account menu</span><ChevronDown className="hidden size-4 text-ink-3 lg:block" aria-hidden />
+        </button>
+      ) : (
+        <button onClick={() => setOpen((o) => !o)} aria-expanded={open} aria-haspopup="menu" className="rounded-full p-0.5 hover:ring-2 hover:ring-line-strong">
+          <Avatar name={data.fullName} size={32} label={`${data.fullName}, account menu`} />
+        </button>
+      )}
       {open && (
-        <div role="menu" className={cn('absolute z-50 w-60 rounded-[18px] border border-line bg-card p-1.5 shadow-pop', placement === 'rail' ? 'bottom-0 left-14' : 'right-0 top-11')}>
+        <div role="menu" className={cn('absolute z-50 w-60 rounded-[18px] border border-line bg-card p-1.5 shadow-pop', placement === 'side' ? 'bottom-full left-0 mb-2' : 'right-0 top-11')}>
           <div className="px-3 py-2"><div className="truncate text-[14px] font-semibold">{data.fullName}</div><div className="truncate text-[12px] text-ink-2">{data.email}</div></div>
           {data.isDemo && <div className="mx-2 mb-1 rounded-[10px] bg-sun-soft px-2 py-1 text-[12px] font-semibold text-sun-ink dark:text-sun">Shared demo account · sample data</div>}
           <div className="flex min-h-11 items-center justify-between rounded-[12px] px-3 text-[14px]">Night theme <NightButton className="flex size-9 items-center justify-center rounded-[10px] text-ink-2 hover:bg-paper-2" /></div>

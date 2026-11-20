@@ -1,4 +1,4 @@
-import { Logo, LogoMark } from '@/components/layout/logo';
+import { Logo, LogoMark, Wordmark } from '@/components/layout/logo';
 
 const LOOP = [['Assess', 'A 10-minute check'], ['Identify', 'The exact skill'], ['Group', 'Same help together'], ['Intervene', '15-minute activities'], ['Reassess', 'See what changed']];
 
@@ -10,7 +10,7 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
         <svg aria-hidden className="pointer-events-none absolute -bottom-40 -right-40 size-[620px] opacity-10" viewBox="0 0 200 200" fill="none" stroke="#fff" strokeWidth="6">
           <circle cx="100" cy="100" r="30" /><circle cx="100" cy="100" r="58" /><circle cx="100" cy="100" r="86" />
         </svg>
-        <div className="relative flex items-center gap-2"><span className="rounded-[12px] ring-2 ring-white/30"><LogoMark size={36} /></span><span className="font-heading text-[20px] font-bold">LearnSignal</span></div>
+        <div className="relative flex items-center gap-2"><LogoMark size={36} mono className="text-white" /><Wordmark light /></div>
         <div className="relative my-auto max-w-md">
           <p className="font-heading text-[34px] font-bold leading-[42px] tracking-[-0.02em]">Find the exact skill each child is missing, and help them climb.</p>
           <ol className="mt-10 space-y-4">

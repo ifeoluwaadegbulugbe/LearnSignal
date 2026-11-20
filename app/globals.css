@@ -2,14 +2,15 @@
 @custom-variant dark (&:where([data-theme=night], [data-theme=night] *));
 
 /* ============================================================
-   LearnSignal "Daylight" identity (UI redesign v4).
-   Violet brand, tangerine signal, aqua support, on cool white.
+   LearnSignal identity (redesign v5).
+   Violet brand, tangerine next step, aqua practice, sky AI/info;
+   sunshine and rose for illustration only. Neutral surfaces first.
    [data-theme="night"] on <html> switches theme (set before paint).
    ============================================================ */
 :root {
-  --canvas: #F6F7FC; --surface: #FFFFFF; --surface-2: #F0F2FA;
-  --ink: #13172B; --ink-2: #4E5675; --ink-3: #626A88;
-  --line: #E4E7F3; --line-strong: #CFD4E8;
+  --canvas: #F8F8FC; --surface: #FFFFFF; --surface-2: #F3F3F8; --disabled: #B7B5C4;
+  --ink: #171625; --ink-2: #626273; --ink-3: #6B6B7C; --placeholder: #9292A1;
+  --line: #E9E8F0; --line-strong: #DAD8E5;
   --violet: #5B3FE0; --violet-hover: #4A2FD0; --violet-soft: #ECE8FF; --violet-deep: #3A24A8;
   --tangerine: #FF7A2F; --tangerine-soft: #FFEBDD; --tangerine-ink: #9A3D06;
   --aqua: #12B3A8; --aqua-soft: #DDF6F3; --aqua-ink: #0B6B64;
@@ -22,11 +23,11 @@
   --st-consistent: #176E44; --st-consistent-bg: #DDF3E8;
   --st-insufficient: #59607C; --st-insufficient-bg: #ECEEF6;
   --grad-violet: linear-gradient(135deg, #6C52F0 0%, #4A2FD0 100%);
-  --grad-aurora: radial-gradient(80% 120% at 0% 0%, #ECE8FF 0%, transparent 60%), radial-gradient(70% 100% at 100% 0%, #FFEBDD 0%, transparent 55%);
-  --r-card: 20px; --r-tile: 14px; --r-input: 12px; --r-pill: 999px;
-  --shadow-card: 0 1px 2px rgba(19,23,43,.04), 0 10px 30px rgba(19,23,43,.06);
-  --shadow-lift: 0 2px 4px rgba(19,23,43,.05), 0 16px 40px rgba(91,63,224,.14);
-  --shadow-pop: 0 18px 56px rgba(19,23,43,.20);
+  --grad-aurora: radial-gradient(70% 100% at 0% 0%, rgba(236,232,255,.7) 0%, transparent 60%);
+  --r-card: 16px; --r-panel: 20px; --r-tile: 12px; --r-input: 12px; --r-pill: 999px;
+  --shadow-card: 0 4px 16px rgba(31,25,70,.05);
+  --shadow-lift: 0 8px 24px rgba(31,25,70,.09);
+  --shadow-pop: 0 16px 48px rgba(31,25,70,.18);
   --focus: 0 0 0 3px rgba(91,63,224,.38);
   --ease: cubic-bezier(.2,.8,.2,1);
   color-scheme: light;
@@ -41,9 +42,9 @@
 }
 
 [data-theme="night"] {
-  --canvas: #0C0F1A; --surface: #151A2B; --surface-2: #1B2136;
-  --ink: #F3F5FD; --ink-2: #B7BFDA; --ink-3: #959DBB;
-  --line: #262D47; --line-strong: #343C5C;
+  --canvas: #0E0D17; --surface: #17162A; --surface-2: #1E1D33; --disabled: #4A4960; --placeholder: #7D7C93;
+  --ink: #F2F1FA; --ink-2: #B9B8CC; --ink-3: #9C9BB2;
+  --line: #2A2942; --line-strong: #393854;
   --violet: #9C8BFF; --violet-hover: #A593FF; --violet-soft: #241F52; --violet-deep: #CFC6FF;
   --tangerine: #FF9A5C; --tangerine-soft: #3A2314; --tangerine-ink: #FFC39C;
   --aqua: #3DD6CA; --aqua-soft: #0F2F2D; --aqua-ink: #8FEDE5;
@@ -54,9 +55,9 @@
   --st-not-yet: #F2B15C; --st-not-yet-bg: #33260F; --st-dev: #7DB8F2; --st-dev-bg: #122639;
   --st-consistent: #6FD3A3; --st-consistent-bg: #0F2B20; --st-insufficient: #A9B1CE; --st-insufficient-bg: #1F2538;
   --grad-violet: linear-gradient(135deg, #7A62F5 0%, #5638D8 100%);
-  --grad-aurora: radial-gradient(80% 120% at 0% 0%, #241F52 0%, transparent 60%), radial-gradient(70% 100% at 100% 0%, #3A2314 0%, transparent 55%);
-  --shadow-card: 0 1px 2px rgba(0,0,0,.5), 0 10px 30px rgba(0,0,0,.35);
-  --shadow-lift: 0 2px 4px rgba(0,0,0,.5), 0 16px 40px rgba(141,120,255,.18);
+  --grad-aurora: radial-gradient(70% 100% at 0% 0%, rgba(36,31,82,.8) 0%, transparent 60%);
+  --shadow-card: 0 4px 16px rgba(0,0,0,.28);
+  --shadow-lift: 0 8px 24px rgba(0,0,0,.4);
   --focus: 0 0 0 3px rgba(141,120,255,.45);
   color-scheme: dark;
 }
@@ -64,7 +65,7 @@
 @theme inline {
   --color-canvas: var(--canvas); --color-surface: var(--surface); --color-surface-2: var(--surface-2);
   --color-ink: var(--ink); --color-ink-2: var(--ink-2); --color-ink-3: var(--ink-3);
-  --color-line: var(--line); --color-line-strong: var(--line-strong);
+  --color-line: var(--line); --color-line-strong: var(--line-strong); --color-disabled: var(--disabled); --color-placeholder: var(--placeholder);
   --color-violet: var(--violet); --color-violet-hover: var(--violet-hover); --color-violet-soft: var(--violet-soft); --color-violet-deep: var(--violet-deep);
   --color-tangerine: var(--tangerine); --color-tangerine-soft: var(--tangerine-soft); --color-tangerine-ink: var(--tangerine-ink);
   --color-aqua: var(--aqua); --color-aqua-soft: var(--aqua-soft); --color-aqua-ink: var(--aqua-ink);
@@ -93,11 +94,12 @@
   --color-danger: var(--st-not-yet);
 
   --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
-  --font-heading: var(--font-sora), var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  --font-heading: var(--font-manrope), var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  --font-brand: var(--font-sora), var(--font-manrope), ui-sans-serif, system-ui, sans-serif;
   --font-child: var(--font-nunito), ui-rounded, system-ui, sans-serif;
   --font-mono: var(--font-jbmono), ui-monospace, Menlo, Consolas, monospace;
 
-  --radius-card: var(--r-card); --radius-tile: var(--r-tile); --radius-input: var(--r-input);
+  --radius-card: var(--r-card); --radius-panel: var(--r-panel); --radius-tile: var(--r-tile); --radius-input: var(--r-input);
   --shadow-card: var(--shadow-card); --shadow-lift: var(--shadow-lift); --shadow-card-hover: var(--shadow-lift); --shadow-pop: var(--shadow-pop);
 }
 
@@ -110,16 +112,19 @@ body {
   line-height: 24px;
   -webkit-font-smoothing: antialiased;
 }
-h1, h2, h3, .font-heading { font-family: var(--font-heading); }
+h1, h2, h3, .font-heading { font-family: var(--font-heading); letter-spacing: -0.015em; }
+::placeholder { color: var(--placeholder); opacity: 1; }
 
 :focus-visible { outline: none; box-shadow: var(--focus); border-radius: 10px; }
 .tabular { font-variant-numeric: tabular-nums; }
 
-/* Daylight surfaces */
+/* surfaces */
 .bg-grad-violet { background: var(--grad-violet); }
 .bg-aurora { background: var(--grad-aurora); }
 /* Retired notebook textures (kept as no-ops so older markup is harmless). */
-.ruled, .dotted-rules, .margin-line, .torn-edge {}
+.dotted-rules, .margin-line, .torn-edge {}
+/* Ruled content: used only for notes, activity descriptions and timelines. */
+.ruled { background-image: repeating-linear-gradient(to bottom, transparent 0, transparent 27px, var(--line) 27px, var(--line) 28px); background-position: 0 6px; }
 
 /* motion */
 @keyframes ls-fade-up { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
@@ -141,6 +146,16 @@ h1, h2, h3, .font-heading { font-family: var(--font-heading); }
 @keyframes ls-pulse-ring { 0% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--tangerine) 55%, transparent); } 100% { box-shadow: 0 0 0 10px transparent; } }
 .pulse-ring { animation: ls-pulse-ring 1.6s var(--ease) infinite; }
 .pulse-once { animation: ls-pulse-ring 1.6s var(--ease) 2; }
+
+/* LogoLoader: tiles pop in sequence, then the dot drops onto the top step. */
+@keyframes ls-tile { 0%, 15% { opacity: 0; transform: scale(.6); } 35%, 85% { opacity: 1; transform: none; } 100% { opacity: 0; } }
+@keyframes ls-dot { 0%, 45% { opacity: 0; transform: translateY(-18px); } 60%, 85% { opacity: 1; transform: none; } 100% { opacity: 0; } }
+.logo-loader rect { transform-box: fill-box; transform-origin: center; animation: ls-tile 1.6s var(--ease) infinite both; }
+.logo-loader circle { transform-box: fill-box; animation: ls-dot 1.6s var(--ease) infinite both; }
+/* Signal arcs light one after another (loading / AI working). */
+@keyframes ls-arc-seq { 0%, 100% { opacity: .25; } 40% { opacity: 1; } }
+.arc-seq > * { animation: ls-arc-seq 1.2s var(--ease) infinite; }
+.arc-seq > *:nth-child(2) { animation-delay: 150ms; } .arc-seq > *:nth-child(3) { animation-delay: 300ms; }
 
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; } }
 

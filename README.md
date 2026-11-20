@@ -72,6 +72,8 @@ Import the GitHub repo, add the environment variables above (Production and Prev
 - [docs/SAFETY.md](docs/SAFETY.md): privacy, RLS, AI boundaries, child-mode rules
 - [docs/LIMITATIONS.md](docs/LIMITATIONS.md): what this prototype does not do
 - [docs/DESIGN.md](docs/DESIGN.md): the visual identity, components, screens and accessibility
+- [docs/BRAND.md](docs/BRAND.md): the logo, wordmark, icons and how to use them
+- [docs/ACCESSIBILITY.md](docs/ACCESSIBILITY.md): axe and Lighthouse results, and how to re-run them
 - [docs/ASSUMPTIONS.md](docs/ASSUMPTIONS.md): decisions and deviations from the build spec
 - [docs/DEMO.md](docs/DEMO.md): 4-minute demo script and sample-data disclosure
 - [docs/CREDITS.md](docs/CREDITS.md): stack, AI assistance, what was built during the event
