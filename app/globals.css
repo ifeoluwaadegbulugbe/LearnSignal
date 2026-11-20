@@ -8,7 +8,7 @@
    ============================================================ */
 :root {
   --canvas: #F6F7FC; --surface: #FFFFFF; --surface-2: #F0F2FA;
-  --ink: #13172B; --ink-2: #4E5675; --ink-3: #7F88A8;
+  --ink: #13172B; --ink-2: #4E5675; --ink-3: #626A88;
   --line: #E4E7F3; --line-strong: #CFD4E8;
   --violet: #5B3FE0; --violet-hover: #4A2FD0; --violet-soft: #ECE8FF; --violet-deep: #3A24A8;
   --tangerine: #FF7A2F; --tangerine-soft: #FFEBDD; --tangerine-ink: #9A3D06;
@@ -17,10 +17,10 @@
   --sunshine: #FFC83D; --sunshine-soft: #FFF5D6; --sunshine-ink: #7A5600;
   --rose: #F06A9B; --rose-soft: #FFE6F0;
   --slate: #6A7391; --slate-soft: #ECEEF6;
-  --st-not-yet: #A86A0C; --st-not-yet-bg: #FFEFD2;
-  --st-dev: #2B6FB3; --st-dev-bg: #E1EEF9;
-  --st-consistent: #1F8A55; --st-consistent-bg: #DDF3E8;
-  --st-insufficient: #6A7391; --st-insufficient-bg: #ECEEF6;
+  --st-not-yet: #87540A; --st-not-yet-bg: #FFEFD2;
+  --st-dev: #235F9C; --st-dev-bg: #E1EEF9;
+  --st-consistent: #176E44; --st-consistent-bg: #DDF3E8;
+  --st-insufficient: #59607C; --st-insufficient-bg: #ECEEF6;
   --grad-violet: linear-gradient(135deg, #6C52F0 0%, #4A2FD0 100%);
   --grad-aurora: radial-gradient(80% 120% at 0% 0%, #ECE8FF 0%, transparent 60%), radial-gradient(70% 100% at 100% 0%, #FFEBDD 0%, transparent 55%);
   --r-card: 20px; --r-tile: 14px; --r-input: 12px; --r-pill: 999px;
@@ -42,9 +42,9 @@
 
 [data-theme="night"] {
   --canvas: #0C0F1A; --surface: #151A2B; --surface-2: #1B2136;
-  --ink: #F3F5FD; --ink-2: #B7BFDA; --ink-3: #8790B0;
+  --ink: #F3F5FD; --ink-2: #B7BFDA; --ink-3: #959DBB;
   --line: #262D47; --line-strong: #343C5C;
-  --violet: #8D78FF; --violet-hover: #A593FF; --violet-soft: #241F52; --violet-deep: #CFC6FF;
+  --violet: #9C8BFF; --violet-hover: #A593FF; --violet-soft: #241F52; --violet-deep: #CFC6FF;
   --tangerine: #FF9A5C; --tangerine-soft: #3A2314; --tangerine-ink: #FFC39C;
   --aqua: #3DD6CA; --aqua-soft: #0F2F2D; --aqua-ink: #8FEDE5;
   --sky: #6DB6FF; --sky-soft: #112A44; --sky-ink: #A8D3FF;

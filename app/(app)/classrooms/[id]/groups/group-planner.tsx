@@ -4,6 +4,7 @@ import { useRouter } from 'next/navigation';
 import { Check, Sparkles, Send, Trash2, Merge, GripVertical, Users, Loader2 } from 'lucide-react';
 import { Button, ButtonLink } from '@/components/ui/button';
 import { IndexCard, Field, Select } from '@/components/ui/primitives';
+import { SkillArt } from '@/components/ui/skill-art';
 import { SegmentedTabs } from '@/components/ui/tabs';
 import { Dialog } from '@/components/ui/dialog';
 import { ErrorPanel } from '@/components/ui/states';
@@ -98,7 +99,7 @@ export function GroupPlanner({ classroomId, suggested, accepted, approvedExercis
               const t = INTERVENTIONS[g.targetSkillId];
               return (
                 <div key={g.key} className="w-[min(320px,85vw)] shrink-0 snap-start space-y-5">
-                  <IndexCard tab={g.targetSkillId} tabTone={strand === 'numeracy' ? 'sun' : 'sky'}
+                  <IndexCard tab={g.targetSkillId} tabTone="violet" art={<SkillArt skill={g.targetSkillId} />}
                     className={cn('transition-shadow', over === g.key && 'ring-2 ring-teal')}
                     onDragOver={(e) => { e.preventDefault(); setOver(g.key); }} onDragLeave={() => setOver(null)}
                     onDrop={(e) => { e.preventDefault(); if (dragging) move(dragging.learnerId, dragging.from, g.key); setDragging(null); setOver(null); }}>
@@ -127,7 +128,7 @@ export function GroupPlanner({ classroomId, suggested, accepted, approvedExercis
                     </ul>
                     <Button className="mt-4 w-full" disabled={pending || !g.learners.length} onClick={() => accept(g)}><Check className="size-4" aria-hidden /> Accept group</Button>
                   </IndexCard>
-                  <IndexCard tab="15-minute activity" tabTone="clay" ruled margin className="text-[14px] leading-7">
+                  <IndexCard tab="15-minute activity" tabTone="aqua" tint="aqua" className="text-[14px] leading-7">
                     <p>{t.activity}</p>
                     <p className="text-ink-2"><b className="font-semibold text-ink">Materials:</b> {t.materials}</p>
                     <p className="text-ink-2"><b className="font-semibold text-ink">Success check:</b> {t.successCheck}</p>

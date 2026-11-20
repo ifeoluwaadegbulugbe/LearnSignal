@@ -15,6 +15,7 @@ const LABEL_TONE = {
  * Card (Daylight). White, 20px radius, hairline + soft shadow. Optional small `tab` label (an eyebrow pill, not a folded tab),
  * optional SkillArt band via `art`, tints, and hover lift. `ruled`/`margin` are accepted for older call sites and ignored.
  */
+// eslint-disable-next-line @typescript-eslint/no-unused-vars -- ruled/margin are accepted for older call sites and ignored
 export function IndexCard({ tab, tabTone = 'teal', tint = 'plain', art, interactive, className, children, ruled: _r, margin: _m, ...p }: React.HTMLAttributes<HTMLDivElement> & {
   tab?: string; tabTone?: keyof typeof LABEL_TONE; tint?: CardTint; ruled?: boolean; margin?: boolean; interactive?: boolean; art?: React.ReactNode;
 }) {
@@ -205,8 +206,8 @@ export const InlineNote = NotADiagnosis;
 export function KeyValue({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <div className="min-w-0">
-      <div className="text-[12px] font-medium tracking-[.02em] text-ink-2">{label}</div>
-      <div className="mt-0.5 truncate text-[15px] font-semibold">{children}</div>
+      <dt className="text-[12px] font-medium tracking-[.02em] text-ink-2">{label}</dt>
+      <dd className="mt-0.5 truncate text-[15px] font-semibold">{children}</dd>
     </div>
   );
 }

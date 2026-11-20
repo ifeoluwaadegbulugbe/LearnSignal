@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { BookOpen, Calculator, Layers, Volume2, SkipForward, Pause, Play, X, Timer, Eye, EyeOff, Check, CircleSlash, Repeat2, Undo2, Delete, ArrowLeft } from 'lucide-react';
 import { Button, ButtonLink } from '@/components/ui/button';
 import { IndexCard, NotADiagnosis, SampleDataBadge } from '@/components/ui/primitives';
+import { SkillArt } from '@/components/ui/skill-art';
 import { ErrorPanel } from '@/components/ui/states';
 import { StatusPill } from '@/components/ui/status';
 import { IconTile } from '@/components/ui/icon-tile';
@@ -31,7 +32,7 @@ const MARK_UI: Record<Mark, { label: string; icon: typeof Check; cls: string }> 
   substituted: { label: 'Substituted', icon: Repeat2, cls: 'border-sun bg-sun-soft' },
   self_corrected: { label: 'Self-corrected', icon: Undo2, cls: 'border-sky bg-sky-soft' },
 };
-const TILES = ['bg-teal-soft', 'bg-sun-soft', 'bg-sky-soft', 'bg-clay-soft'];
+const TILES = ['bg-violet-soft', 'bg-aqua-soft', 'bg-tangerine-soft', 'bg-sky-soft'];
 type Stone = 'answered' | 'skipped';
 
 export function AssessmentRunner({ learner, isDemo, lastChecked }: { learner: { id: string; code: string; name: string; classroomId: string }; isDemo: boolean; lastChecked: Record<Strand, string | null> }) {
@@ -157,7 +158,7 @@ export function AssessmentRunner({ learner, isDemo, lastChecked }: { learner: { 
             const on = choice === o.id;
             return (
               <button key={o.id} role="radio" aria-checked={on} onClick={() => setChoice(o.id)} className="text-left">
-                <IndexCard tab={o.last ? 'Re-check' : 'Baseline'} tabTone={o.last ? 'sun' : 'teal'} interactive className={cn('h-full', on && 'ring-2 ring-teal')}>
+                <IndexCard tab={o.last ? 'Re-check' : 'Baseline'} tabTone={o.last ? 'tangerine' : 'violet'} interactive art={<SkillArt skill={o.id} />} className={cn('h-full', on && 'ring-2 ring-violet')}>
                   <div className="flex items-center justify-between"><IconTile icon={o.icon} hue={o.hue} size={48} />{on && <span className="flex size-6 items-center justify-center rounded-full bg-teal text-white"><Check className="size-4" aria-hidden /></span>}</div>
                   <h2 className="mt-4 font-heading text-[20px] font-semibold">{o.label}</h2>
                   <p className="text-[13px] font-semibold text-ink-2">About {o.mins}</p>
@@ -279,7 +280,7 @@ export function AssessmentRunner({ learner, isDemo, lastChecked }: { learner: { 
             {it.content.picture && <Counters picture={it.content.picture} className="mb-5" />}
             <div className="flex items-start justify-between gap-4">
               <h1 className="text-[32px] font-extrabold leading-[42px] sm:text-[40px] sm:leading-[50px]">{it.type === 'listen_choose' ? 'Listen…' : it.content.stem}</h1>
-              <button onClick={() => speak(audio)} aria-label="Read the question aloud" className="flex size-14 shrink-0 items-center justify-center rounded-full bg-sun text-[#2A1C00] shadow-[0_3px_0_#C98A00] active:translate-y-0.5 active:shadow-none"><Volume2 className="size-6" aria-hidden /></button>
+              <button onClick={() => speak(audio)} aria-label="Read the question aloud" className="flex size-14 shrink-0 items-center justify-center rounded-full bg-violet text-white shadow-[0_6px_16px_rgba(91,63,224,.32)] active:translate-y-0.5 active:shadow-none"><Volume2 className="size-6" aria-hidden /></button>
             </div>
             {it.type === 'listen_choose' && <p className="mt-1 font-sans text-[14px] text-ink-2">Teacher: tap the speaker or say “{audio}”.</p>}
 

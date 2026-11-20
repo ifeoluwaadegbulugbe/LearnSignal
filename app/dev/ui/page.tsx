@@ -3,7 +3,8 @@ import { useState } from 'react';
 import { BookOpen, Users, Plus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { IconTile, type Hue } from '@/components/ui/icon-tile';
-import { Badge, ChalkUnderline, Field, IndexCard, Input, Kbd, LinearProgress, PageHeader, SampleDataBadge, SectionHeader, Select, SummaryStrip, Textarea, Breadcrumb } from '@/components/ui/primitives';
+import { Badge, Field, IndexCard, Input, Kbd, LinearProgress, MetaRow, PageHeader, SampleDataBadge, SectionHeader, Select, SummaryTiles, Textarea, Breadcrumb } from '@/components/ui/primitives';
+import { SkillArt } from '@/components/ui/skill-art';
 import { StatusPill } from '@/components/ui/status';
 import { SignalMark, ConfidenceSignal } from '@/components/ui/signal';
 import { MeterRing, SegmentedRing, StateBar } from '@/components/ui/viz';
@@ -57,8 +58,8 @@ export default function DevUI() {
       <div className={cn('mx-auto space-y-12', width === '390' ? 'max-w-[390px]' : width === '768' ? 'max-w-[768px]' : 'max-w-[1240px]')}>
         <div>
           <Breadcrumb items={[{ label: 'Learners', href: '#' }, { label: 'Sample A' }]} />
-          <PageHeader display title={<>Good morning, <ChalkUnderline>Teacher</ChalkUnderline></>} subtitle="Class 3A · 12 learners · Monday 16 Nov"
-            actions={<SummaryStrip items={[{ label: 'Learners', value: 12 }, { label: 'Checked', value: '92%' }, { label: 'Need a closer look', value: 3 }]} />} />
+          <PageHeader display title="Good morning, Teacher" subtitle="Class 3A · 12 learners · Monday 16 Nov"
+             />
         </div>
 
         <S title="Buttons">
@@ -88,6 +89,24 @@ export default function DevUI() {
             <IndexCard tab="Answer" tabTone="sky" tint="sky"><p className="text-[14px]">Tinted variant.</p></IndexCard>
           </div>
           <div className="mt-6"><NextStepCard id="dev" sentence="Re-check 3 learners on L4" detail="Their latest session differs from earlier evidence." action={<Button variant="sun">Start re-check</Button>} /></div>
+        </S>
+
+        <S title="SkillArt (one per skill, strand and loop stage)">
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-4 lg:grid-cols-6">
+            {['L1', 'L2', 'L3', 'L4', 'L5', 'L6', 'N1', 'N2', 'N3', 'N4', 'N5', 'N6', 'literacy', 'numeracy', 'both', 'assess', 'identify', 'group', 'intervene', 'reassess'].map((k) => (
+              <figure key={k}><SkillArt skill={k} rounded="all" /><figcaption className="mt-1 text-center font-mono text-[11px] text-ink-2">{k}</figcaption></figure>
+            ))}
+          </div>
+        </S>
+
+        <S title="Summary tiles, meta row, art card">
+          <div className="grid gap-6 lg:grid-cols-2">
+            <SummaryTiles items={[{ label: 'Learners', value: 12, tone: 'violet', glyph: 'dots' }, { label: 'Checked', value: '92%', tone: 'aqua', glyph: 'check' }, { label: 'Need a closer look', value: 4, tone: 'tangerine', glyph: 'eye' }]} />
+            <IndexCard interactive art={<SkillArt skill="N4" />}>
+              <h3 className="text-[16px] font-semibold">Subtraction group</h3>
+              <MetaRow className="mt-2" items={[{ label: 'Learners', value: 5 }, { label: 'Skill', value: 'N4' }, { label: 'Practice', value: '60%' }]} />
+            </IndexCard>
+          </div>
         </S>
 
         <S title="Class ladder (click a rung or dot)"><IndexCard><ClassLadderBoard learners={ladderFx} /></IndexCard></S>

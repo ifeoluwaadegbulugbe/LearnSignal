@@ -3,7 +3,7 @@ import Link from 'next/link';
 import { Loader2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
-const TANGERINE = 'bg-tangerine text-white hover:brightness-[.95] shadow-[0_6px_16px_rgba(255,122,47,.28)] hover:-translate-y-px dark:text-[#2A1300]';
+const TANGERINE = 'bg-tangerine text-[#2A1300] hover:brightness-[.95] shadow-[0_6px_16px_rgba(255,122,47,.28)] hover:-translate-y-px';
 const WARN = 'bg-st-notyet-soft text-st-notyet border border-st-notyet/30 hover:brightness-[.97]';
 const variants = {
   primary: 'bg-violet text-white hover:bg-violet-hover hover:-translate-y-px hover:shadow-[0_8px_20px_rgba(91,63,224,.28)] dark:text-[#0C0F1A]',

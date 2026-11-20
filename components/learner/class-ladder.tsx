@@ -34,8 +34,8 @@ export function ClassLadder({ learners, strand, onSelect, interactive = true }: 
     <Tooltip key={l.id} text={`${l.name} · ${l.code}${l.recheck[strand] ? ' · re-check suggested' : ''}`}>
       <button type="button" disabled={!interactive} onClick={() => onSelect?.({ kind: 'learner', id: l.id })}
         className={cn('dot-settle -ml-1.5 rounded-full ring-2 ring-surface first:ml-0 enabled:hover:z-10 enabled:hover:-translate-y-0.5 enabled:transition-transform', l.recheck[strand] && 'outline-2 outline-dashed outline-offset-1 outline-st-notyet')}
-        style={{ animationDelay: `${Math.min(i, 12) * 30}ms` }} aria-label={`${l.name}, learner code ${l.code}`}>
-        <Avatar name={l.name} seed={l.code} size={28} label="" />
+        style={{ animationDelay: `${Math.min(i, 12) * 30}ms` }}>
+        <Avatar name={l.name} seed={l.code} size={28} />
       </button>
     </Tooltip>
   );
@@ -56,9 +56,11 @@ export function ClassLadder({ learners, strand, onSelect, interactive = true }: 
           return (
             <li key={sk.id} className={cn('relative flex min-h-[60px] items-center gap-3 border-b border-line px-4 py-2 last:border-b-0 sm:px-5', i % 2 ? 'bg-surface' : 'bg-surface-2/70')}>
               <button type="button" disabled={!interactive} onClick={() => onSelect?.({ kind: 'rung', skillId: sk.id })}
-                className="flex w-[4.25rem] shrink-0 items-center gap-2 rounded-[10px] py-1 text-left enabled:hover:text-violet-deep sm:w-[10.5rem]" aria-label={`${sk.id} ${sk.name}: ${here.length} learner${here.length === 1 ? '' : 's'} working here`}>
+                className="flex w-[4.25rem] shrink-0 items-center gap-2 rounded-[10px] py-1 text-left enabled:hover:text-violet-deep sm:w-[10.5rem]">
                 <span className="rounded-full bg-violet-soft px-2 py-0.5 font-mono text-[12px] font-medium text-violet-deep dark:text-violet">{sk.id}</span>
                 <span className="hidden truncate text-[14px] font-semibold sm:block">{sk.shortName}</span>
+                <span className="sr-only sm:hidden">{sk.shortName}</span>
+                <span className="sr-only">: {here.length} learner{here.length === 1 ? '' : 's'} working here</span>
               </button>
               <div className="flex min-h-10 flex-1 items-center gap-3">
                 {here.length ? (
@@ -73,7 +75,7 @@ export function ClassLadder({ learners, strand, onSelect, interactive = true }: 
       {unchecked.length > 0 && (
         <p className="mt-3 flex flex-wrap items-center gap-2 text-[12px] text-ink-2">
           Not checked on {strand} yet:
-          <span className="flex opacity-60">{unchecked.slice(0, 12).map((l) => <Avatar key={l.id} name={l.name} seed={l.code} size={24} className="-ml-1.5 ring-2 ring-surface first:ml-0" />)}</span>
+          <span className="flex">{unchecked.slice(0, 12).map((l) => <Avatar key={l.id} name={l.name} seed={l.code} size={24} className="-ml-1.5 ring-2 ring-surface first:ml-0" />)}</span>
           {unchecked.length > 12 && <span>+{unchecked.length - 12}</span>}
         </p>
       )}

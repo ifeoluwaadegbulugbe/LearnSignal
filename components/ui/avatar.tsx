@@ -16,8 +16,7 @@ export const initials = (name: string) => name.trim().split(/\s+/).map((w) => w[
 export function Avatar({ name, seed, size = 40, className, label }: { name: string; seed?: string; size?: 24 | 28 | 32 | 40 | 48 | 64; className?: string; label?: string }) {
   const s = { 24: 'size-6 text-[10px]', 28: 'size-7 text-[11px]', 32: 'size-8 text-[12px]', 40: 'size-10 text-[14px]', 48: 'size-12 text-[16px]', 64: 'size-16 text-[20px]' }[size];
   return (
-    <span className={cn('inline-flex shrink-0 items-center justify-center rounded-full font-semibold', s, hueFor(seed ?? name), className)} role="img"
-      aria-label={label ?? (seed ? `${name}, learner code ${seed}` : name)}>
+    <span className={cn('inline-flex shrink-0 items-center justify-center rounded-full font-semibold', s, hueFor(seed ?? name), className)} {...(label === '' ? { 'aria-hidden': true } : { role: 'img', 'aria-label': label ?? (seed ? `${name}, learner code ${seed}` : name) })}>
       <span aria-hidden>{initials(name)}</span>
     </span>
   );

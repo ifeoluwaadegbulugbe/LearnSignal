@@ -4,6 +4,7 @@ import { useRouter } from 'next/navigation';
 import { Sparkles, Check, X, Send, Pencil, Eye, Volume2, ShieldCheck, Circle, Loader2, AlertTriangle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge, Field, IndexCard, Input, Select } from '@/components/ui/primitives';
+import { SkillArt } from '@/components/ui/skill-art';
 import { SegmentedTabs, Segmented } from '@/components/ui/tabs';
 import { Dialog } from '@/components/ui/dialog';
 import { EmptyState, ErrorPanel } from '@/components/ui/states';
@@ -87,7 +88,7 @@ export function ExerciseLibrary({ exercises, loadError, userId, aiReady, learner
             const mine = ex.created_by === userId;
             return (
               <li key={ex.id}>
-                <IndexCard tab="Set" tabTone={ex.source === 'ai' ? 'sky' : 'teal'} interactive className="h-full">
+                <IndexCard interactive className="h-full" art={<SkillArt skill={ex.skill_id} />}>
                   <div className="flex h-full flex-col">
                     <div className="flex flex-wrap gap-1.5">
                       {ex.source === 'ai' ? <><AiBadge /><ValidatedBadge /></> : <Badge>Built-in</Badge>}

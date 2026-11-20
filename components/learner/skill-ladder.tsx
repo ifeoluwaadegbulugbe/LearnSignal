@@ -43,13 +43,13 @@ export function SkillLadder({ strand, states, evidence = {}, oral = [], compact 
           return (
             <li key={sk.id} className="relative flex min-w-[96px] flex-1 snap-start flex-col items-center text-center md:min-w-0 md:flex-row md:items-center md:gap-3 md:py-1.5 md:text-left">
               {/* connector: horizontal on mobile, vertical on md+ */}
-              {i > 0 && <span aria-hidden className={cn('absolute right-1/2 top-[22px] h-1 w-full -translate-y-1/2 rounded-full md:bottom-[-14px] md:left-[20px] md:right-auto md:top-auto md:h-[calc(100%-16px)] md:w-1 md:translate-y-0', reached || working ? 'bg-teal/50' : 'bg-line')} style={{}} />}
+              {i > 0 && <span aria-hidden className={cn('absolute right-1/2 top-[22px] h-1 w-full -translate-y-1/2 rounded-full md:bottom-[-14px] md:left-[20px] md:right-auto md:top-auto md:h-[calc(100%-16px)] md:w-1 md:translate-y-0', reached || working ? 'bg-violet' : 'bg-line')} style={{}} />}
               <button
                 onClick={() => st && setOpen(sk.id)} disabled={!st}
                 aria-label={`${sk.id} ${sk.name}: ${st ? STATUS[st.state].label : 'not checked yet'}${working ? ', working skill' : ''}`}
                 className={cn('relative z-10 flex size-11 shrink-0 items-center justify-center rounded-full border-2 font-mono text-[12px] transition-transform enabled:hover:scale-105',
                   st ? cn(ui!.cls, ui!.ring) : 'border-dashed border-line-strong bg-card text-ink-3',
-                  working && 'pulse-ring border-sun')}>
+                  working && 'pulse-ring border-tangerine')}>
                 {Icon ? <Icon className="size-4" aria-hidden /> : sk.id}
               </button>
               <span className="mt-2 flex min-w-0 flex-col items-center md:mt-0 md:flex-1 md:items-start">
@@ -57,7 +57,7 @@ export function SkillLadder({ strand, states, evidence = {}, oral = [], compact 
                 <span className="line-clamp-2 px-1 text-[13px] font-medium leading-4 md:px-0">{sk.shortName}</span>
               </span>
               <span className="mt-1.5 flex flex-col items-center gap-1 md:mt-0 md:flex-row md:gap-2">
-                {working && <span className="rounded-t-[8px] rounded-br-[8px] bg-sun px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-[#2A1C00]">Working here</span>}
+                {working && <span className="rounded-full bg-tangerine px-2.5 py-0.5 text-[11px] font-semibold text-[#2A1300]">Working here</span>}
                 {st?.retest_suggested && <span className="inline-flex items-center gap-0.5 text-[11px] font-semibold text-st-notyet"><RotateCcw className="size-3" aria-hidden />retest</span>}
                 {st && <span className="hidden md:inline"><ConfidenceDots confidence={st.confidence} provisional={st.provisional} showLabel={false} /></span>}
               </span>

@@ -35,7 +35,7 @@ export function DistributionChart({ data, title, hideTitle }: { data: DistRow[];
           <p className="sr-only">{summary}</p>
           <div style={{ height }} aria-hidden>
             <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={data} layout="vertical" margin={{ left: 0, right: 8, top: 0, bottom: 0 }} barCategoryGap={10}>
+              <BarChart accessibilityLayer={false} data={data} layout="vertical" margin={{ left: 0, right: 8, top: 0, bottom: 0 }} barCategoryGap={10}>
                 <XAxis type="number" hide allowDecimals={false} />
                 <YAxis type="category" dataKey="name" width={104} axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: 'var(--ink-2)' }} />
                 <Tooltip cursor={{ fill: 'var(--surface-2)' }} contentStyle={{ borderRadius: 14, border: '1px solid var(--line)', background: 'var(--surface)', boxShadow: 'var(--shadow-pop)', fontSize: 12 }} />

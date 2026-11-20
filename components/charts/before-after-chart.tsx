@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { Area, AreaChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
 
 export interface BeforeAfterPoint { label: string; [skill: string]: number | string }
-const COLORS = ['#4F46E5', '#1F8A5B', '#2B6FB3', '#B4690E', '#7B61FF', '#5A6277'];
+const COLORS = ['#5B3FE0', '#12B3A8', '#3D9BFF', '#FF7A2F', '#F06A9B', '#6A7391'];
 
 /** BeforeAfterLine: soft area under each line, tooltip, text summary and table toggle. */
 export function BeforeAfterChart({ data, skills, title }: { data: BeforeAfterPoint[]; skills: { id: string; name: string }[]; title: string }) {
@@ -30,7 +30,7 @@ export function BeforeAfterChart({ data, skills, title }: { data: BeforeAfterPoi
           </ul>
           <div className="h-60" aria-hidden>
             <ResponsiveContainer width="100%" height="100%">
-              <AreaChart data={data} margin={{ left: 0, right: 12, top: 8, bottom: 0 }}>
+              <AreaChart accessibilityLayer={false} data={data} margin={{ left: 0, right: 12, top: 8, bottom: 0 }}>
                 <defs>{skills.map((s, i) => (
                   <linearGradient key={s.id} id={`ba-${s.id}`} x1="0" y1="0" x2="0" y2="1">
                     <stop offset="0%" stopColor={COLORS[i % COLORS.length]} stopOpacity={0.18} /><stop offset="100%" stopColor={COLORS[i % COLORS.length]} stopOpacity={0} />

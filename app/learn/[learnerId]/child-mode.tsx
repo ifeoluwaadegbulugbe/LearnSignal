@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Field, Input } from '@/components/ui/primitives';
 import { Illustration } from '@/components/ui/illustration';
 import { Counters } from '@/components/child/counters';
+import { SkillArt } from '@/components/ui/skill-art';
 import { speak } from '@/components/child/speak';
 import { checkPracticeAnswer, getAssignmentForChild, submitAttempt, verifyTeacherExit, type ChildItem } from '@/lib/actions/intervention';
 import { cn } from '@/lib/utils';
@@ -18,8 +19,7 @@ const ACTIVITY: Record<string, { name: string; icon: typeof BookOpen }> = {
   N1: { name: 'Finding numbers', icon: Hash }, N2: { name: 'Counting', icon: Shapes }, N3: { name: 'Adding numbers', icon: Plus },
   N4: { name: 'Taking away numbers', icon: Minus }, N5: { name: 'Tens and ones', icon: Calculator }, N6: { name: 'Number stories', icon: BookOpen },
 };
-const CARD_TINT = ['bg-teal-soft', 'bg-sun-soft', 'bg-sky-soft'];
-const TILE_TINT = ['bg-teal-soft', 'bg-sun-soft', 'bg-sky-soft', 'bg-clay-soft'];
+const TILE_TINT = ['bg-violet-soft', 'bg-aqua-soft', 'bg-tangerine-soft', 'bg-sky-soft'];
 const YES = ['Nice!', 'You got it!', 'Good thinking!', 'Well done!'];
 const AGAIN = ["Let's try again!", 'Have another go!', 'Nearly. Try again!'];
 
@@ -29,7 +29,7 @@ type Rec = { index: number; firstValue: string | number; tries: number };
 /** Big pill with a 4px "press edge" that compresses on tap. */
 function ChildButton({ children, className, ...p }: React.ButtonHTMLAttributes<HTMLButtonElement>) {
   return (
-    <button {...p} className={cn('inline-flex min-h-16 items-center justify-center gap-2 rounded-full bg-teal px-8 text-[24px] font-extrabold text-white shadow-[0_4px_0_var(--teal-ink)] transition-[transform,box-shadow] active:translate-y-1 active:shadow-none disabled:opacity-50 dark:text-[#06222A]', className)}>{children}</button>
+    <button {...p} className={cn('inline-flex min-h-16 items-center justify-center gap-2 rounded-full bg-teal px-8 text-[24px] font-extrabold text-white shadow-[0_4px_0_var(--violet-deep)] transition-[transform,box-shadow] active:translate-y-1 active:shadow-none disabled:opacity-50 dark:text-[#06222A]', className)}>{children}</button>
   );
 }
 
@@ -38,7 +38,7 @@ function Stones({ total, filled, current, label }: { total: number; filled: numb
   return (
     <ol className="flex flex-wrap items-center gap-2" aria-label={label}>
       {Array.from({ length: total }).map((_, i) => (
-        <li key={i} aria-hidden className={cn('h-4 w-7 rounded-[50%] border-2 transition-colors', i < filled ? 'border-teal bg-teal' : i === current ? 'border-sun bg-sun-soft' : 'border-line-strong bg-card')} />
+        <li key={i} aria-hidden className={cn('h-4 w-7 rounded-[50%] border-2 transition-colors', i < filled ? 'border-violet bg-violet' : i === current ? 'border-tangerine bg-tangerine-soft' : 'border-line-strong bg-surface-2')} />
       ))}
     </ol>
   );
@@ -105,8 +105,8 @@ export function ChildMode({ learner, cards, doneThisWeek, isDemo }: { learner: {
 
   return (
     <div className="relative min-h-dvh overflow-hidden bg-paper font-[family-name:var(--font-child)] text-[24px] text-ink">
-      <div aria-hidden className="pointer-events-none absolute -right-40 -top-40 size-[520px] rounded-full bg-sun-soft opacity-80 blur-3xl" />
-      <div aria-hidden className="pointer-events-none absolute -bottom-48 -left-40 size-[480px] rounded-full bg-teal-soft opacity-70 blur-3xl" />
+      <div aria-hidden className="pointer-events-none absolute -right-40 -top-40 size-[520px] rounded-full bg-sunshine-soft opacity-90 blur-3xl" />
+      <div aria-hidden className="pointer-events-none absolute -bottom-48 -left-40 size-[480px] rounded-full bg-violet-soft opacity-80 blur-3xl" />
 
       <header className="relative flex items-center justify-between px-4 py-4 sm:px-6">
         <button onClick={() => (isDemo ? doExit() : setExit({ ...exit, open: true }))} className="inline-flex min-h-11 items-center gap-2 rounded-full border border-line bg-card px-4 font-sans text-[14px] font-semibold text-ink-2" aria-label="Teacher exit (needs the teacher's password)">
@@ -127,13 +127,15 @@ export function ChildMode({ learner, cards, doneThisWeek, isDemo }: { learner: {
               <>
                 <h1 className="mt-6 text-[36px] font-extrabold leading-[44px]">Today&apos;s practice</h1>
                 <div className="mt-6 space-y-5">
-                  {cards.map((c, i) => {
+                  {cards.map((c) => {
                     const a = ACTIVITY[c.skillId] ?? { name: 'Practice', icon: BookOpen };
                     return (
-                      <div key={c.id} className={cn('flex flex-col gap-5 rounded-[28px] p-6 shadow-card sm:flex-row sm:items-center', CARD_TINT[i % 3])}>
-                        <span className="flex size-20 shrink-0 items-center justify-center rounded-[20px] bg-card text-teal"><a.icon className="size-10" strokeWidth={2} aria-hidden /></span>
-                        <div className="flex-1"><p className="text-[30px] font-extrabold leading-9">{a.name}</p><p className="text-[22px] text-ink-2">{c.count} questions</p></div>
-                        <ChildButton onClick={() => open(c.id, c.skillId)}>Let&apos;s go <ArrowRight className="size-7" aria-hidden /></ChildButton>
+                      <div key={c.id} className="overflow-hidden rounded-[28px] border border-line bg-surface shadow-card">
+                        <SkillArt skill={c.skillId} className="h-28 rounded-none" rounded="none" />
+                        <div className="flex flex-col gap-5 p-6 sm:flex-row sm:items-center">
+                          <div className="flex-1"><p className="text-[30px] font-extrabold leading-9">{a.name}</p><p className="text-[22px] text-ink-2">{c.count} questions</p></div>
+                          <ChildButton onClick={() => open(c.id, c.skillId)}>Let&apos;s go <ArrowRight className="size-7" aria-hidden /></ChildButton>
+                        </div>
                       </div>
                     );
                   })}
@@ -167,7 +169,7 @@ export function ChildMode({ learner, cards, doneThisWeek, isDemo }: { learner: {
               {pic && <Counters picture={pic} className="mb-5" />}
               <div className="flex items-start justify-between gap-4">
                 <h1 className="break-words text-[36px] font-extrabold leading-[46px] sm:text-[44px] sm:leading-[54px]">{item.type === 'listen_choose' ? 'Listen and tap.' : stemText}</h1>
-                <button onClick={() => speak(item.audioText ?? item.stem)} aria-label="Hear it" className="flex size-16 shrink-0 items-center justify-center rounded-full bg-sun text-[#2A1C00] shadow-[0_4px_0_#C98A00] active:translate-y-1 active:shadow-none"><Volume2 className="size-8" aria-hidden /></button>
+                <button onClick={() => speak(item.audioText ?? item.stem)} aria-label="Hear it" className="flex size-16 shrink-0 items-center justify-center rounded-full bg-violet text-white shadow-[0_4px_0_var(--violet-deep)] active:translate-y-1 active:shadow-none"><Volume2 className="size-8" aria-hidden /></button>
               </div>
 
               {item.options ? (
@@ -222,7 +224,7 @@ export function ChildMode({ learner, cards, doneThisWeek, isDemo }: { learner: {
             <p className="mt-4 text-[24px] text-ink-2">You&apos;re getting stronger at {(ACTIVITY[view.skillId]?.name ?? 'this').toLowerCase()}.</p>
             <div className="mt-8 flex flex-wrap justify-center gap-4">
               {remaining.length > 1 && <ChildButton onClick={() => { setView({ kind: 'home' }); router.refresh(); }}>Next practice <ArrowRight className="size-7" aria-hidden /></ChildButton>}
-              <ChildButton className="bg-card text-ink shadow-[0_4px_0_var(--line-strong)]" onClick={() => { setView({ kind: 'home' }); router.refresh(); }}>Finish</ChildButton>
+              <ChildButton className="bg-surface text-ink shadow-[0_4px_0_var(--line-strong)]" onClick={() => { setView({ kind: 'home' }); router.refresh(); }}>Finish</ChildButton>
             </div>
           </div>
         )}
